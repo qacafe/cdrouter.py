@@ -17,7 +17,7 @@ class Auth(requests.auth.AuthBase):
 
 class Service:
     BASE = '/api/v1'
-    
+
     def __init__(self, base, token, insecure=False):
         self.base = base.rstrip('/')+self.BASE
         self.token = token
