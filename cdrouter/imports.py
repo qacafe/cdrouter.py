@@ -5,7 +5,7 @@
 
 import os.path
 
-class Imports:
+class Imports(object):
     RESOURCE = 'imports'
     BASE = '/' + RESOURCE + '/'
 
@@ -17,13 +17,16 @@ class Imports:
         return self.service.list(self.base)
 
     def stage_import_from_file(self, filepath):
-        return self.service._post(self.base, files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
+        return self.service._post(self.base,
+                                  files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
 
     def stage_import_from_filesystem(self, filepath):
-        return self.service._post(self.base, params={'path': filepath})
+        return self.service._post(self.base,
+                                  params={'path': filepath})
 
     def stage_import_from_url(self, url, token=None, insecure=False):
-        return self.service._post(self.base, params={'url': url, 'token': token, 'insecure': insecure})
+        return self.service._post(self.base,
+                                  params={'url': url, 'token': token, 'insecure': insecure})
 
     def get(self, id):
         return self.service.get(self.base, id)

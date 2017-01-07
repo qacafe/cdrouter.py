@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Annotations:
+class Annotations(object):
     RESOURCE = 'annotations'
     BASE = '/' + RESOURCE + '/'
 
@@ -12,7 +12,7 @@ class Annotations:
         self.base = '/results/'+str(id)+'/tests/'+str(seq)+self.BASE
 
     def list(self):
-        return self.service.list(self.base, filter, sort, limit, page)
+        return self.service.list(self.base)
 
     def get(self, line):
         return self.service.get(self.base, line)

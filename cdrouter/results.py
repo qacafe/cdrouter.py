@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Results:
+class Results(object):
     RESOURCE = 'results'
     BASE = '/' + RESOURCE + '/'
 
@@ -72,7 +72,7 @@ class Results:
         return self.service._post(self.base, params={'stats': 'all'})
 
     def set_stats(self, ids):
-        return self.service._post(self.base, params={'stats': 'set'}, json=map(lambda x: {'id': str(x)}, ids))
+        return self.service._post(self.base, params={'stats': 'set'}, json=[{'id': str(x)} for x in ids])
 
     def single_stats(self, id):
         return self.service._get(self.base+str(id)+'/', params={'stats': 'all'})
@@ -83,11 +83,12 @@ class Results:
     def get_logdir_file(self, id, filename):
         return self.service._get(self.base+str(id)+'/logdir/'+filename+'/')
 
-    def download_logdir_archive(self, id, format='zip', exclude_captures=False):
+    def download_logdir_archive(self, id, filename, format='zip', exclude_captures=False):
         return self.service._get(self.base+str(id)+'/logdir/'+filename+'/', params={'format': format, 'exclude_captures': exclude_captures})
 
     def get_test_metric(self, id, name, metric, format=None):
-        return self.service._get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/', params={'format': format})
+        return self.service._get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/',
+                                 params={'format': format})
 
     def get_test_metric_csv(self, id, name, metric):
-        return self.get_test_metric_csv(id, name, metric, format='csv')
+        return self.get_test_metric(id, name, metric, format='csv')

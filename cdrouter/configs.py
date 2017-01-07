@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Configs:
+class Configs(object):
     RESOURCE = 'configs'
     BASE = '/' + RESOURCE + '/'
 
@@ -42,13 +42,16 @@ class Configs:
         return self.service.export(self.base, id)
 
     def check_config(self, contents):
-        return self.service._post(self.base, params={'process': 'check'}, json={'contents': contents})
+        return self.service._post(self.base,
+                                  params={'process': 'check'}, json={'contents': contents})
 
     def upgrade_config(self, contents):
-        return self.service._post(self.base, params={'process': 'upgrade'}, json={'contents': contents})
+        return self.service._post(self.base,
+                                  params={'process': 'upgrade'}, json={'contents': contents})
 
     def get_networks(self, contents):
-        return self.service._post(self.base, params={'process': 'networks'}, json={'contents': contents})
+        return self.service._post(self.base,
+                                  params={'process': 'networks'}, json={'contents': contents})
 
     def bulk_export(self, ids):
         return self.service.bulk_export(self.base, ids)

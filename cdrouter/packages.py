@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Packages:
+class Packages(object):
     RESOURCE = 'packages'
     BASE = '/' + RESOURCE + '/'
 
@@ -42,7 +42,8 @@ class Packages:
         return self.service.bulk_copy(self.base, self.RESOURCE, ids)
 
     def bulk_edit(self, fields, ids=None, filter=None, all=False):
-        return self.service.bulk_edit(self.base, self.RESOURCE, fields, ids=ids, filter=filter, all=all)
+        return self.service.bulk_edit(self.base, self.RESOURCE,
+                                      fields, ids=ids, filter=filter, all=all)
 
     def bulk_delete(self, ids=None, filter=None, all=False):
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, all=all)

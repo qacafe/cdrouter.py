@@ -23,7 +23,7 @@ from .tags import Tags
 from .testsuites import Testsuites
 from .users import Users
 
-class Auth(requests.auth.AuthBase):
+class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
     def __init__(self, token):
         self.token = token
 
@@ -31,7 +31,7 @@ class Auth(requests.auth.AuthBase):
         r.headers['authorization'] = 'Bearer ' + self.token
         return r
 
-class Service:
+class Service(object):
     BASE = '/api/v1'
 
     def __init__(self, base, token, insecure=False):
@@ -44,28 +44,35 @@ class Service:
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     # base request methods
-    def _req(self, path, method='GET', json=None, data=None, params={}, headers={}, files={}):
+    def _req(self, path, method='GET', json=None, data=None, params=None, headers=None, files=None):
+        if params is None:
+            params = {}
+        if headers is None:
+            headers = {}
+        if files is None:
+            files = {}
         headers.update({'user-agent': 'cdrouter.py https://github.com/qacafe/cdrouter.py'})
         return requests.request(method, self.base+path, params=params, headers=headers, files=files,
                                 json=json, data=data, verify=(not self.insecure), auth=Auth(self.token))
 
-    def _get(self, path, params={}):
+    def _get(self, path, params=None):
         return self._req(path, method='GET', params=params)
 
-    def _post(self, path, json=None, data=None, params={}, files={}):
+    def _post(self, path, json=None, data=None, params=None, files=None):
         return self._req(path, method='POST', json=json, data=data, params=params, files=files)
 
     def _patch(self, path, json):
         return self._req(path, method='PATCH', json=json)
 
-    def _delete(self, path, params={}):
+    def _delete(self, path, params=None):
         return self._req(path, method='DELETE', params=params)
 
     # cdrouter-specific request methods
     def list(self, base, filter=None, sort=None, limit=None, page=None, format=None):
-        return self._get(base, params={'filter': filter, 'sort': sort, 'limit': limit, 'page': page, 'format': format})
+        return self._get(base, params={'filter': filter, 'sort': sort, 'limit':
+                                       limit, 'page': page, 'format': format})
 
-    def get(self, base, id, params={}):
+    def get(self, base, id, params=None):
         return self._get(base+str(id)+'/', params=params)
 
     def create(self, base, resource):
@@ -83,31 +90,34 @@ class Service:
     def edit_shares(self, base, id, user_ids):
         return self._patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
 
-    def export(self, base, id, format='gz', params={}):
+    def export(self, base, id, format='gz', params=None):
         params.update({'format': format})
         return self._get(base+str(id)+'/', params=params)
 
-    def bulk_export(self, base, ids, params={}):
+    def bulk_export(self, base, ids, params=None):
+        if params is None:
+            params = {}
         params.update({'bulk': 'export', 'ids': map(str, ids)})
         return self._get(base, params=params)
 
     def bulk_copy(self, base, resource, ids):
-        return self._post(base, params={'bulk': 'copy'}, json={resource: map(lambda x: {'id': str(x)}, ids)})
+        return self._post(base, params={'bulk': 'copy'},
+                          json={resource: [{'id': str(x)} for x in ids]})
 
     def bulk_edit(self, base, resource, fields, ids=None, filter=None, all=False, testvars=None):
-        json = None
+        json = {'fields': fields}
         if ids != None or testvars != None:
-            json = {}
             if ids != None:
-                json['resource'] = map(lambda x: {'id': str(x)}, ids)
+                json[resource] = [{'id': str(x)} for x in ids]
             if testvars != None:
                 json['testvars'] = testvars
 
         return self._post(base, params={'bulk': 'edit', 'filter': filter, 'all': all}, json=json)
 
     def bulk_delete(self, base, resource, ids=None, filter=None, all=False):
-        json=None
-        if ids != None: json={resource: map(lambda x: {'id': str(x)}, ids)}
+        json = None
+        if ids != None:
+            json = {resource: [{'id': str(x)} for x in ids]}
         return self._post(base, params={'bulk': 'delete', 'filter': filter, 'all': all}, json=json)
 
     # resource service methods

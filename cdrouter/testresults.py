@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class TestResults:
+class TestResults(object):
     RESOURCE = 'tests'
     BASE = '/' + RESOURCE + '/'
 
@@ -24,8 +24,9 @@ class TestResults:
         return self.service.edit(self.base, resource['seq'], resource)
 
     def get_log(self, seq, offset=None, limit=None, filter=None, packets=None, timestamp_offset=None, format=None):
-        return self.service._get(self.base+str(seq)+'/log/', params={'offset': offset, 'limit': limit, 'filter': filter, 'packets':
-                                                                     packets, 'timestamp_offset': timestamp_offset, 'format': format})
+        return self.service._get(self.base+str(seq)+'/log/',
+                                 params={'offset': offset, 'limit': limit, 'filter': filter, 'packets':
+                                         packets, 'timestamp_offset': timestamp_offset, 'format': format})
 
     def get_log_plaintext(self, seq):
         return self.get_log(seq, format='text')

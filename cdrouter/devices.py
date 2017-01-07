@@ -5,7 +5,7 @@
 
 import os.path
 
-class Devices:
+class Devices(object):
     RESOURCE = 'devices'
     BASE = '/' + RESOURCE + '/'
 
@@ -44,10 +44,12 @@ class Devices:
         return self.service.bulk_copy(self.base, self.RESOURCE, ids)
 
     def bulk_edit(self, fields, ids=None, filter=None, all=False):
-        return self.service.bulk_edit(self.base, self.RESOURCE, fields, ids=ids, filter=filter, all=all)
+        return self.service.bulk_edit(self.base, self.RESOURCE, fields, ids=ids,
+                                      filter=filter, all=all)
 
     def bulk_delete(self, ids=None, filter=None, all=False):
-        return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, all=all)
+        return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids,
+                                        filter=filter, all=all)
 
     def list_attachments(self, id, filter=None, sort=None, limit=None, page=None):
         return self.service.list(self.base+str(id)+'/attachments/', filter, sort, limit, page)
@@ -56,13 +58,16 @@ class Devices:
         return self.service._get(self.base+str(id)+'/attachments/'+str(attid)+'/')
 
     def create_attachment(self, id, filepath):
-        return self.service._post(self.base+str(id)+'/attachments/'+str(attid)+'/', files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
+        return self.service._post(self.base+str(id)+'/attachments/',
+                                  files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
 
     def download_attachment(self, id, attid):
-        return self.service._get(self.base+str(id)+'/attachments/'+str(attid)+'/', params={'format': 'download'})
+        return self.service._get(self.base+str(id)+'/attachments/'+str(attid)+'/',
+                                 params={'format': 'download'})
 
     def download_thumbnail(self, id, attid, size=None):
-        return self.service._get(self.base+str(id)+'/attachments/'+str(attid)+'/', params={'format': 'thumbnail', 'size': size})
+        return self.service._get(self.base+str(id)+'/attachments/'+str(attid)+'/',
+                                 params={'format': 'thumbnail', 'size': size})
 
     def edit_attachment(self, id, attid, resource):
         return self.service._patch(self.base+str(id)+'/attachments/'+str(attid)+'/', json=resource)

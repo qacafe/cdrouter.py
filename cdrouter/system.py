@@ -5,7 +5,7 @@
 
 import os.path
 
-class System:
+class System(object):
     RESOURCE = 'system'
     BASE = '/' + RESOURCE + '/'
 
@@ -17,13 +17,16 @@ class System:
         return self.service._get(self.base+'lounge/latest/')
 
     def check_for_lounge_upgrade(self, email, password):
-        return self.service._post(self.base+'lounge/check/', json={'email': email, 'password': password})
+        return self.service._post(self.base+'lounge/check/',
+                                  json={'email': email, 'password': password})
 
     def lounge_upgrade(self, email, password, release_id):
-        return self.service._post(self.base+'lounge/upgrade/', json={'email': email, 'password': password, 'release': { 'id': int(release_id) } })
+        return self.service._post(self.base+'lounge/upgrade/',
+                                  json={'email': email, 'password': password, 'release': {'id': int(release_id)}})
 
     def manual_upgrade(self, filepath):
-        return self.service._post(self.base+'upgrade/', files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
+        return self.service._post(self.base+'upgrade/',
+                                  files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
 
     def restart(self):
         return self.service._post(self.base+'restart/')

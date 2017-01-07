@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Testsuites:
+class Testsuites(object):
     RESOURCE = 'testsuites'
     BASE = '/' + RESOURCE + '/1/'
 

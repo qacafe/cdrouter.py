@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Tags:
+class Tags(object):
     RESOURCE = 'tags'
     BASE = '/' + RESOURCE + '/'
 

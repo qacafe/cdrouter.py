@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class History:
+class History(object):
     RESOURCE = 'history'
     BASE = '/' + RESOURCE + '/'
 

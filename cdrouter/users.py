@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Users:
+class Users(object):
     RESOURCE = 'users'
     BASE = '/' + RESOURCE + '/'
 
@@ -24,7 +24,8 @@ class Users:
         return self.service.edit(self.base, resource['id'], resource)
 
     def change_password(self, id, new, old=None, change_token=True):
-        return self.service._post(self.base+str(id)+'/password/', params={'change_token', change_token},
+        return self.service._post(self.base+str(id)+'/password/',
+                                  params={'change_token', change_token},
                                   json={'old': old, 'new': new, 'new_confirm': new})
 
     def change_token(self, id):

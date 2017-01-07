@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Jobs:
+class Jobs(object):
     RESOURCE = 'jobs'
     BASE = '/' + RESOURCE + '/'
 
@@ -23,6 +23,7 @@ class Jobs:
     def delete(self, id):
         return self.service.delete(self.base, id)
 
+    @staticmethod
     def package_id(id):
         if isinstance(id, (str, int)):
             return {'package_id': str(id)}
@@ -31,7 +32,7 @@ class Jobs:
     def bulk_launch(self, package_ids=None, filter=None, all=False):
         json = None
         if package_ids != None:
-            json = {self.RESOURCE: map(self.package_id, package_ids)}
+            json = {self.RESOURCE: map(Jobs.package_id, package_ids)}
         return self.service._post(self.base, params={'bulk': 'launch', 'filter': filter, 'all': all}, json=json)
 
     def bulk_delete(self, ids=None, filter=None, all=False):

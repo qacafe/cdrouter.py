@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Highlights:
+class Highlights(object):
     RESOURCE = 'highlights'
     BASE = '/' + RESOURCE + '/'
 
@@ -12,7 +12,7 @@ class Highlights:
         self.base = '/results/'+str(id)+'/tests/'+str(seq)+self.BASE
 
     def list(self):
-        return self.service.list(self.base, filter, sort, limit, page)
+        return self.service.list(self.base, filter)
 
     def get(self, line):
         return self.service.get(self.base, line)
