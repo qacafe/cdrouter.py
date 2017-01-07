@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class History(object):
+class HistoryService(object):
     RESOURCE = 'history'
     BASE = '/' + RESOURCE + '/'
 
@@ -11,5 +11,5 @@ class History(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, sort=None, limit=None, page=None):
+    def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base, filter, sort, limit, page)

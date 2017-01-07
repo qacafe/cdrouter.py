@@ -3,30 +3,32 @@
 # All Rights Reserved.
 #
 
-class TestResults(object):
+class TestResultsService(object):
     RESOURCE = 'tests'
     BASE = '/' + RESOURCE + '/'
 
-    def __init__(self, service, id):
+    def __init__(self, service):
         self.service = service
-        self.base = '/results/'+str(id)+self.BASE
 
-    def list(self, filter=None, sort=None, limit=None, page=None):
-        return self.service.list(self.base, filter, sort, limit, page)
+    def _base(self, id): # pylint: disable=invalid-name,redefined-builtin
+        return '/results/'+str(id)+self.BASE
 
-    def list_csv(self, filter=None, sort=None, limit=None, page=None):
-        return self.service.list(self.base, filter, sort, limit, page, format='csv')
+    def list(self, id, filter=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
+        return self.service.list(self._base(id), filter, sort, limit, page)
 
-    def get(self, seq):
-        return self.service.get(self.base, seq)
+    def list_csv(self, id, filter=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
+        return self.service.list(self._base(id), filter, sort, limit, page, format='csv')
 
-    def edit(self, resource):
-        return self.service.edit(self.base, resource['seq'], resource)
+    def get(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
+        return self.service.get(self._base(id), seq)
 
-    def get_log(self, seq, offset=None, limit=None, filter=None, packets=None, timestamp_offset=None, format=None):
-        return self.service._get(self.base+str(seq)+'/log/',
+    def edit(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
+        return self.service.edit(self._base(id), resource['seq'], resource)
+
+    def get_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, timestamp_offset=None, format=None): # pylint: disable=invalid-name,redefined-builtin
+        return self.service._get(self._base(id)+str(seq)+'/log/',
                                  params={'offset': offset, 'limit': limit, 'filter': filter, 'packets':
                                          packets, 'timestamp_offset': timestamp_offset, 'format': format})
 
-    def get_log_plaintext(self, seq):
-        return self.get_log(seq, format='text')
+    def get_log_plaintext(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
+        return self.get_log(id, seq, format='text')

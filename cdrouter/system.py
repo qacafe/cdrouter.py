@@ -5,7 +5,7 @@
 
 import os.path
 
-class System(object):
+class SystemService(object):
     RESOURCE = 'system'
     BASE = '/' + RESOURCE + '/'
 

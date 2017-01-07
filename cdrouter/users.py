@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Users(object):
+class UsersService(object):
     RESOURCE = 'users'
     BASE = '/' + RESOURCE + '/'
 
@@ -11,10 +11,10 @@ class Users(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, sort=None, limit=None, page=None):
+    def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base, filter, sort, limit, page)
 
-    def get(self, id):
+    def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.get(self.base, id)
 
     def create(self, resource):
@@ -23,22 +23,22 @@ class Users(object):
     def edit(self, resource):
         return self.service.edit(self.base, resource['id'], resource)
 
-    def change_password(self, id, new, old=None, change_token=True):
+    def change_password(self, id, new, old=None, change_token=True): # pylint: disable=invalid-name,redefined-builtin
         return self.service._post(self.base+str(id)+'/password/',
                                   params={'change_token', change_token},
                                   json={'old': old, 'new': new, 'new_confirm': new})
 
-    def change_token(self, id):
+    def change_token(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service._post(self.base+str(id)+'/token/')
 
-    def delete(self, id):
+    def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.delete(self.base, id)
 
     def bulk_copy(self, ids):
         return self.service.bulk_copy(self.base, self.RESOURCE, ids)
 
-    def bulk_edit(self, fields, ids=None, filter=None, all=False):
+    def bulk_edit(self, fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         return self.service.bulk_edit(self.base, self.RESOURCE, fields, ids=ids, filter=filter, all=all)
 
-    def bulk_delete(self, ids=None, filter=None, all=False):
+    def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, all=all)

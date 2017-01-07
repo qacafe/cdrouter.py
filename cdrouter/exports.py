@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Exports(object):
+class ExportsService(object):
     RESOURCE = 'exports'
     BASE = '/' + RESOURCE + '/'
 

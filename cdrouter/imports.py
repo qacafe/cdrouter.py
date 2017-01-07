@@ -5,7 +5,7 @@
 
 import os.path
 
-class Imports(object):
+class ImportsService(object):
     RESOURCE = 'imports'
     BASE = '/' + RESOURCE + '/'
 
@@ -28,14 +28,14 @@ class Imports(object):
         return self.service._post(self.base,
                                   params={'url': url, 'token': token, 'insecure': insecure})
 
-    def get(self, id):
+    def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.get(self.base, id)
 
-    def get_commit_request(self, id):
+    def get_commit_request(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service._get(self.base+str(id)+'/request/')
 
-    def commit(self, id, commit_request):
+    def commit(self, id, commit_request): # pylint: disable=invalid-name,redefined-builtin
         return self.service._post(self.base+str(id)+'/commit/', json=commit_request)
 
-    def delete(self, id):
+    def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.delete(self.base, id)

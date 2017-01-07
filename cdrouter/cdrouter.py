@@ -6,22 +6,22 @@
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-from .configs import Configs
-from .devices import Devices
-from .jobs import Jobs
-from .packages import Packages
-from .results import Results
-from .testresults import TestResults
-from .annotations import Annotations
-from .captures import Captures
-from .highlights import Highlights
-from .imports import Imports
-from .exports import Exports
-from .history import History
-from .system import System
-from .tags import Tags
-from .testsuites import Testsuites
-from .users import Users
+from .configs import ConfigsService
+from .devices import DevicesService
+from .jobs import JobsService
+from .packages import PackagesService
+from .results import ResultsService
+from .testresults import TestResultsService
+from .annotations import AnnotationsService
+from .captures import CapturesService
+from .highlights import HighlightsService
+from .imports import ImportsService
+from .exports import ExportsService
+from .history import HistoryService
+from .system import SystemService
+from .tags import TagsService
+from .testsuites import TestsuitesService
+from .users import UsersService
 
 class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
     def __init__(self, token):
@@ -68,29 +68,29 @@ class Service(object):
         return self._req(path, method='DELETE', params=params)
 
     # cdrouter-specific request methods
-    def list(self, base, filter=None, sort=None, limit=None, page=None, format=None):
+    def list(self, base, filter=None, sort=None, limit=None, page=None, format=None): # pylint: disable=redefined-builtin
         return self._get(base, params={'filter': filter, 'sort': sort, 'limit':
                                        limit, 'page': page, 'format': format})
 
-    def get(self, base, id, params=None):
+    def get(self, base, id, params=None): # pylint: disable=invalid-name,redefined-builtin
         return self._get(base+str(id)+'/', params=params)
 
     def create(self, base, resource):
         return self._post(base, json=resource)
 
-    def edit(self, base, id, resource):
+    def edit(self, base, id, resource): # pylint: disable=invalid-name,redefined-builtin
         return self._patch(base+str(id)+'/', json=resource)
 
-    def delete(self, base, id):
+    def delete(self, base, id): # pylint: disable=invalid-name,redefined-builtin
         return self._delete(base+str(id)+'/')
 
-    def get_shares(self, base, id):
+    def get_shares(self, base, id): # pylint: disable=invalid-name,redefined-builtin
         return self._get(base+str(id)+'/shares/')
 
-    def edit_shares(self, base, id, user_ids):
+    def edit_shares(self, base, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         return self._patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
 
-    def export(self, base, id, format='gz', params=None):
+    def export(self, base, id, format='gz', params=None): # pylint: disable=invalid-name,redefined-builtin
         params.update({'format': format})
         return self._get(base+str(id)+'/', params=params)
 
@@ -104,7 +104,7 @@ class Service(object):
         return self._post(base, params={'bulk': 'copy'},
                           json={resource: [{'id': str(x)} for x in ids]})
 
-    def bulk_edit(self, base, resource, fields, ids=None, filter=None, all=False, testvars=None):
+    def bulk_edit(self, base, resource, fields, ids=None, filter=None, all=False, testvars=None): # pylint: disable=redefined-builtin
         json = {'fields': fields}
         if ids != None or testvars != None:
             if ids != None:
@@ -114,7 +114,7 @@ class Service(object):
 
         return self._post(base, params={'bulk': 'edit', 'filter': filter, 'all': all}, json=json)
 
-    def bulk_delete(self, base, resource, ids=None, filter=None, all=False):
+    def bulk_delete(self, base, resource, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         json = None
         if ids != None:
             json = {resource: [{'id': str(x)} for x in ids]}
@@ -122,49 +122,49 @@ class Service(object):
 
     # resource service methods
     def configs(self):
-        return Configs(self)
+        return ConfigsService(self)
 
     def devices(self):
-        return Devices(self)
+        return DevicesService(self)
 
     def jobs(self):
-        return Jobs(self)
+        return JobsService(self)
 
     def packages(self):
-        return Packages(self)
+        return PackagesService(self)
 
     def results(self):
-        return Results(self)
+        return ResultsService(self)
 
-    def tests(self, id):
-        return TestResults(self, id)
+    def tests(self):
+        return TestResultsService(self)
 
-    def annotations(self, id, seq):
-        return Annotations(self, id, seq)
+    def annotations(self):
+        return AnnotationsService(self)
 
-    def captures(self, id, seq):
-        return Captures(self, id, seq)
+    def captures(self):
+        return CapturesService(self)
 
-    def highlights(self, id, seq):
-        return Highlights(self, id, seq)
+    def highlights(self):
+        return HighlightsService(self)
 
     def imports(self):
-        return Imports(self)
+        return ImportsService(self)
 
     def exports(self):
-        return Exports(self)
+        return ExportsService(self)
 
     def history(self):
-        return History(self)
+        return HistoryService(self)
 
     def system(self):
-        return System(self)
+        return SystemService(self)
 
     def tags(self):
-        return Tags(self)
+        return TagsService(self)
 
     def testsuites(self):
-        return Testsuites(self)
+        return TestsuitesService(self)
 
     def users(self):
-        return Users(self)
+        return UsersService(self)

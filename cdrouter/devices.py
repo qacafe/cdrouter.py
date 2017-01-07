@@ -3,9 +3,7 @@
 # All Rights Reserved.
 #
 
-import os.path
-
-class Devices(object):
+class DevicesService(object):
     RESOURCE = 'devices'
     BASE = '/' + RESOURCE + '/'
 
@@ -13,10 +11,10 @@ class Devices(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, sort=None, limit=None, page=None):
+    def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base, filter, sort, limit, page)
 
-    def get(self, id):
+    def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.get(self.base, id)
 
     def create(self, resource):
@@ -25,16 +23,16 @@ class Devices(object):
     def edit(self, resource):
         return self.service.edit(self.base, resource['id'], resource)
 
-    def delete(self, id):
+    def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.delete(self.base, id)
 
-    def get_shares(self, id):
+    def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.shares(self.base, id)
 
-    def edit_shares(self, id, user_ids):
+    def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         return self.service.edit_shares(self.base, id, user_ids)
 
-    def export(self, id):
+    def export(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.export(self.base, id)
 
     def bulk_export(self, ids):
@@ -43,34 +41,10 @@ class Devices(object):
     def bulk_copy(self, ids):
         return self.service.bulk_copy(self.base, self.RESOURCE, ids)
 
-    def bulk_edit(self, fields, ids=None, filter=None, all=False):
+    def bulk_edit(self, fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         return self.service.bulk_edit(self.base, self.RESOURCE, fields, ids=ids,
                                       filter=filter, all=all)
 
-    def bulk_delete(self, ids=None, filter=None, all=False):
+    def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids,
                                         filter=filter, all=all)
-
-    def list_attachments(self, id, filter=None, sort=None, limit=None, page=None):
-        return self.service.list(self.base+str(id)+'/attachments/', filter, sort, limit, page)
-
-    def get_attachment(self, id, attid):
-        return self.service._get(self.base+str(id)+'/attachments/'+str(attid)+'/')
-
-    def create_attachment(self, id, filepath):
-        return self.service._post(self.base+str(id)+'/attachments/',
-                                  files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
-
-    def download_attachment(self, id, attid):
-        return self.service._get(self.base+str(id)+'/attachments/'+str(attid)+'/',
-                                 params={'format': 'download'})
-
-    def download_thumbnail(self, id, attid, size=None):
-        return self.service._get(self.base+str(id)+'/attachments/'+str(attid)+'/',
-                                 params={'format': 'thumbnail', 'size': size})
-
-    def edit_attachment(self, id, attid, resource):
-        return self.service._patch(self.base+str(id)+'/attachments/'+str(attid)+'/', json=resource)
-
-    def delete_attachment(self, id, attid):
-        return self.service._delete(self.base+str(id)+'/attachments/'+str(attid)+'/')

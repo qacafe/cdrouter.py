@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Configs(object):
+class ConfigsService(object):
     RESOURCE = 'configs'
     BASE = '/' + RESOURCE + '/'
 
@@ -11,16 +11,16 @@ class Configs(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, sort=None, limit=None, page=None):
+    def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base, filter, sort, limit, page)
 
     def get_new(self):
         return self.service._get(self.base, params={'template': 'default'})
 
-    def get(self, id, format=None):
+    def get(self, id, format=None): # pylint: disable=invalid-name,redefined-builtin
         return self.service.get(self.base, id, params={'format': format})
 
-    def get_plaintext(self, id):
+    def get_plaintext(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.get(id, format='text')
 
     def create(self, resource):
@@ -29,16 +29,16 @@ class Configs(object):
     def edit(self, resource):
         return self.service.edit(self.base, resource['id'], resource)
 
-    def delete(self, id):
+    def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.delete(self.base, id)
 
-    def get_shares(self, id):
+    def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.shares(self.base, id)
 
-    def edit_shares(self, id, user_ids):
+    def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         return self.service.edit_shares(self.base, id, user_ids)
 
-    def export(self, id):
+    def export(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.export(self.base, id)
 
     def check_config(self, contents):
@@ -59,23 +59,23 @@ class Configs(object):
     def bulk_copy(self, ids):
         return self.service.bulk_copy(self.base, self.RESOURCE, ids)
 
-    def bulk_edit(self, fields, ids=None, filter=None, all=False, testvars=None):
+    def bulk_edit(self, fields, ids=None, filter=None, all=False, testvars=None): # pylint: disable=redefined-builtin
         return self.service.bulk_edit(self.base, self.RESOURCE, fields, ids=ids, filter=filter, all=all, testvars=testvars)
 
-    def bulk_delete(self, ids=None, filter=None, all=False):
+    def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, all=all)
 
-    def list_testvars(self, id):
+    def list_testvars(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service._get(self.base+str(id)+'/testvars/')
 
-    def get_testvar(self, id, name, group=None):
+    def get_testvar(self, id, name, group=None): # pylint: disable=invalid-name,redefined-builtin
         return self.service._get(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
 
-    def edit_testvar(self, id, name, value, group=None):
+    def edit_testvar(self, id, name, value, group=None): # pylint: disable=invalid-name,redefined-builtin
         return self.service._patch(self.base+str(id)+'/testvars/'+name+'/', params={'group': group}, json={'value': value})
 
-    def delete_testvar(self, id, name, group=None):
+    def delete_testvar(self, id, name, group=None): # pylint: disable=invalid-name,redefined-builtin
         return self.service._delete(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
 
-    def bulk_edit_testvars(self, id, testvars):
+    def bulk_edit_testvars(self, id, testvars): # pylint: disable=invalid-name,redefined-builtin
         return self.service._post(self.base+str(id)+'/testvars/', params={'bulk': 'edit'}, json=testvars)

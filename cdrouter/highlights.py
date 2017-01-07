@@ -3,22 +3,24 @@
 # All Rights Reserved.
 #
 
-class Highlights(object):
+class HighlightsService(object):
     RESOURCE = 'highlights'
     BASE = '/' + RESOURCE + '/'
 
-    def __init__(self, service, id, seq):
+    def __init__(self, service):
         self.service = service
-        self.base = '/results/'+str(id)+'/tests/'+str(seq)+self.BASE
 
-    def list(self):
-        return self.service.list(self.base, filter)
+    def _base(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
+        return '/results/'+str(id)+'/tests/'+str(seq)+self.BASE
 
-    def get(self, line):
-        return self.service.get(self.base, line)
+    def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
+        return self.service.list(self._base(id, seq), filter)
 
-    def create_or_edit(self, resource):
-        return self.service.edit(self.base, resource['line'], resource)
+    def get(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
+        return self.service.get(self._base(id, seq), line)
 
-    def delete(self, line):
-        return self.service.delete(self.base, line)
+    def create_or_edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
+        return self.service.edit(self._base(id, seq), resource['line'], resource)
+
+    def delete(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
+        return self.service.delete(self._base(id, seq), line)

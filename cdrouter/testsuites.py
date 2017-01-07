@@ -3,7 +3,7 @@
 # All Rights Reserved.
 #
 
-class Testsuites(object):
+class TestsuitesService(object):
     RESOURCE = 'testsuites'
     BASE = '/' + RESOURCE + '/1/'
 
@@ -17,37 +17,37 @@ class Testsuites(object):
     def search(self, query):
         return self.service._get(self.base+'search/', params={'q': query})
 
-    def list_groups(self, filter=None, sort=None):
+    def list_groups(self, filter=None, sort=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base+'groups/', filter, sort)
 
     def get_group(self, name):
         return self.service._get(self.base+'groups/'+name+'/')
 
-    def list_modules(self, filter=None, sort=None):
+    def list_modules(self, filter=None, sort=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base+'modules/', filter, sort)
 
     def get_module(self, name):
         return self.service._get(self.base+'modules/'+name+'/')
 
-    def list_tests(self, filter=None, sort=None):
+    def list_tests(self, filter=None, sort=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base+'tests/', filter, sort)
 
     def get_test(self, name):
         return self.service._get(self.base+'tests/'+name+'/')
 
-    def list_labels(self, filter=None, sort=None):
+    def list_labels(self, filter=None, sort=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base+'labels/', filter, sort)
 
     def get_label(self, name):
         return self.service._get(self.base+'labels/'+name+'/')
 
-    def list_errors(self, filter=None, sort=None):
+    def list_errors(self, filter=None, sort=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base+'errors/', filter, sort)
 
     def get_error(self, name):
         return self.service._get(self.base+'errors/'+name+'/')
 
-    def list_testvars(self, filter=None, sort=None):
+    def list_testvars(self, filter=None, sort=None): # pylint: disable=redefined-builtin
         return self.service.list(self.base+'testvars/', filter, sort)
 
     def get_testvar(self, name):
