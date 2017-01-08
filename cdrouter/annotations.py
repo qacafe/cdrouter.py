@@ -17,10 +17,10 @@ class AnnotationsService(object):
         return self.service.list(self._base(id, seq))
 
     def get(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self._base(id, seq), line)
+        return self.service.get_id(self._base(id, seq), line)
 
     def create_or_edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
         return self.service.edit(self._base(id, seq), resource['line'], resource)
 
     def delete(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.delete(self._base(id, seq), line)
+        return self.service.delete_id(self._base(id, seq), line)

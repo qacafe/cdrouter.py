@@ -19,17 +19,17 @@ class AttachmentsService(object):
         return self.service.list(self._base(id), filter, sort, limit, page)
 
     def get(self, id, attid): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self._base(id), attid)
+        return self.service.get_id(self._base(id), attid)
 
     def create(self, id, filepath): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._post(self._base(id),
-                                  files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
+        return self.service.post(self._base(id),
+                                 files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
 
     def download(self, id, attid): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self._base(id), attid, params={'format': 'download'})
+        return self.service.get_id(self._base(id), attid, params={'format': 'download'})
 
     def thumbnail(self, id, attid, size=None): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self._base(id), attid, params={'format': 'thumbnail', 'size': size})
+        return self.service.get_id(self._base(id), attid, params={'format': 'thumbnail', 'size': size})
 
     def edit(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
         return self.service.edit(self._base(id), resource['id'], resource)

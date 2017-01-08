@@ -27,4 +27,4 @@ class ExportsService(object):
             'results': map(int, result_ids),
             'options': {'exclude_captures': exclude_captures}
         }
-        return self.service._post(self.base, json=json)
+        return self.service.post(self.base, json=json)

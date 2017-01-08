@@ -15,10 +15,10 @@ class ConfigsService(object):
         return self.service.list(self.base, filter, sort, limit, page)
 
     def get_new(self):
-        return self.service._get(self.base, params={'template': 'default'})
+        return self.service.get(self.base, params={'template': 'default'})
 
     def get(self, id, format=None): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self.base, id, params={'format': format})
+        return self.service.get_id(self.base, id, params={'format': format})
 
     def get_plaintext(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.get(id, format='text')
@@ -30,7 +30,7 @@ class ConfigsService(object):
         return self.service.edit(self.base, resource['id'], resource)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.delete(self.base, id)
+        return self.service.delete_id(self.base, id)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.shares(self.base, id)
@@ -42,16 +42,16 @@ class ConfigsService(object):
         return self.service.export(self.base, id)
 
     def check_config(self, contents):
-        return self.service._post(self.base,
-                                  params={'process': 'check'}, json={'contents': contents})
+        return self.service.post(self.base,
+                                 params={'process': 'check'}, json={'contents': contents})
 
     def upgrade_config(self, contents):
-        return self.service._post(self.base,
-                                  params={'process': 'upgrade'}, json={'contents': contents})
+        return self.service.post(self.base,
+                                 params={'process': 'upgrade'}, json={'contents': contents})
 
     def get_networks(self, contents):
-        return self.service._post(self.base,
-                                  params={'process': 'networks'}, json={'contents': contents})
+        return self.service.post(self.base,
+                                 params={'process': 'networks'}, json={'contents': contents})
 
     def bulk_export(self, ids):
         return self.service.bulk_export(self.base, ids)
@@ -66,16 +66,16 @@ class ConfigsService(object):
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, all=all)
 
     def list_testvars(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._get(self.base+str(id)+'/testvars/')
+        return self.service.get(self.base+str(id)+'/testvars/')
 
     def get_testvar(self, id, name, group=None): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._get(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
+        return self.service.get(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
 
     def edit_testvar(self, id, name, value, group=None): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._patch(self.base+str(id)+'/testvars/'+name+'/', params={'group': group}, json={'value': value})
+        return self.service.patch(self.base+str(id)+'/testvars/'+name+'/', params={'group': group}, json={'value': value})
 
     def delete_testvar(self, id, name, group=None): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._delete(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
+        return self.service.delete(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
 
     def bulk_edit_testvars(self, id, testvars): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._post(self.base+str(id)+'/testvars/', params={'bulk': 'edit'}, json=testvars)
+        return self.service.post(self.base+str(id)+'/testvars/', params={'bulk': 'edit'}, json=testvars)

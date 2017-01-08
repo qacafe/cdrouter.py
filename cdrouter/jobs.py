@@ -15,13 +15,13 @@ class JobsService(object):
         return self.service.list(self.base, filter, sort, limit, page)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self.base, id)
+        return self.service.get_id(self.base, id)
 
     def launch(self, resource):
         return self.service.create(self.base, resource)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.delete(self.base, id)
+        return self.service.delete_id(self.base, id)
 
     @staticmethod
     def package_id(id): # pylint: disable=invalid-name,redefined-builtin
@@ -33,7 +33,7 @@ class JobsService(object):
         json = None
         if package_ids != None:
             json = {self.RESOURCE: map(self.package_id, package_ids)}
-        return self.service._post(self.base, params={'bulk': 'launch', 'filter': filter, 'all': all}, json=json)
+        return self.service.post(self.base, params={'bulk': 'launch', 'filter': filter, 'all': all}, json=json)
 
     def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, all=all)

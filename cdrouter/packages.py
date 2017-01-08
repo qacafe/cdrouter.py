@@ -15,7 +15,7 @@ class PackagesService(object):
         return self.service.list(self.base, filter, sort, limit, page)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self.base, id)
+        return self.service.get_id(self.base, id)
 
     def create(self, resource):
         return self.service.create(self.base, resource)
@@ -24,7 +24,7 @@ class PackagesService(object):
         return self.service.edit(self.base, resource['id'], resource)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.delete(self.base, id)
+        return self.service.delete_id(self.base, id)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         return self.service.shares(self.base, id)

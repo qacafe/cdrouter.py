@@ -20,15 +20,15 @@ class TestResultsService(object):
         return self.service.list(self._base(id), filter, sort, limit, page, format='csv')
 
     def get(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self._base(id), seq)
+        return self.service.get_id(self._base(id), seq)
 
     def edit(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
         return self.service.edit(self._base(id), resource['seq'], resource)
 
     def get_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, timestamp_offset=None, format=None): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._get(self._base(id)+str(seq)+'/log/',
-                                 params={'offset': offset, 'limit': limit, 'filter': filter, 'packets':
-                                         packets, 'timestamp_offset': timestamp_offset, 'format': format})
+        return self.service.get(self._base(id)+str(seq)+'/log/',
+                                params={'offset': offset, 'limit': limit, 'filter': filter, 'packets':
+                                        packets, 'timestamp_offset': timestamp_offset, 'format': format})
 
     def get_log_plaintext(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         return self.get_log(id, seq, format='text')

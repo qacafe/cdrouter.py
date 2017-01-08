@@ -55,54 +55,54 @@ class Service(object):
         return requests.request(method, self.base+path, params=params, headers=headers, files=files,
                                 json=json, data=data, verify=(not self.insecure), auth=Auth(self.token))
 
-    def _get(self, path, params=None):
+    def get(self, path, params=None):
         return self._req(path, method='GET', params=params)
 
-    def _post(self, path, json=None, data=None, params=None, files=None):
+    def post(self, path, json=None, data=None, params=None, files=None):
         return self._req(path, method='POST', json=json, data=data, params=params, files=files)
 
-    def _patch(self, path, json):
+    def patch(self, path, json):
         return self._req(path, method='PATCH', json=json)
 
-    def _delete(self, path, params=None):
+    def delete(self, path, params=None):
         return self._req(path, method='DELETE', params=params)
 
     # cdrouter-specific request methods
     def list(self, base, filter=None, sort=None, limit=None, page=None, format=None): # pylint: disable=redefined-builtin
-        return self._get(base, params={'filter': filter, 'sort': sort, 'limit':
-                                       limit, 'page': page, 'format': format})
+        return self.get(base, params={'filter': filter, 'sort': sort, 'limit': limit,
+                                      'page': page, 'format': format})
 
-    def get(self, base, id, params=None): # pylint: disable=invalid-name,redefined-builtin
-        return self._get(base+str(id)+'/', params=params)
+    def get_id(self, base, id, params=None): # pylint: disable=invalid-name,redefined-builtin
+        return self.get(base+str(id)+'/', params=params)
 
     def create(self, base, resource):
-        return self._post(base, json=resource)
+        return self.post(base, json=resource)
 
     def edit(self, base, id, resource): # pylint: disable=invalid-name,redefined-builtin
-        return self._patch(base+str(id)+'/', json=resource)
+        return self.patch(base+str(id)+'/', json=resource)
 
-    def delete(self, base, id): # pylint: disable=invalid-name,redefined-builtin
-        return self._delete(base+str(id)+'/')
+    def delete_id(self, base, id): # pylint: disable=invalid-name,redefined-builtin
+        return self.delete(base+str(id)+'/')
 
     def get_shares(self, base, id): # pylint: disable=invalid-name,redefined-builtin
-        return self._get(base+str(id)+'/shares/')
+        return self.get(base+str(id)+'/shares/')
 
     def edit_shares(self, base, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
-        return self._patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
+        return self.patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
 
     def export(self, base, id, format='gz', params=None): # pylint: disable=invalid-name,redefined-builtin
         params.update({'format': format})
-        return self._get(base+str(id)+'/', params=params)
+        return self.get(base+str(id)+'/', params=params)
 
     def bulk_export(self, base, ids, params=None):
         if params is None:
             params = {}
         params.update({'bulk': 'export', 'ids': map(str, ids)})
-        return self._get(base, params=params)
+        return self.get(base, params=params)
 
     def bulk_copy(self, base, resource, ids):
-        return self._post(base, params={'bulk': 'copy'},
-                          json={resource: [{'id': str(x)} for x in ids]})
+        return self.post(base, params={'bulk': 'copy'},
+                         json={resource: [{'id': str(x)} for x in ids]})
 
     def bulk_edit(self, base, resource, fields, ids=None, filter=None, all=False, testvars=None): # pylint: disable=redefined-builtin
         json = {'fields': fields}
@@ -112,13 +112,13 @@ class Service(object):
             if testvars != None:
                 json['testvars'] = testvars
 
-        return self._post(base, params={'bulk': 'edit', 'filter': filter, 'all': all}, json=json)
+        return self.post(base, params={'bulk': 'edit', 'filter': filter, 'all': all}, json=json)
 
     def bulk_delete(self, base, resource, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         json = None
         if ids != None:
             json = {resource: [{'id': str(x)} for x in ids]}
-        return self._post(base, params={'bulk': 'delete', 'filter': filter, 'all': all}, json=json)
+        return self.post(base, params={'bulk': 'delete', 'filter': filter, 'all': all}, json=json)
 
     # resource service methods
     def configs(self):

@@ -15,7 +15,7 @@ class UsersService(object):
         return self.service.list(self.base, filter, sort, limit, page)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.get(self.base, id)
+        return self.service.get_id(self.base, id)
 
     def create(self, resource):
         return self.service.create(self.base, resource)
@@ -24,15 +24,15 @@ class UsersService(object):
         return self.service.edit(self.base, resource['id'], resource)
 
     def change_password(self, id, new, old=None, change_token=True): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._post(self.base+str(id)+'/password/',
+        return self.service.post(self.base+str(id)+'/password/',
                                   params={'change_token', change_token},
                                   json={'old': old, 'new': new, 'new_confirm': new})
 
     def change_token(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service._post(self.base+str(id)+'/token/')
+        return self.service.post(self.base+str(id)+'/token/')
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return self.service.delete(self.base, id)
+        return self.service.delete_id(self.base, id)
 
     def bulk_copy(self, ids):
         return self.service.bulk_copy(self.base, self.RESOURCE, ids)
