@@ -24,6 +24,7 @@ Usage
     import cdrouter
 
     service = cdrouter.Service('http://localhost:8015', token='deadbeef')
+    packages = cdrouter.PackagesService(service)
 
-    print service.packages().list(filters=['name~'], page=2).json()
-    print service.packages().get(164).json()
+    print packages.list(filter=['name~'], page=2).json()
+    print packages.get(164).json()
