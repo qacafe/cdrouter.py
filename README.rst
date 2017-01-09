@@ -18,20 +18,6 @@ cdrouter is available on PyPI.
 
     $ pip install cdrouter
 
-
-Usage
-=====
-
-.. code-block:: python
-
-    import cdrouter
-
-    service = cdrouter.Service('http://localhost:8015', token='deadbeef')
-    packages = cdrouter.PackagesService(service)
-
-    print packages.list(filter=['name~gateway'], page=2).json()
-    print packages.get(164).json()
-
 Documentation
 =============
 

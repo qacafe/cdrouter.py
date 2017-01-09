@@ -23,8 +23,21 @@ Usage
 
     import cdrouter
 
-    service = cdrouter.Service('http://localhost:8015', token='deadbeef')
-    packages = cdrouter.PackagesService(service)
+    s = cdrouter.Service('http://localhost:8015', token='deadbeef')
+    
+    for p in s.packages.list(filter=['tags@>{demo}'], limit='none').json()['data']:
+        print 'Launching package ' + p['name']
 
-    print packages.list(filter=['name~gateway'], page=2).json()
-    print packages.get(164).json()
+        resp = s.jobs.launch({'package_id': p['id'], 'extra_cli_args': '-testvar myvar=example'})
+        job_id = resp.json()['data']['id']
+
+        result_id = '0'
+        while result_id == '0':
+            resp = s.jobs.get(job_id)
+            if 'result_id' in resp.json()['data']:
+                result_id = resp.json()['data']['result_id']
+            time.sleep(1)
+
+        print '    Result-ID: ' + result_id
+
+    print 'done.'

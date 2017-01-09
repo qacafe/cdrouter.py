@@ -46,6 +46,24 @@ class Service(object):
             # disable annoying InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+        # resource-specific services
+        self.configs = ConfigsService(self)
+        self.devices = DevicesService(self)
+        self.jobs = JobsService(self)
+        self.packages = PackagesService(self)
+        self.results = ResultsService(self)
+        self.tests = TestResultsService(self)
+        self.annotations = AnnotationsService(self)
+        self.captures = CapturesService(self)
+        self.highlights = HighlightsService(self)
+        self.imports = ImportsService(self)
+        self.exports = ExportsService(self)
+        self.history = HistoryService(self)
+        self.system = SystemService(self)
+        self.tags = TagsService(self)
+        self.testsuites = TestsuitesService(self)
+        self.users = UsersService(self)
+
     # base request methods
     def _req(self, path, method='GET', json=None, data=None, params=None, headers=None, files=None):
         if params is None:
@@ -138,52 +156,3 @@ class Service(object):
         if ids != None:
             json = {resource: [{'id': str(x)} for x in ids]}
         return self.post(base, params={'bulk': 'delete', 'filter': filter, 'all': all}, json=json)
-
-    # resource service methods
-    def configs(self):
-        return ConfigsService(self)
-
-    def devices(self):
-        return DevicesService(self)
-
-    def jobs(self):
-        return JobsService(self)
-
-    def packages(self):
-        return PackagesService(self)
-
-    def results(self):
-        return ResultsService(self)
-
-    def tests(self):
-        return TestResultsService(self)
-
-    def annotations(self):
-        return AnnotationsService(self)
-
-    def captures(self):
-        return CapturesService(self)
-
-    def highlights(self):
-        return HighlightsService(self)
-
-    def imports(self):
-        return ImportsService(self)
-
-    def exports(self):
-        return ExportsService(self)
-
-    def history(self):
-        return HistoryService(self)
-
-    def system(self):
-        return SystemService(self)
-
-    def tags(self):
-        return TagsService(self)
-
-    def testsuites(self):
-        return TestsuitesService(self)
-
-    def users(self):
-        return UsersService(self)
