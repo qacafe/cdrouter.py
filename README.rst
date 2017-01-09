@@ -1,6 +1,9 @@
 cdrouter
 ========
 
+.. image:: https://img.shields.io/pypi/v/cdrouter.svg
+    :target: https://pypi.python.org/pypi/cdrouter
+
 Simple wrapper for the CDRouter Web
 API. https://support.qacafe.com/cdrouter-web-api/
 
@@ -28,3 +31,8 @@ Usage
 
     print packages.list(filter=['name~'], page=2).json()
     print packages.get(164).json()
+
+Documentation
+=============
+
+See http://cdrouterpy.readthedocs.io/.
