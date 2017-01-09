@@ -3,7 +3,11 @@
 # All Rights Reserved.
 #
 
+"""Module for accessing CDRouter History."""
+
 class HistoryService(object):
+    """Service for accessing CDRouter History."""
+
     RESOURCE = 'history'
     BASE = '/' + RESOURCE + '/'
 
@@ -12,4 +16,5 @@ class HistoryService(object):
         self.base = self.BASE
 
     def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+        """Get a list of history entries."""
         return self.service.list(self.base, filter, sort, limit, page)

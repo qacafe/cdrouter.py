@@ -16,8 +16,7 @@ class ConfigsService(object):
         self.base = self.BASE
 
     def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
-        """Get a list of configs.
-        """
+        """Get a list of configs."""
         return self.service.list(self.base, filter, sort, limit, page)
 
     def get_new(self):

@@ -3,7 +3,11 @@
 # All Rights Reserved.
 #
 
+"""Module for accessing CDRouter Exports."""
+
 class ExportsService(object):
+    """Service for accessing CDRouter Exports."""
+
     RESOURCE = 'exports'
     BASE = '/' + RESOURCE + '/'
 
@@ -12,6 +16,7 @@ class ExportsService(object):
         self.base = self.BASE
 
     def bulk_export(self, config_ids=None, device_ids=None, package_ids=None, result_ids=None, exclude_captures=False):
+        """Bulk export a set of configs, devices, packages and results."""
         if config_ids is None:
             config_ids = []
         if device_ids is None:
