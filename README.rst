@@ -4,7 +4,7 @@ cdrouter
 .. image:: https://img.shields.io/pypi/v/cdrouter.svg
     :target: https://pypi.python.org/pypi/cdrouter
 
-Simple wrapper for the CDRouter Web
+Simple Python wrapper for the CDRouter Web
 API. https://support.qacafe.com/cdrouter-web-api/
 
 For more information on CDRouter, please visit http://www.qacafe.com/.

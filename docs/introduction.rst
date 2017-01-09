@@ -1,7 +1,7 @@
 Introduction
 ============
 
-cdrouter is a simple wrapper for the CDRouter Web
+cdrouter is a simple Python wrapper for the CDRouter Web
 API. https://support.qacafe.com/cdrouter-web-api/
 
 For more information on CDRouter, please visit http://www.qacafe.com/.
