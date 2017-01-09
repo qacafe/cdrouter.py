@@ -29,7 +29,7 @@ Usage
     service = cdrouter.Service('http://localhost:8015', token='deadbeef')
     packages = cdrouter.PackagesService(service)
 
-    print packages.list(filter=['name~'], page=2).json()
+    print packages.list(filter=['name~gateway'], page=2).json()
     print packages.get(164).json()
 
 Documentation
