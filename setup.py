@@ -6,15 +6,20 @@
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
+import sys
 
 here = path.abspath(path.dirname(__file__))
+
+sys.path.insert(0, here)
+
+import cdrouter
 
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='cdrouter',
-    version='0.0.3',
+    version=cdrouter.__version__,
     description='Python client for the CDRouter Web API',
     long_description=long_description,
     url='https://github.com/qacafe/cdrouter.py',
