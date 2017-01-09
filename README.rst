@@ -16,7 +16,7 @@ cdrouter is available on PyPI.
 
 .. code-block:: bash
 
-    $ pip install cdrouter
+    $ pip install -U cdrouter
 
 Documentation
 =============
