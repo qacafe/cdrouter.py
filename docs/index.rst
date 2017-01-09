@@ -11,56 +11,57 @@ Welcome to cdrouter.py's documentation!
    :caption: Contents:
 
 .. automodule:: cdrouter
+   :members:
 
 .. autoclass:: cdrouter.Service
    :members:
 
-.. autoclass:: cdrouter.Configs
+.. autoclass:: cdrouter.ConfigsService
    :members:
 
-.. autoclass:: cdrouter.Devices
+.. autoclass:: cdrouter.DevicesService
    :members:
 
-.. autoclass:: cdrouter.Jobs
+.. autoclass:: cdrouter.JobsService
    :members:
 
-.. autoclass:: cdrouter.Packages
+.. autoclass:: cdrouter.PackagesService
    :members:
 
-.. autoclass:: cdrouter.Results
+.. autoclass:: cdrouter.ResultsService
    :members:
 
-.. autoclass:: cdrouter.TestResults
+.. autoclass:: cdrouter.TestResultsService
    :members:
 
-.. autoclass:: cdrouter.Annotations
+.. autoclass:: cdrouter.AnnotationsService
    :members:
 
-.. autoclass:: cdrouter.Captures
+.. autoclass:: cdrouter.CapturesService
    :members:
 
-.. autoclass:: cdrouter.Highlights
+.. autoclass:: cdrouter.HighlightsService
    :members:
 
-.. autoclass:: cdrouter.Imports
+.. autoclass:: cdrouter.ImportsService
    :members:
 
-.. autoclass:: cdrouter.Exports
+.. autoclass:: cdrouter.ExportsService
    :members:
 
-.. autoclass:: cdrouter.History
+.. autoclass:: cdrouter.HistoryService
    :members:
 
-.. autoclass:: cdrouter.System
+.. autoclass:: cdrouter.SystemService
    :members:
 
-.. autoclass:: cdrouter.Tags
+.. autoclass:: cdrouter.TagsService
    :members:
 
-.. autoclass:: cdrouter.Testsuites
+.. autoclass:: cdrouter.TestsuitesService
    :members:
 
-.. autoclass:: cdrouter.Users
+.. autoclass:: cdrouter.UsersService
    :members:
 
 
