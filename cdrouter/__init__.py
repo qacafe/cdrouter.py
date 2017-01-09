@@ -3,6 +3,8 @@
 # All Rights Reserved.
 #
 
+"""Python client for the CDRouter Web API."""
+
 from .cdrouter import Service
 
 from .configs import ConfigsService
