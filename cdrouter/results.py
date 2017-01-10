@@ -5,6 +5,92 @@
 
 """Module for accessing CDRouter Results."""
 
+from marshmallow import Schema, fields, post_load
+
+class Options(object):
+    def __init__(self, **kwargs):
+        self.tags = kwargs.get('tags', None)
+        self.skip_tests = kwargs.get('skip_tests', None)
+        self.begin_at = kwargs.get('begin_at', None)
+        self.end_at = kwargs.get('end_at', None)
+        self.extra_cli_args = kwargs.get('extra_cli_args', None)
+
+class OptionsSchema(Schema):
+    tags = fields.List(fields.Str(), missing=None)
+    skip_tests = fields.List(fields.Str(), missing=None)
+    begin_at = fields.Str()
+    end_at = fields.Str()
+    extra_cli_args = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return Options(**data)
+
+class Result(object):
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id', None)
+        self.created = kwargs.get('created', None)
+        self.updated = kwargs.get('updated', None)
+        self.result = kwargs.get('result', None)
+        self.status = kwargs.get('status', None)
+        self.loops = kwargs.get('loops', None)
+        self.tests = kwargs.get('tests', None)
+        self._pass = kwargs.get('pass', None)
+        self.fail = kwargs.get('fail', None)
+        self.duration = kwargs.get('duration', None)
+        self.size_on_disk = kwargs.get('size_on_disk', None)
+        self.starred = kwargs.get('starred', None)
+        self.archived = kwargs.get('archived', None)
+        self.result_dir = kwargs.get('result_dir', None)
+        self.agent_name = kwargs.get('agent_name', None)
+        self.package_name = kwargs.get('package_name', None)
+        self.device_name = kwargs.get('device_name', None)
+        self.config_name = kwargs.get('config_name', None)
+        self.package_id = kwargs.get('package_id', None)
+        self.device_id = kwargs.get('device_id', None)
+        self.config_id = kwargs.get('config_id', None)
+        self.user_id = kwargs.get('user_id', None)
+        self.note = kwargs.get('note', None)
+        self.pause_message = kwargs.get('pause_message', None)
+        self.build_info = kwargs.get('build_info', None)
+        self.tags = kwargs.get('tags', None)
+        self.testcases = kwargs.get('testcases', None)
+        self.options = kwargs.get('options', None)
+
+class ResultSchema(Schema):
+    id = fields.Str()
+    created = fields.Date()
+    updated = fields.Date()
+    result = fields.Str()
+    status = fields.Str()
+    loops = fields.Int()
+    tests = fields.Int()
+    _pass = fields.Int(attribute='pass', load_from='pass', dump_to='pass')
+    fail = fields.Int()
+    duration = fields.Int()
+    size_on_disk = fields.Int()
+    starred = fields.Bool()
+    archived = fields.Bool()
+    result_dir = fields.Str()
+    agent_name = fields.Str()
+    package_name = fields.Str()
+    device_name = fields.Str()
+    config_name = fields.Str()
+    package_id = fields.Str()
+    device_id = fields.Str()
+    config_id = fields.Str()
+    user_id = fields.Str()
+    note = fields.Str()
+    pause_message = fields.Str(missing=None)
+    build_info = fields.Str()
+    tags = fields.List(fields.Str())
+    testcases = fields.List(fields.Str())
+    options = fields.Nested(OptionsSchema)
+
+    @post_load
+    def post_load(self, data):
+        return Result(**data)
+
 class ResultsService(object):
     """Service for accessing CDRouter Results."""
 
@@ -17,7 +103,9 @@ class ResultsService(object):
 
     def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of results."""
-        return self.service.list(self.base, filter, sort, limit, page)
+        schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info'))
+        resp = self.service.list(self.base, filter, sort, limit, page)
+        return self.service.decode(schema, resp, many=True)
 
     def list_csv(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of results as CSV."""
@@ -25,7 +113,9 @@ class ResultsService(object):
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a result."""
-        return self.service.get_id(self.base, id)
+        schema = ResultSchema()
+        resp = self.service.get_id(self.base, id)
+        return self.service.decode(schema, resp)
 
     def stop(self, id, when=None): # pylint: disable=invalid-name,redefined-builtin
         """Stop a running result."""
@@ -57,7 +147,9 @@ class ResultsService(object):
 
     def edit(self, resource):
         """Edit a result."""
-        return self.service.edit(self.base, resource['id'], resource)
+        schema = ResultSchema()
+        resp = self.service.edit(self.base, resource['id'], resource)
+        return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a result."""

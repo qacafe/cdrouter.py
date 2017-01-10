@@ -71,7 +71,7 @@ class FieldSchema(Schema):
     size = fields.Str()
     pos = fields.Str()
     show = fields.Str()
-    _fields = fields.Nested('self', load_from='fields', dump_to='fields', many=True)
+    _fields = fields.Nested('self', attribute='fields', load_from='fields', dump_to='fields', many=True)
     protos = fields.Nested('ProtoSchema', many=True)
 
     @post_load
@@ -96,7 +96,7 @@ class ProtoSchema(Schema):
     show_name = fields.Str()
     value = fields.Str()
     size = fields.Str()
-    # _fields = fields.Nested(FieldSchema, load_from='fields', dump_to='fields', many=True)
+    # _fields = fields.Nested(FieldSchema, attribute='fields', load_from='fields', dump_to='fields', many=True)
     # protos = fields.Nested('self', many=True)
 
     @post_load
