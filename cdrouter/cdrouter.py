@@ -156,3 +156,17 @@ class Service(object):
         if ids != None:
             json = {resource: [{'id': str(x)} for x in ids]}
         return self.post(base, params={'bulk': 'delete', 'filter': filter, 'all': all}, json=json)
+
+    def decode(self, schema, resp, many=None):
+        resp.raise_for_status()
+        json = resp.json()
+        if 'error' in json:
+            raise BaseException(json['error'])
+        if 'data' not in json:
+            raise BaseException('no data field in JSON response!')
+        result = schema.load(json['data'], many=many)
+        return result.data
+
+    def encode(self, schema, resource, many=None):
+        result = schema.dump(resource, many=many)
+        return result.data
