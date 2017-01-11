@@ -140,9 +140,9 @@ class DevicesService(object):
         schema = DeviceSchema()
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
-    def bulk_edit(self, fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_edit(self, _fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk edit a set of devices."""
-        return self.service.bulk_edit(self.base, self.RESOURCE, fields, ids=ids,
+        return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids,
                                       filter=filter, all=all)
 
     def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin

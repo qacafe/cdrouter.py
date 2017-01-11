@@ -6,6 +6,24 @@
 """Module for accessing CDRouter Packages."""
 
 from marshmallow import Schema, fields, post_load
+from testsuites import TestSchema
+
+class Analyze(object):
+    def __init__(self, **kwargs):
+        self.total_count = kwargs.get('total_count', None)
+        self.run_count = kwargs.get('run_count', None)
+        self.skipped_count = kwargs.get('skipped_count', None)
+        self.skipped_tests = kwargs.get('skipped_tests', None)
+
+class AnalyzeSchema(Schema):
+    total_count = fields.Int()
+    run_count = fields.Int()
+    skipped_count = fields.Int()
+    skipped_tests = fields.Nested(TestSchema, many=True)
+
+    @post_load
+    def post_load(self, data):
+        return Analyze(**data)
 
 class Options(object):
     def __init__(self, **kwargs):
@@ -141,7 +159,9 @@ class PackagesService(object):
 
     def analyze(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of tests that will be skipped for a package."""
-        return self.service.post(self.base+str(id)+'/', params={'process': 'analyze'})
+        schema = AnalyzeSchema()
+        resp = self.service.post(self.base+str(id)+'/', params={'process': 'analyze'})
+        return self.service.decode(schema, resp)
 
     def bulk_export(self, ids):
         """Bulk export a set of packages."""
@@ -152,10 +172,10 @@ class PackagesService(object):
         schema = PackageSchema()
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
-    def bulk_edit(self, fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_edit(self, _fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk edit a set of packages."""
         return self.service.bulk_edit(self.base, self.RESOURCE,
-                                      fields, ids=ids, filter=filter, all=all)
+                                      _fields, ids=ids, filter=filter, all=all)
 
     def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of packages."""

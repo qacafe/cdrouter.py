@@ -176,9 +176,9 @@ class ResultsService(object):
         schema = ResultSchema()
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
-    def bulk_edit(self, fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_edit(self, _fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk edit a set of results."""
-        return self.service.bulk_edit(self.base, self.RESOURCE, fields, ids=ids, filter=filter, all=all)
+        return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, all=all)
 
     def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of results."""

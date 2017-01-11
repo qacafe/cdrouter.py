@@ -66,6 +66,9 @@ class Test(object):
         self.aliases = kwargs.get('aliases', None)
         self.testvars = kwargs.get('testvars', None)
 
+        self.skip_name = kwargs.get('skip_name', None)
+        self.skip_reason = kwargs.get('skip_reason', None)
+
 class TestSchema(Schema):
     id = fields.Int(missing=None)
     name = fields.Str()
@@ -77,6 +80,9 @@ class TestSchema(Schema):
     labels = fields.List(fields.Str())
     aliases = fields.List(fields.Str())
     testvars = fields.List(fields.Str())
+
+    skip_name = fields.Str(missing=None)
+    skip_reason = fields.Str(missing=None)
 
     @post_load
     def post_load(self, data):
@@ -221,13 +227,13 @@ class TestsuitesService(object):
 
     def list_tests(self, filter=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of tests."""
-        schema = TestSchema(exclude=('description', 'labels', 'testvars'))
+        schema = TestSchema(exclude=('description', 'labels', 'testvars', 'skip_name', 'skip_reason'))
         resp = self.service.list(self.base+'tests/', filter, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_test(self, name):
         """Get a test."""
-        schema = TestSchema()
+        schema = TestSchema(exclude=('skip_name', 'skip_reason'))
         resp = self.service.get(self.base+'tests/'+name+'/')
         return self.service.decode(schema, resp)
 
