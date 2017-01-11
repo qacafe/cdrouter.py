@@ -63,6 +63,27 @@ class NetworksSchema(Schema):
     def post_load(self, data):
         return Networks(**data)
 
+class Testvar(object):
+    def __init__(self, **kwargs):
+        self.group = kwargs.get('group', None)
+        self.name = kwargs.get('name', None)
+        self.value = kwargs.get('value', None)
+        self.default = kwargs.get('default', None)
+        self.isdefault = kwargs.get('isdefault', None)
+        self.line = kwargs.get('line', None)
+
+class TestvarSchema(Schema):
+    group = fields.Str()
+    name = fields.Str()
+    value = fields.Str()
+    default = fields.Str()
+    isdefault = fields.Bool()
+    line = fields.Int()
+
+    @post_load
+    def post_load(self, data):
+        return Testvar(**data)
+
 class Config(object):
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -198,16 +219,25 @@ class ConfigsService(object):
 
     def list_testvars(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of a config's testvars."""
-        return self.service.get(self.base+str(id)+'/testvars/')
+        schema = TestvarSchema()
+        resp = self.service.get(self.base+str(id)+'/testvars/')
+        return self.service.decode(schema, resp, many=True)
 
     def get_testvar(self, id, name, group=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a testvar from a config."""
-        return self.service.get(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
+        schema = TestvarSchema()
+        resp = self.service.get(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
+        return self.service.decode(schema, resp)
 
-    def edit_testvar(self, id, name, value, group=None): # pylint: disable=invalid-name,redefined-builtin
+    def edit_testvar(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
         """Edit a testvar in a config."""
-        return self.service.patch(self.base+str(id)+'/testvars/'+name+'/',
-                                  params={'group': group}, json={'value': value})
+        schema = TestvarSchema()
+        json = self.service.encode(schema, resource)
+
+        schema = TestvarSchema()
+        resp = self.service.patch(self.base+str(id)+'/testvars/'+resource.name+'/',
+                                  params={'group': resource.group}, json=json)
+        return self.service.decode(schema, resp)
 
     def delete_testvar(self, id, name, group=None): # pylint: disable=invalid-name,redefined-builtin
         """Delete a testvar in a config. Deleting a testvar unsets any
@@ -217,5 +247,10 @@ class ConfigsService(object):
 
     def bulk_edit_testvars(self, id, testvars): # pylint: disable=invalid-name,redefined-builtin
         """Bulk edit a config's testvars."""
-        return self.service.post(self.base+str(id)+'/testvars/',
-                                 params={'bulk': 'edit'}, json=testvars)
+        schema = TestvarSchema()
+        json = self.service.encode(schema, testvars, many=True)
+
+        schema = TestvarSchema()
+        resp = self.service.post(self.base+str(id)+'/testvars/',
+                                 params={'bulk': 'edit'}, json=json)
+        return self.service.decode(schema, resp, many=True)

@@ -102,9 +102,9 @@ class Service(object):
         """Send an authorized POST request."""
         return self._req(path, method='POST', json=json, data=data, params=params, files=files)
 
-    def patch(self, path, json):
+    def patch(self, path, json, params=None):
         """Send an authorized PATCH request."""
-        return self._req(path, method='PATCH', json=json)
+        return self._req(path, method='PATCH', json=json, params=params)
 
     def delete(self, path, params=None):
         """Send an authorized DELETE request."""
