@@ -107,16 +107,18 @@ class JobsService(object):
             return {'package_id': str(id)}
         return id
 
-    def bulk_launch(self, package_ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_launch(self, jobs=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk launch a set of jobs."""
         json = None
-        if package_ids != None:
-            json = {self.RESOURCE: map(self._package_id, package_ids)}
+        if jobs is not None:
+            schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated'))
+            jobs_json = self.service.encode(schema, jobs, many=True)
+            json = {self.RESOURCE: jobs_json}
 
-        schema = fields.Nested(JobSchema, many=True)
+        schema = JobSchema()
         resp = self.service.post(self.base,
                                  params={'bulk': 'launch', 'filter': filter, 'all': all}, json=json)
-        return self.service.decode(schema, resp)
+        return self.service.decode(schema, resp, many=True)
 
     def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of jobs."""
