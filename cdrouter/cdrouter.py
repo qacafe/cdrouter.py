@@ -3,7 +3,10 @@
 # All Rights Reserved.
 #
 
+import io
+import re
 import requests
+from requests_toolbelt.downloadutils import stream
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from marshmallow import Schema, fields, post_load
 
@@ -83,7 +86,7 @@ class Service(object):
         self.users = UsersService(self)
 
     # base request methods
-    def _req(self, path, method='GET', json=None, data=None, params=None, headers=None, files=None):
+    def _req(self, path, method='GET', json=None, data=None, params=None, headers=None, files=None, stream=None):
         if params is None:
             params = {}
         if headers is None:
@@ -91,12 +94,12 @@ class Service(object):
         if files is None:
             files = {}
         headers.update({'user-agent': 'cdrouter.py https://github.com/qacafe/cdrouter.py'})
-        return requests.request(method, self.base+path, params=params, headers=headers, files=files,
+        return requests.request(method, self.base+path, params=params, headers=headers, files=files, stream=stream,
                                 json=json, data=data, verify=(not self.insecure), auth=Auth(self.token))
 
-    def get(self, path, params=None):
+    def get(self, path, params=None, stream=None):
         """Send an authorized GET request."""
-        return self._req(path, method='GET', params=params)
+        return self._req(path, method='GET', params=params, stream=None)
 
     def post(self, path, json=None, data=None, params=None, files=None):
         """Send an authorized POST request."""
@@ -144,17 +147,34 @@ class Service(object):
         resp = self.patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
         return self.decode(schema, resp, many=True)
 
+    def _filename(self, resp, filename=None):
+        if 'content-disposition' in resp.headers:
+            m = re.search('filename="([^"]+)"', resp.headers['content-disposition'])
+            if m is not None:
+                filename = m.group(1)
+        return filename
+
     def export(self, base, id, format='gz', params=None): # pylint: disable=invalid-name,redefined-builtin
         """Send an authorized GET request to export a resource."""
+        if params is None:
+            params = {}
         params.update({'format': format})
-        return self.get(base+str(id)+'/', params=params)
+        resp = self.get(base+str(id)+'/', params=params, stream=True)
+        resp.raise_for_status()
+        b = io.BytesIO()
+        stream.stream_response_to_file(resp, path=b)
+        return (b, self.filename(resp))
 
     def bulk_export(self, base, ids, params=None):
         """Send an authorized GET request to bulk export a set of resources."""
         if params is None:
             params = {}
         params.update({'bulk': 'export', 'ids': map(str, ids)})
-        return self.get(base, params=params)
+        resp = self.get(base, params=params, stream=True)
+        resp.raise_for_status()
+        b = io.BytesIO()
+        stream.stream_response_to_file(resp, path=b)
+        return (b, self._filename(resp))
 
     def bulk_copy(self, base, resource, ids, schema):
         """Send an authorized POST request to bulk copy a set of resources."""
