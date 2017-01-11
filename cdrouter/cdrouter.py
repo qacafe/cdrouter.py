@@ -116,6 +116,8 @@ class Service(object):
     # cdrouter-specific request methods
     def list(self, base, filter=None, sort=None, limit=None, page=None, format=None): # pylint: disable=redefined-builtin
         """Send an authorized GET request for a collection."""
+        if sort != None:
+            sort = ','.join(sort)
         return self.get(base, params={'filter': filter, 'sort': sort, 'limit': limit,
                                       'page': page, 'format': format})
 
