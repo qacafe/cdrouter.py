@@ -121,7 +121,7 @@ class DevicesService(object):
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a device."""
-        return self.service.shares(self.base, id)
+        return self.service.get_shares(self.base, id)
 
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         """Edit shares for a device."""
@@ -137,7 +137,8 @@ class DevicesService(object):
 
     def bulk_copy(self, ids):
         """Bulk copy a set of devices."""
-        return self.service.bulk_copy(self.base, self.RESOURCE, ids)
+        schema = DeviceSchema()
+        return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
     def bulk_edit(self, fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk edit a set of devices."""

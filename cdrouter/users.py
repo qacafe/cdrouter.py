@@ -99,7 +99,8 @@ class UsersService(object):
 
     def bulk_copy(self, ids):
         """Bulk copy a set of users."""
-        return self.service.bulk_copy(self.base, self.RESOURCE, ids)
+        schema = UserSchema()
+        return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
     def bulk_edit(self, fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk edit a set of users."""

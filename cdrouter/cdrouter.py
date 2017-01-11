@@ -5,6 +5,7 @@
 
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from marshmallow import Schema, fields, post_load
 
 from .configs import ConfigsService
 from .devices import DevicesService
@@ -22,6 +23,23 @@ from .system import SystemService
 from .tags import TagsService
 from .testsuites import TestsuitesService
 from .users import UsersService
+
+class Share(object):
+    def __init__(self, **kwargs):
+        self.user_id = kwargs.get('user_id', None)
+        self.read = kwargs.get('read', None)
+        self.write = kwargs.get('write', None)
+        self.execute = kwargs.get('execute', None)
+
+class ShareSchema(Schema):
+    user_id = fields.Str()
+    read = fields.Bool()
+    write = fields.Bool()
+    execute = fields.Bool()
+
+    @post_load
+    def post_load(self, data):
+        return Share(**data)
 
 class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
     """Class for authorizing CDRouter Web API requests."""
@@ -116,11 +134,15 @@ class Service(object):
 
     def get_shares(self, base, id): # pylint: disable=invalid-name,redefined-builtin
         """Send an authorized GET request to get a resource's shares."""
-        return self.get(base+str(id)+'/shares/')
+        schema = ShareSchema()
+        resp = self.get(base+str(id)+'/shares/')
+        return self.decode(schema, resp, many=True)
 
     def edit_shares(self, base, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         """Send an authorized PATCH request to edit a resource's shares."""
-        return self.patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
+        schema = ShareSchema()
+        resp = self.patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
+        return self.decode(schema, resp, many=True)
 
     def export(self, base, id, format='gz', params=None): # pylint: disable=invalid-name,redefined-builtin
         """Send an authorized GET request to export a resource."""
@@ -134,10 +156,11 @@ class Service(object):
         params.update({'bulk': 'export', 'ids': map(str, ids)})
         return self.get(base, params=params)
 
-    def bulk_copy(self, base, resource, ids):
+    def bulk_copy(self, base, resource, ids, schema):
         """Send an authorized POST request to bulk copy a set of resources."""
-        return self.post(base, params={'bulk': 'copy'},
+        resp = self.post(base, params={'bulk': 'copy'},
                          json={resource: [{'id': str(x)} for x in ids]})
+        return self.decode(schema, resp, many=True)
 
     def bulk_edit(self, base, resource, fields, ids=None, filter=None, all=False, testvars=None): # pylint: disable=redefined-builtin
         """Send an authorized POST request to bulk edit a set of resources."""
