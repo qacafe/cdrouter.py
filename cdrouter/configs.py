@@ -7,6 +7,62 @@
 
 from marshmallow import Schema, fields, post_load
 
+class ConfigError(object):
+    def __init__(self, **kwargs):
+        self.lines = kwargs.get('lines', None)
+        self.error = kwargs.get('error', None)
+
+class ConfigErrorSchema(Schema):
+    lines = fields.List(fields.Str())
+    error = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return ConfigError(**data)
+
+class CheckConfig(object):
+    def __init__(self, **kwargs):
+        self.errors = kwargs.get('errors', None)
+
+class CheckConfigSchema(Schema):
+    errors = fields.Nested(ConfigErrorSchema, many=True)
+
+    @post_load
+    def post_load(self, data):
+        return CheckConfig(**data)
+
+class UpgradeConfig(object):
+    def __init__(self, **kwargs):
+        self.success = kwargs.get('success', None)
+        self.output = kwargs.get('output', None)
+
+class UpgradeConfigSchema(Schema):
+    success = fields.Bool()
+    output = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return UpgradeConfig(**data)
+
+class Networks(object):
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.type = kwargs.get('type', None)
+        self.side = kwargs.get('side', None)
+        self.title = kwargs.get('title', None)
+        self.children = kwargs.get('children', None)
+
+class NetworksSchema(Schema):
+    name = fields.Str()
+    type = fields.Str()
+    side = fields.Str()
+    title = fields.Str()
+    children = fields.Nested('self', many=True)
+
+    @post_load
+    def post_load(self, data):
+        return Networks(**data)
+
 class Config(object):
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -102,18 +158,24 @@ class ConfigsService(object):
 
     def check_config(self, contents):
         """Process config contents with cdrouter-cli -check-config."""
-        return self.service.post(self.base,
+        schema = CheckConfigSchema()
+        resp = self.service.post(self.base,
                                  params={'process': 'check'}, json={'contents': contents})
+        return self.service.decode(schema, resp)
 
     def upgrade_config(self, contents):
         """Process config contents with cdrouter-cli -upgrade-config."""
-        return self.service.post(self.base,
+        schema = UpgradeConfigSchema()
+        resp = self.service.post(self.base,
                                  params={'process': 'upgrade'}, json={'contents': contents})
+        return self.service.decode(schema, resp)
 
     def get_networks(self, contents):
         """Process config contents with cdrouter-cli -print-networks-json."""
-        return self.service.post(self.base,
+        schema = NetworksSchema()
+        resp = self.service.post(self.base,
                                  params={'process': 'networks'}, json={'contents': contents})
+        return self.service.decode(schema, resp)
 
     def bulk_export(self, ids):
         """Bulk export a set of configs."""
