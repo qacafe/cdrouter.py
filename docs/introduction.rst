@@ -23,23 +23,21 @@ Usage
 
 .. code-block:: python
 
+    import time
     import cdrouter
+    from cdrouter.jobs import Job
 
-    s = cdrouter.Service('http://localhost:8015', token='deadbeef')
-    
-    for p in s.packages.list(filter=['tags@>{demo}'], limit='none').json()['data']:
-        print 'Launching package ' + p['name']
+    cdr = cdrouter.Service('http://localhost:8015', token='deadbeef')
 
-        resp = s.jobs.launch({'package_id': p['id'], 'extra_cli_args': '-testvar myvar=example'})
-        job_id = resp.json()['data']['id']
+    for p in cdr.packages.list(filter=['tags@>{noretry}'], limit='none'):
+        print 'Launching package ' + p.name
 
-        result_id = '0'
-        while result_id == '0':
-            resp = s.jobs.get(job_id)
-            if 'result_id' in resp.json()['data']:
-                result_id = resp.json()['data']['result_id']
+        j = cdr.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
+
+        while j.result_id == None:
             time.sleep(1)
+            j = cdr.jobs.get(j.id)
 
-        print '    Result-ID: ' + result_id
+        print '    Result-ID: ' + j.result_id
 
     print 'done.'

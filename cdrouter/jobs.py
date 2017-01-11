@@ -48,7 +48,7 @@ class JobSchema(Schema):
     package_name = fields.Str()
     device_id = fields.Str()
     device_name = fields.Str()
-    result_id = fields.Str()
+    result_id = fields.Str(missing=None)
     user_id = fields.Str()
     created = fields.Date()
     updated = fields.Date()
@@ -77,7 +77,6 @@ class JobsService(object):
         """Get a job."""
         schema = JobSchema()
         resp = self.service.get_id(self.base, id)
-        print resp.content
         return self.service.decode(schema, resp)
 
     def edit(self, resource):

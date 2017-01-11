@@ -5,7 +5,7 @@
 
 """Python client for the CDRouter Web API."""
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 from .cdrouter import Service
 
