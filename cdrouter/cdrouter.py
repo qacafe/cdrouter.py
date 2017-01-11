@@ -47,18 +47,19 @@ class ShareSchema(Schema):
 class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
     """Class for authorizing CDRouter Web API requests."""
 
-    def __init__(self, token):
+    def __init__(self, token=None):
         self.token = token
 
     def __call__(self, r):
-        r.headers['authorization'] = 'Bearer ' + self.token
+        if self.token != None:
+            r.headers['authorization'] = 'Bearer ' + self.token
         return r
 
 class Service(object):
     """Service for accessing the CDRouter Web API."""
     BASE = '/api/v1'
 
-    def __init__(self, base, token, insecure=False):
+    def __init__(self, base, token=None, insecure=False):
         self.base = base.rstrip('/')+self.BASE
         self.token = token
         self.insecure = insecure
@@ -95,7 +96,7 @@ class Service(object):
             files = {}
         headers.update({'user-agent': 'cdrouter.py https://github.com/qacafe/cdrouter.py'})
         return requests.request(method, self.base+path, params=params, headers=headers, files=files, stream=stream,
-                                json=json, data=data, verify=(not self.insecure), auth=Auth(self.token))
+                                json=json, data=data, verify=(not self.insecure), auth=Auth(token=self.token))
 
     def get(self, path, params=None, stream=None):
         """Send an authorized GET request."""
