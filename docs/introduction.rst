@@ -9,7 +9,9 @@ For more information on CDRouter, please visit http://www.qacafe.com/.
 Download & Install
 ------------------
 
-cdrouter is available on PyPI.
+cdrouter is available on PyPI_.
+
+.. _PyPI: https://pypi.python.org/pypi/cdrouter
 
 .. code-block:: bash
 

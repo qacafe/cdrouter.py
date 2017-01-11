@@ -5,6 +5,84 @@
 
 """Module for accessing CDRouter Packages."""
 
+from marshmallow import Schema, fields, post_load
+
+class Options(object):
+    def __init__(self, **kwargs):
+        self.forever = kwargs.get('forever', None)
+        self.loop = kwargs.get('loop', None)
+        self.repeat = kwargs.get('repeat', None)
+        self.maxfail = kwargs.get('maxfail', None)
+        self.duration = kwargs.get('duration', None)
+        self.wait = kwargs.get('wait', None)
+        self.pause = kwargs.get('pause', None)
+        self.shuffle = kwargs.get('shuffle', None)
+        self.seed = kwargs.get('seed', None)
+        self.retry = kwargs.get('retry', None)
+        self.rdelay = kwargs.get('rdelay', None)
+        self.sync = kwargs.get('sync', None)
+
+class OptionsSchema(Schema):
+    forever = fields.Bool()
+    loop = fields.Str()
+    repeat = fields.Str()
+    maxfail = fields.Str()
+    duration = fields.Str()
+    wait = fields.Str()
+    pause = fields.Bool()
+    shuffle = fields.Bool()
+    seed = fields.Str()
+    retry = fields.Str()
+    rdelay = fields.Str()
+    sync = fields.Bool()
+
+    @post_load
+    def post_load(self, data):
+        return Options(**data)
+
+class Package(object):
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id', None)
+        self.name = kwargs.get('name', None)
+        self.description = kwargs.get('description', None)
+        self.created = kwargs.get('created', None)
+        self.updated = kwargs.get('updated', None)
+        self.test_count = kwargs.get('test_count', None)
+        self.testlist = kwargs.get('testlist', None)
+        self.extra_cli_args = kwargs.get('extra_cli_args', None)
+        self.user_id = kwargs.get('user_id', None)
+        self.agent_id = kwargs.get('agent_id', None)
+        self.config_id = kwargs.get('config_id', None)
+        self.result_id = kwargs.get('result_id', None)
+        self.device_id = kwargs.get('device_id', None)
+        self.options = kwargs.get('options', None)
+        self.tags = kwargs.get('tags', None)
+        self.use_as_testlist = kwargs.get('use_as_testlist', None)
+        self.note = kwargs.get('note', None)
+
+class PackageSchema(Schema):
+    id = fields.Str()
+    name = fields.Str()
+    description = fields.Str()
+    created = fields.Date()
+    updated = fields.Date()
+    test_count = fields.Str()
+    testlist = fields.List(fields.Str())
+    extra_cli_args = fields.Str()
+    user_id = fields.Str()
+    agent_id = fields.Str()
+    config_id = fields.Str()
+    result_id = fields.Str(missing=None)
+    device_id = fields.Str()
+    options = fields.Nested(OptionsSchema)
+    tags = fields.List(fields.Str())
+    use_as_testlist = fields.Bool()
+    note = fields.Str(missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return Package(**data)
+
 class PackagesService(object):
     """Service for accessing CDRouter Packages."""
 
@@ -17,19 +95,33 @@ class PackagesService(object):
 
     def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of packages."""
-        return self.service.list(self.base, filter, sort, limit, page)
+        schema = PackageSchema(exclude=('testlist', 'extra_cli_args', 'agent_id', 'options', 'note'))
+        resp = self.service.list(self.base, filter, sort, limit, page)
+        return self.service.decode(schema, resp, many=True)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a package."""
-        return self.service.get_id(self.base, id)
+        schema = PackageSchema()
+        resp = self.service.get_id(self.base, id)
+        return self.service.decode(schema, resp)
 
     def create(self, resource):
         """Create a new package."""
-        return self.service.create(self.base, resource)
+        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id'))
+        json = self.service.encode(schema, resource)
+
+        schema = PackageSchema()
+        resp = self.service.create(self.base, json)
+        return self.service.decode(schema, resp)
 
     def edit(self, resource):
         """Edit a package."""
-        return self.service.edit(self.base, resource['id'], resource)
+        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id'))
+        json = self.service.encode(schema, resource)
+
+        schema = PackageSchema()
+        resp = self.service.edit(self.base, resource.id, json)
+        return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a package."""

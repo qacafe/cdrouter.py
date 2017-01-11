@@ -5,6 +5,37 @@
 
 """Module for accessing CDRouter Configs."""
 
+from marshmallow import Schema, fields, post_load
+
+class Config(object):
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id', None)
+        self.name = kwargs.get('name', None)
+        self.description = kwargs.get('description', None)
+        self.created = kwargs.get('created', None)
+        self.updated = kwargs.get('updated', None)
+        self.contents = kwargs.get('contents', None)
+        self.user_id = kwargs.get('user_id', None)
+        self.result_id = kwargs.get('result_id', None)
+        self.tags = kwargs.get('tags', None)
+        self.note = kwargs.get('note', None)
+
+class ConfigSchema(Schema):
+    id = fields.Str()
+    name = fields.Str()
+    description = fields.Str()
+    created = fields.Date()
+    updated = fields.Date()
+    contents = fields.Str()
+    user_id = fields.Str()
+    result_id = fields.Str(missing=None)
+    tags = fields.List(fields.Str())
+    note = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return Config(**data)
+
 class ConfigsService(object):
     """Service for accessing CDRouter Configs."""
 
@@ -17,7 +48,9 @@ class ConfigsService(object):
 
     def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of configs."""
-        return self.service.list(self.base, filter, sort, limit, page)
+        schema = ConfigSchema(exclude=('contents', 'note'))
+        resp = self.service.list(self.base, filter, sort, limit, page)
+        return self.service.decode(schema, resp, many=True)
 
     def get_new(self):
         """Get output of cdrouter-cli -new-config."""
@@ -25,19 +58,31 @@ class ConfigsService(object):
 
     def get(self, id, format=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a config."""
-        return self.service.get_id(self.base, id, params={'format': format})
+        schema = ConfigSchema()
+        resp = self.service.get_id(self.base, id, params={'format': format})
+        return self.service.decode(schema, resp)
 
     def get_plaintext(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a config as plaintext."""
-        return self.get(id, format='text')
+        return self.service.get_id(self.base, id, params={'format': 'text'})
 
     def create(self, resource):
         """Create a new config."""
-        return self.service.create(self.base, resource)
+        schema = ConfigSchema(exclude=('id', 'created', 'updated', 'result_id'))
+        json = self.service.encode(schema, resource)
+
+        schema = ConfigSchema()
+        resp = self.service.create(self.base, json)
+        return self.service.decode(schema, resp)
 
     def edit(self, resource):
         """Edit a config."""
-        return self.service.edit(self.base, resource['id'], resource)
+        schema = ConfigSchema(exclude=('id', 'created', 'updated', 'result_id'))
+        json = self.service.encode(schema, resource)
+
+        schema = ConfigSchema()
+        resp = self.service.edit(self.base, resource.id, json)
+        return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a config."""
