@@ -41,8 +41,8 @@ class Device(object):
 class DeviceSchema(Schema):
     id = fields.Str()
     name = fields.Str()
-    created = fields.Date()
-    updated = fields.Date()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     user_id = fields.Str()
     result_id = fields.Str(missing=None)
     attachments_dir = fields.Str(missing=None)

@@ -19,7 +19,7 @@ class History(object):
 
 class HistorySchema(Schema):
     user_id = fields.Str()
-    created = fields.Date()
+    created = fields.DateTime()
     resource = fields.Str()
     id = fields.Str()
     name = fields.Str()

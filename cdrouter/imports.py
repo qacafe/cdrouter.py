@@ -23,8 +23,8 @@ class Import(object):
 class ImportSchema(Schema):
     id = fields.Str()
     user_id = fields.Str()
-    created = fields.Date()
-    updated = fields.Date()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     archive = fields.Str()
     path = fields.Str()
     url = fields.Str()

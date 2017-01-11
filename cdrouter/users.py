@@ -28,8 +28,8 @@ class UserSchema(Schema):
     disabled = fields.Bool()
     name = fields.Str()
     description = fields.Str()
-    created = fields.Date()
-    updated = fields.Date()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     token = fields.Str()
 
     password = fields.Str()

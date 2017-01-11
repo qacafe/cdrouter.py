@@ -111,7 +111,7 @@ class TestResultSchema(Schema):
     loop = fields.Str()
     result = fields.Str()
     retries = fields.Int()
-    started = fields.Date()
+    started = fields.DateTime()
     duration = fields.Int()
     flagged = fields.Bool()
     name = fields.Str()

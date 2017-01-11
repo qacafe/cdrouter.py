@@ -59,8 +59,8 @@ class Result(object):
 
 class ResultSchema(Schema):
     id = fields.Str()
-    created = fields.Date()
-    updated = fields.Date()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     result = fields.Str()
     status = fields.Str()
     loops = fields.Int()
