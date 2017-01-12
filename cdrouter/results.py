@@ -95,7 +95,7 @@ class ResultsService(object):
     """Service for accessing CDRouter Results."""
 
     RESOURCE = 'results'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service

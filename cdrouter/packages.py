@@ -105,7 +105,7 @@ class PackagesService(object):
     """Service for accessing CDRouter Packages."""
 
     RESOURCE = 'packages'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service

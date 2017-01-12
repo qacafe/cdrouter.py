@@ -55,7 +55,7 @@ class TagsService(object):
     """Service for accessing CDRouter Tags."""
 
     RESOURCE = 'tags'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service

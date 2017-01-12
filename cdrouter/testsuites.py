@@ -187,7 +187,7 @@ class TestsuitesService(object):
     """Service for accessing CDRouter Testsuites."""
 
     RESOURCE = 'testsuites'
-    BASE = '/' + RESOURCE + '/1/'
+    BASE = RESOURCE + '/1/'
 
     def __init__(self, service):
         self.service = service

@@ -28,7 +28,7 @@ class HighlightsService(object):
     """Service for accessing CDRouter Highlights."""
 
     RESOURCE = 'highlights'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service

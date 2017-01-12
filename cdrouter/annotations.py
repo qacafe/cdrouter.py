@@ -28,7 +28,7 @@ class AnnotationsService(object):
     """Service for accessing CDRouter Annotations."""
 
     RESOURCE = 'annotations'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service

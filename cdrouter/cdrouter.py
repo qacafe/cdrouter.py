@@ -7,9 +7,12 @@ import io
 import re
 import requests
 from requests_toolbelt.downloadutils import stream
+from requests_toolbelt import sessions
+from requests_toolbelt.utils.user_agent import user_agent
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from marshmallow import Schema, fields, post_load
 
+from . import __version__
 from .configs import ConfigsService
 from .devices import DevicesService
 from .jobs import JobsService
@@ -57,7 +60,7 @@ class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
 
 class CDRouter(object):
     """Service for accessing the CDRouter Web API."""
-    BASE = '/api/v1'
+    BASE = '/api/v1/'
 
     def __init__(self, base, token=None, insecure=False):
         self.base = base.rstrip('/')+self.BASE
@@ -67,6 +70,8 @@ class CDRouter(object):
         if insecure:
             # disable annoying InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+        self.session = sessions.BaseUrlSession(base_url=base+self.BASE)
 
         # resource-specific services
         self.configs = ConfigsService(self)
@@ -94,9 +99,9 @@ class CDRouter(object):
             headers = {}
         if files is None:
             files = {}
-        headers.update({'user-agent': 'cdrouter.py https://github.com/qacafe/cdrouter.py'})
-        return requests.request(method, self.base+path, params=params, headers=headers, files=files, stream=stream,
-                                json=json, data=data, verify=(not self.insecure), auth=Auth(token=self.token))
+            headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
+        return self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
+                                    json=json, data=data, verify=(not self.insecure), auth=Auth(token=self.token))
 
     def get(self, path, params=None, stream=None):
         """Send an authorized GET request."""
@@ -166,7 +171,7 @@ class CDRouter(object):
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
-        return (b, self.filename(resp))
+        return (b, self._filename(resp))
 
     def bulk_export(self, base, ids, params=None):
         """Send an authorized GET request to bulk export a set of resources."""

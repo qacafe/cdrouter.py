@@ -34,7 +34,7 @@ class AttachmentSchema(Schema):
 
 class AttachmentsService(object):
     RESOURCE = 'attachments'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service

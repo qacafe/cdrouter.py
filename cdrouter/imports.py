@@ -81,7 +81,7 @@ class ImportsService(object):
     """Service for accessing CDRouter Imports."""
 
     RESOURCE = 'imports'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service

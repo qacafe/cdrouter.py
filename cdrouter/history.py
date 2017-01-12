@@ -34,7 +34,7 @@ class HistoryService(object):
     """Service for accessing CDRouter History."""
 
     RESOURCE = 'history'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service

@@ -213,7 +213,7 @@ class CapturesService(object):
     """Service for accessing CDRouter Captures."""
 
     RESOURCE = 'captures'
-    BASE = '/' + RESOURCE + '/'
+    BASE = RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service
