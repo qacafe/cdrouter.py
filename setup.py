@@ -44,5 +44,5 @@ setup(
     ],
     keywords='cdrouter json rest api client',
     packages=['cdrouter'],
-    install_requires=['marshmallow', 'requests', 'requests-toolbelt'],
+    install_requires=['marshmallow', 'requests', 'requests-toolbelt']
 )
