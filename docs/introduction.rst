@@ -27,16 +27,16 @@ Usage
     from cdrouter import CDRouter
     from cdrouter.jobs import Job
 
-    cdr = CDRouter('http://localhost:8015', token='deadbeef')
+    c = CDRouter('http://localhost:8015', token='deadbeef')
 
-    for p in cdr.packages.list(filter=['tags@>{noretry}'], limit='none'):
+    for p in c.packages.list(filter=['tags@>{noretry}'], limit='none'):
         print 'Launching package ' + p.name
 
-        j = cdr.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
+        j = c.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
 
         while j.result_id == None:
             time.sleep(1)
-            j = cdr.jobs.get(j.id)
+            j = c.jobs.get(j.id)
 
         print '    Result-ID: ' + j.result_id
 
