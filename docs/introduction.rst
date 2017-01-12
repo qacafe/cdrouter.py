@@ -24,10 +24,10 @@ Usage
 .. code-block:: python
 
     import time
-    import cdrouter
+    from cdrouter import CDRouter
     from cdrouter.jobs import Job
 
-    cdr = cdrouter.Service('http://localhost:8015', token='deadbeef')
+    cdr = CDRouter('http://localhost:8015', token='deadbeef')
 
     for p in cdr.packages.list(filter=['tags@>{noretry}'], limit='none'):
         print 'Launching package ' + p.name
