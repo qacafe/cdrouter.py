@@ -55,7 +55,7 @@ class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
             r.headers['authorization'] = 'Bearer ' + self.token
         return r
 
-class Service(object):
+class CDRouter(object):
     """Service for accessing the CDRouter Web API."""
     BASE = '/api/v1'
 
