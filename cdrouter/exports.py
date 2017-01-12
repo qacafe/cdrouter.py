@@ -5,6 +5,10 @@
 
 """Module for accessing CDRouter Exports."""
 
+import io
+
+from requests_toolbelt.downloadutils import stream
+
 class ExportsService(object):
     """Service for accessing CDRouter Exports."""
 
@@ -32,4 +36,8 @@ class ExportsService(object):
             'results': map(int, result_ids),
             'options': {'exclude_captures': exclude_captures}
         }
-        return self.service.post(self.base, json=json)
+        resp = self.service.post(self.base, json=json)
+        resp.raise_for_status()
+        b = io.BytesIO()
+        stream.stream_response_to_file(resp, path=b)
+        return (b, self.service.filename(resp))

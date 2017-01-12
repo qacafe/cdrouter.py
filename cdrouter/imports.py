@@ -45,7 +45,7 @@ class Response(object):
 
 class ResponseSchema(Schema):
     imported = fields.Bool()
-    id = fields.Str()
+    id = fields.Str(missing=None)
     name = fields.Str(missing=None)
     message = fields.Str(missing=None)
 
@@ -72,7 +72,7 @@ class RequestSchema(Schema):
     packages = fields.Dict()
     results = fields.Dict()
 
-    tags = fields.List(fields.String())
+    tags = fields.List(fields.Str(), missing=None)
 
     @post_load
     def post_load(self, data):
@@ -127,9 +127,14 @@ class ImportsService(object):
         resp = self.service.get(self.base+str(id)+'/request/')
         return self.service.decode(schema, resp)
 
-    def commit(self, id, commit_request): # pylint: disable=invalid-name,redefined-builtin
+    def commit(self, id, impreq): # pylint: disable=invalid-name,redefined-builtin
         """Commit a staged import."""
-        return self.service.post(self.base+str(id)+'/commit/', json=commit_request)
+        schema = RequestSchema()
+        json = self.service.encode(schema, impreq)
+
+        schema = RequestSchema()
+        resp = self.service.post(self.base+str(id)+'/', json=json)
+        return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a staged import."""

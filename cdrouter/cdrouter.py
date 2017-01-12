@@ -155,7 +155,7 @@ class CDRouter(object):
         resp = self.patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
         return self.decode(schema, resp, many=True)
 
-    def _filename(self, resp, filename=None):
+    def filename(self, resp, filename=None):
         if 'content-disposition' in resp.headers:
             m = re.search('filename="([^"]+)"', resp.headers['content-disposition'])
             if m is not None:
@@ -171,7 +171,7 @@ class CDRouter(object):
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
-        return (b, self._filename(resp))
+        return (b, self.filename(resp))
 
     def bulk_export(self, base, ids, params=None):
         """Send an authorized GET request to bulk export a set of resources."""
@@ -182,7 +182,7 @@ class CDRouter(object):
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
-        return (b, self._filename(resp))
+        return (b, self.filename(resp))
 
     def bulk_copy(self, base, resource, ids, schema):
         """Send an authorized POST request to bulk copy a set of resources."""

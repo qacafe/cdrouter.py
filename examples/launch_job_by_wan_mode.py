@@ -55,6 +55,25 @@ for p in packages:
         print '   Setting wanMode to {0}'.format(v)
         c.configs.edit_testvar(p.config_id, Testvar(name='wanMode', value=v))
 
+        # ensure config is valid with wanMode=v
+        print '   Checking config for errors'
+        cfg = c.configs.get(p.config_id)
+        check = c.configs.check_config(cfg.contents)
+        if len(check.errors) > 0:
+            print '   Skipping {0} with WAN mode of {1} due to config errors:'.format(p.name, v)
+            for e in check.errors:
+                print '   {0}'.format(e.error)
+            print ''
+            continue
+
+        # ensure at least one test will run with wanMode=v
+        print '   Checking package for skipped tests'
+        analysis = c.packages.analyze(p.id)
+        if analysis.run_count == 0:
+            print '   Skipping {0} with WAN mode of {1} since all tests will be skipped'.format(p.name, v)
+            print ''
+            continue
+
         # launch the package with wanMode=v
         print '   Launching package'
         j = c.jobs.launch(Job(package_id=p.id))
