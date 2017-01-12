@@ -18,7 +18,7 @@ if len(sys.argv) > 3:
     tag_name = sys.argv[3]
 
 # create service
-cdr = CDRouter(base, token=token, insecure=True)
+cdr = CDRouter(base, token=token)
 
 packages = cdr.packages.list(filter=['tags@>{'+tag_name+'}'])
 jobs = [Job(package_id=p.id) for p in packages]

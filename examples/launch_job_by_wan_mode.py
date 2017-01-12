@@ -20,7 +20,7 @@ if len(sys.argv) > 3:
     tag_name = sys.argv[3]
 
 # create service
-cdr = CDRouter(base, token=token, insecure=True)
+cdr = CDRouter(base, token=token)
 
 # get array of all possible values for wanMode
 choices = cdr.testsuites.get_testvar('wanMode').keywords
