@@ -50,12 +50,18 @@ class AnnotationsService(object):
 
     def create_or_edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
         """Create or edit an annotation."""
-        schema = AnnotationSchema()
+        schema = AnnotationSchema(exclude=('id', 'seq'))
         json = self.service.encode(schema, resource)
 
         schema = AnnotationSchema()
         resp = self.service.edit(self._base(id, seq), resource.line, json)
         return self.service.decode(schema, resp)
+
+    def create(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
+        return self.create_or_edit(id, seq, resource)
+
+    def edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
+        return self.create_or_edit(id, seq, resource)
 
     def delete(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
         """Delete an annotation."""
