@@ -6,6 +6,7 @@
 """Module for accessing CDRouter Jobs."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Job(object):
     def __init__(self, **kwargs):
@@ -50,8 +51,8 @@ class JobSchema(Schema):
     device_name = fields.Str()
     result_id = fields.Str(missing=None)
     user_id = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
 
     @post_load
     def post_load(self, data):

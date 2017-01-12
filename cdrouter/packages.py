@@ -6,7 +6,8 @@
 """Module for accessing CDRouter Packages."""
 
 from marshmallow import Schema, fields, post_load
-from testsuites import TestSchema
+from .testsuites import TestSchema
+from .cdr_datetime import DateTime
 
 class Analyze(object):
     def __init__(self, **kwargs):
@@ -82,8 +83,8 @@ class PackageSchema(Schema):
     id = fields.Str()
     name = fields.Str()
     description = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     test_count = fields.Str()
     testlist = fields.List(fields.Str())
     extra_cli_args = fields.Str()

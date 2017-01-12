@@ -6,6 +6,7 @@
 """Module for accessing CDRouter TestResults."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Summary(object):
     def __init__(self, **kwargs):
@@ -111,7 +112,7 @@ class TestResultSchema(Schema):
     loop = fields.Str()
     result = fields.Str()
     retries = fields.Int()
-    started = fields.DateTime()
+    started = DateTime()
     duration = fields.Int()
     flagged = fields.Bool()
     name = fields.Str()
@@ -129,13 +130,13 @@ class TestResultsService(object):
     """Service for accessing CDRouter TestResults."""
 
     RESOURCE = 'tests'
-    BASE = RESOURCE + '/'
+    BASE = '/' + RESOURCE + '/'
 
     def __init__(self, service):
         self.service = service
 
     def _base(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return '/results/'+str(id)+self.BASE
+        return 'results/'+str(id)+self.BASE
 
     def list(self, id, filter=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of test results."""

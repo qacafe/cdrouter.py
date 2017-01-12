@@ -6,6 +6,7 @@
 """Module for accessing CDRouter Devices."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Device(object):
     def __init__(self, **kwargs):
@@ -41,8 +42,8 @@ class Device(object):
 class DeviceSchema(Schema):
     id = fields.Str()
     name = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     user_id = fields.Str()
     result_id = fields.Str(missing=None)
     attachments_dir = fields.Str(missing=None)

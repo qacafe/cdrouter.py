@@ -7,6 +7,7 @@
 
 import os.path
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Import(object):
     def __init__(self, **kwargs):
@@ -23,8 +24,8 @@ class Import(object):
 class ImportSchema(Schema):
     id = fields.Str()
     user_id = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     archive = fields.Str()
     path = fields.Str()
     url = fields.Str()

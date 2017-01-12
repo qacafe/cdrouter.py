@@ -6,6 +6,7 @@
 """Module for accessing CDRouter Configs."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class ConfigError(object):
     def __init__(self, **kwargs):
@@ -101,8 +102,8 @@ class ConfigSchema(Schema):
     id = fields.Str()
     name = fields.Str()
     description = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     contents = fields.Str()
     user_id = fields.Str()
     result_id = fields.Str(missing=None)

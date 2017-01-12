@@ -6,6 +6,7 @@
 """Module for accessing CDRouter Users."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class User(object):
     def __init__(self, **kwargs):
@@ -28,8 +29,8 @@ class UserSchema(Schema):
     disabled = fields.Bool()
     name = fields.Str()
     description = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     token = fields.Str()
 
     password = fields.Str()

@@ -6,6 +6,7 @@
 """Module for accessing CDRouter History."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class History(object):
     def __init__(self, **kwargs):
@@ -19,7 +20,7 @@ class History(object):
 
 class HistorySchema(Schema):
     user_id = fields.Str()
-    created = fields.DateTime()
+    created = DateTime()
     resource = fields.Str()
     id = fields.Str()
     name = fields.Str()

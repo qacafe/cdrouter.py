@@ -6,6 +6,7 @@
 import os.path
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Attachment(object):
     def __init__(self, **kwargs):
@@ -22,8 +23,8 @@ class AttachmentSchema(Schema):
     id = fields.Str()
     name = fields.Str()
     description = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     size = fields.Int()
     path = fields.Str()
     device_id = fields.Str()
@@ -40,7 +41,7 @@ class AttachmentsService(object):
         self.service = service
 
     def _base(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return '/devices/'+str(id)+self.BASE
+        return 'devices/'+str(id)+self.BASE
 
     def list(self, id, filter=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         schema = AttachmentSchema(exclude=('path'))

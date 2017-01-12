@@ -6,6 +6,7 @@
 """Module for accessing CDRouter Results."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Options(object):
     def __init__(self, **kwargs):
@@ -59,8 +60,8 @@ class Result(object):
 
 class ResultSchema(Schema):
     id = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     result = fields.Str()
     status = fields.Str()
     loops = fields.Int()
