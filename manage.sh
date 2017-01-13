@@ -28,8 +28,7 @@ function push {
 
     git tag -m "Version $version" v$version
 
-    git push origin master
-    git push --tags
+    git push --tags origin master
 }
 
 $1
