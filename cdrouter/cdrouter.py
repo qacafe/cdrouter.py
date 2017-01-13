@@ -13,6 +13,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from marshmallow import Schema, fields, post_load
 
 from . import __version__
+from .cdr_datetime import DateTime
 from .configs import ConfigsService
 from .devices import DevicesService
 from .jobs import JobsService
@@ -30,6 +31,53 @@ from .tags import TagsService
 from .testsuites import TestsuitesService
 from .users import UsersService
 
+class Links(object):
+    def __init__(self, **kwargs):
+        self.first = kwargs.get('first', None)
+        self.last = kwargs.get('last', None)
+        self.current = kwargs.get('current', None)
+        self.total = kwargs.get('total', None)
+        self.limit = kwargs.get('limit', None)
+        self.next = kwargs.get('next', None)
+        self.prev = kwargs.get('prev', None)
+
+class LinksSchema(Schema):
+    first = fields.Int()
+    last = fields.Int()
+    current = fields.Int()
+    total = fields.Int()
+    limit = fields.Int()
+    next = fields.Int(missing=None)
+    prev = fields.Int(missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return Links(**data)
+
+class Response(object):
+    def __init__(self, **kwargs):
+        self.timestamp = kwargs.get('timestamp', None)
+        self.error = kwargs.get('error', None)
+        self.data = kwargs.get('data', None)
+        self.links = kwargs.get('links', None)
+
+class ResponseSchema(Schema):
+    timestamp = DateTime()
+    error = fields.Str(missing=None)
+    data = fields.Dict(missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return Response(**data)
+
+class ListResponseSchema(ResponseSchema):
+    data = fields.List(fields.Dict(), missing=None)
+    links = fields.Nested(LinksSchema, missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return Response(**data)
+
 class Share(object):
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', None)
@@ -46,6 +94,14 @@ class ShareSchema(Schema):
     @post_load
     def post_load(self, data):
         return Share(**data)
+
+class CDRouterError(BaseException):
+    def __init__(self, message, response):
+        self.message = message
+        self.response = response
+
+    def __str__(self):
+        return self.message
 
 class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
     """Class for authorizing CDRouter Web API requests."""
@@ -208,15 +264,28 @@ class CDRouter(object):
             json = {resource: [{'id': str(x)} for x in ids]}
         return self.post(base, params={'bulk': 'delete', 'filter': filter, 'all': all}, json=json)
 
-    def decode(self, schema, resp, many=None):
-        resp.raise_for_status()
+    def decode(self, schema, resp, many=None, links=False):
         json = resp.json()
-        if 'error' in json:
-            raise BaseException(json['error'])
-        if 'data' not in json:
-            raise BaseException('no data field in JSON response!')
-        result = schema.load(json['data'], many=many)
-        return result.data
+        resp_schema = ResponseSchema()
+        if many is True:
+            resp_schema = ListResponseSchema()
+
+        result = resp_schema.load(json).data
+
+        if 400 <= resp.status_code < 600 and result.error is not None:
+                raise CDRouterError(result.error, resp)
+
+        resp.raise_for_status()
+
+        if result.data is None:
+            raise CDRouterError('no data field in JSON response!', resp)
+
+        data = schema.load(result.data, many=many).data
+
+        if many is True and links is True and result.links is not None:
+            return (data, result.links)
+
+        return data
 
     def encode(self, schema, resource, many=None):
         result = schema.dump(resource, many=many)
