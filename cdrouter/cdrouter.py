@@ -4,6 +4,7 @@
 #
 
 import io
+import os
 import re
 import requests
 from requests_toolbelt.downloadutils import stream
@@ -121,6 +122,8 @@ class CDRouter(object):
     def __init__(self, base, token=None, insecure=False):
         self.base = base.rstrip('/')+self.BASE
         self.token = token
+        if self.token is None:
+            self.token = os.environ.get('CDROUTER_API_TOKEN')
         self.insecure = insecure
 
         if insecure:
