@@ -225,13 +225,13 @@ class SystemService(object):
                                  json={'email': email, 'password': password, 'release': {'id': int(release_id)}})
         return self.service.decode(schema, resp)
 
-    def manual_upgrade(self, filepath):
+    def manual_upgrade(self, fd, filename='cdrouter.bin'):
         """Upgrade CDRouter manually by uploading a .bin installer from the
         CDRouter Support Lounge. Please note that any running tests will be
         stopped."""
         schema = UpgradeSchema()
         resp = self.service.post(self.base+'upgrade/',
-                                 files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
+                                 files={'file': (filename, fd)})
         return self.service.decode(schema, resp)
 
     def restart(self):
