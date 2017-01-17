@@ -94,11 +94,11 @@ class ImportsService(object):
         resp = self.service.list(self.base)
         return self.service.decode(schema, resp, many=True)
 
-    def stage_import_from_file(self, filepath):
+    def stage_import_from_file(self, fd, filename='upload.gz'):
         """Stage an import from a file upload."""
         schema = ImportSchema()
         resp = self.service.post(self.base,
-                                 files={'file': (os.path.basename(filepath), open(filepath, 'rb'))})
+                                 files={'file': (filename, fd)})
         return self.service.decode(schema, resp)
 
     def stage_import_from_filesystem(self, filepath):
