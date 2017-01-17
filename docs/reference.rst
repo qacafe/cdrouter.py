@@ -7,104 +7,104 @@ cdrouter
 .. automodule:: cdrouter
    :members:
 
-cdrouter.Service
-~~~~~~~~~~~~~~~~
+cdrouter.CDRouter
+~~~~~~~~~~~~~~~~~
 
-.. autoclass:: cdrouter.Service
+.. autoclass:: cdrouter.CDRouter
    :members:
 
-cdrouter.ConfigsService
-~~~~~~~~~~~~~~~~~~~~~~~
+cdrouter.configs.ConfigsService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: cdrouter.ConfigsService
+.. autoclass:: cdrouter.configs.ConfigsService
    :members:
 
-cdrouter.DevicesService
-~~~~~~~~~~~~~~~~~~~~~~~
+cdrouter.devices.DevicesService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: cdrouter.DevicesService
+.. autoclass:: cdrouter.devices.DevicesService
    :members:
 
-cdrouter.JobsService
-~~~~~~~~~~~~~~~~~~~~
+cdrouter.jobs.JobsService
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: cdrouter.JobsService
+.. autoclass:: cdrouter.jobs.JobsService
    :members:
 
-cdrouter.PackagesService
-~~~~~~~~~~~~~~~~~~~~~~~~
+cdrouter.packages.PackagesService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: cdrouter.PackagesService
+.. autoclass:: cdrouter.packages.PackagesService
    :members:
 
-cdrouter.ResultsService
-~~~~~~~~~~~~~~~~~~~~~~~
+cdrouter.results.ResultsService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: cdrouter.ResultsService
+.. autoclass:: cdrouter.results.ResultsService
    :members:
 
-cdrouter.TestResultsService
+cdrouter.testresults.TestResultsService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.testresults.TestResultsService
+   :members:
+
+cdrouter.annotations.AnnotationsService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.annotations.AnnotationsService
+   :members:
+
+cdrouter.captures.CapturesService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.captures.CapturesService
+   :members:
+
+cdrouter.highlights.HighlightsService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.highlights.HighlightsService
+   :members:
+
+cdrouter.imports.ImportsService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.imports.ImportsService
+   :members:
+
+cdrouter.exports.ExportsService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.exports.ExportsService
+   :members:
+
+cdrouter.history.HistoryService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.history.HistoryService
+   :members:
+
+cdrouter.system.SystemService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.system.SystemService
+   :members:
+
+cdrouter.tags.TagsService
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.tags.TagsService
+   :members:
+
+cdrouter.testsuites.TestsuitesService
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.testsuites.TestsuitesService
+   :members:
+
+cdrouter.users.UsersService
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: cdrouter.TestResultsService
-   :members:
-
-cdrouter.AnnotationsService
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.AnnotationsService
-   :members:
-
-cdrouter.CapturesService
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.CapturesService
-   :members:
-
-cdrouter.HighlightsService
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.HighlightsService
-   :members:
-
-cdrouter.ImportsService
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.ImportsService
-   :members:
-
-cdrouter.ExportsService
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.ExportsService
-   :members:
-
-cdrouter.HistoryService
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.HistoryService
-   :members:
-
-cdrouter.SystemService
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.SystemService
-   :members:
-
-cdrouter.TagsService
-~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.TagsService
-   :members:
-
-cdrouter.TestsuitesService
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.TestsuitesService
-   :members:
-
-cdrouter.UsersService
-~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.UsersService
+.. autoclass:: cdrouter.users.UsersService
    :members:
