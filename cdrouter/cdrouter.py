@@ -164,7 +164,7 @@ class CDRouter(object):
 
     def get(self, path, params=None, stream=None):
         """Send an authorized GET request."""
-        return self._req(path, method='GET', params=params, stream=None)
+        return self._req(path, method='GET', params=params, stream=stream)
 
     def post(self, path, json=None, data=None, params=None, files=None):
         """Send an authorized POST request."""
