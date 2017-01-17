@@ -265,11 +265,11 @@ class SystemService(object):
 
     def time(self):
         """Get system time."""
-        return self.service.post(self.base+'time/').json()['data']['time']
+        return self.service.get(self.base+'time/').json()['data']['time']
 
     def hostname(self):
         """Get system hostname."""
-        return self.service.post(self.base+'hostname/').json()['data']
+        return self.service.get(self.base+'hostname/').json()['data']
 
     def interfaces(self, addresses=False):
         """Get system interfaces."""
