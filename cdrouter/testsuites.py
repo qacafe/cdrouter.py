@@ -7,6 +7,37 @@
 
 from marshmallow import Schema, fields, post_load
 
+class Info(object):
+    def __init__(self, **kwargs):
+        self.build_info = kwargs.get('build_info', None)
+        self.copyright = kwargs.get('copyright', None)
+        self.customer = kwargs.get('customer', None)
+        self.lifetime = kwargs.get('lifetime', None)
+        self.os = kwargs.get('os', None)
+        self.serial_number = kwargs.get('serial_number', None)
+        self.system_id = kwargs.get('system_id', None)
+        self.testsuite = kwargs.get('testsuite', None)
+        self.release = kwargs.get('release', None)
+        self.addons = kwargs.get('addons', None)
+        self.all_addons = kwargs.get('all_addons', None)
+
+class InfoSchema(Schema):
+    build_info = fields.Str()
+    copyright = fields.Str()
+    customer = fields.Str()
+    lifetime = fields.Str()
+    os = fields.Str()
+    serial_number = fields.Str()
+    system_id = fields.Str()
+    testsuite = fields.Str()
+    release = fields.Str()
+    addons = fields.List(fields.Str())
+    all_addons = fields.List(fields.Str())
+
+    @post_load
+    def post_load(self, data):
+        return Info(**data)
+
 class Group(object):
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -183,6 +214,27 @@ class TestvarSchema(Schema):
     def post_load(self, data):
         return Testvar(**data)
 
+class Search(object):
+    def __init__(self, **kwargs):
+        self.addons = kwargs.get('addons', None)
+        self.modules = kwargs.get('modules', None)
+        self.tests = kwargs.get('tests', None)
+        self.reasons = kwargs.get('reasons', None)
+        self.errors = kwargs.get('errors', None)
+        self.testvars = kwargs.get('testvars', None)
+
+class SearchSchema(Schema):
+    addons = fields.Nested(GroupSchema, many=True, missing=None)
+    modules = fields.Nested(ModuleSchema, many=True, missing=None)
+    tests = fields.Nested(TestSchema, many=True, missing=None)
+    reasons = fields.Nested(LabelSchema, many=True, missing=None)
+    errors = fields.Nested(ErrorSchema, many=True, missing=None)
+    testvars = fields.Nested(TestvarSchema, many=True, missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return Search(**data)
+
 class TestsuitesService(object):
     """Service for accessing CDRouter Testsuites."""
 
@@ -195,11 +247,15 @@ class TestsuitesService(object):
 
     def info(self):
         """Get testsuite info."""
-        return self.service.get(self.base)
+        schema = InfoSchema()
+        resp = self.service.get(self.base)
+        return self.service.decode(schema, resp)
 
     def search(self, query):
         """Perform full text search of testsuite."""
-        return self.service.get(self.base+'search/', params={'q': query})
+        schema = SearchSchema()
+        resp = self.service.get(self.base+'search/', params={'q': query})
+        return self.service.decode(schema, resp)
 
     def list_groups(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of groups."""
