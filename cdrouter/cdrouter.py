@@ -179,13 +179,13 @@ class CDRouter(object):
         return self._req(path, method='DELETE', params=params)
 
     # cdrouter-specific request methods
-    def list(self, base, filter=None, sort=None, limit=None, page=None, format=None): # pylint: disable=redefined-builtin
+    def list(self, base, filter=None, type=None, sort=None, limit=None, page=None, format=None): # pylint: disable=redefined-builtin
         """Send an authorized GET request for a collection."""
         if sort != None:
             if not isinstance(sort, list):
                 sort = [sort]
             sort = ','.join(sort)
-        return self.get(base, params={'filter': filter, 'sort': sort, 'limit': limit,
+        return self.get(base, params={'filter': filter, 'type': type, 'sort': sort, 'limit': limit,
                                       'page': page, 'format': format})
 
     def get_id(self, base, id, params=None): # pylint: disable=invalid-name,redefined-builtin
