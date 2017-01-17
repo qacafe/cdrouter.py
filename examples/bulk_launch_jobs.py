@@ -7,7 +7,7 @@ from cdrouter import CDRouter
 from cdrouter.jobs import Job
 
 if len(sys.argv) < 3:
-    print 'usage: <base_url> <token> [<tag>]'
+    print('usage: <base_url> <token> [<tag>]')
     sys.exit(1)
 
 base = sys.argv[1]
@@ -27,4 +27,4 @@ for j in c.jobs.bulk_launch(jobs=jobs):
     while j.result_id is None:
         time.sleep(1)
         j = c.jobs.get(j.id)
-    print j.result_id
+    print(j.result_id)

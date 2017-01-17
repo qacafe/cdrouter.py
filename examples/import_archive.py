@@ -5,7 +5,7 @@ import sys
 from cdrouter import CDRouter
 
 if len(sys.argv) < 4:
-    print 'usage: <base_url> <token> <archive>'
+    print('usage: <base_url> <token> <archive>')
     sys.exit(1)
 
 base = sys.argv[1]
@@ -30,7 +30,7 @@ for id in impreq.results:
 
 resp = c.imports.commit(si.id, impreq)
 
-print resp.configs
-print resp.packages
-print resp.devices
-print resp.results
+print(resp.configs)
+print(resp.packages)
+print(resp.devices)
+print(resp.results)

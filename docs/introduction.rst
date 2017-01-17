@@ -30,7 +30,7 @@ Usage
     c = CDRouter('http://localhost:8015', token='deadbeef')
 
     for p in c.packages.list(filter=['tags@>{noretry}'], limit='none'):
-        print 'Launching package ' + p.name
+        print('Launching package ' + p.name)
 
         j = c.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
 
@@ -38,6 +38,6 @@ Usage
             time.sleep(1)
             j = c.jobs.get(j.id)
 
-        print '    Result-ID: ' + j.result_id
+        print('    Result-ID: ' + j.result_id)
 
-    print 'done.'
+    print('done.')
