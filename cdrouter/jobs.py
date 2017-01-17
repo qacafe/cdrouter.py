@@ -121,6 +121,6 @@ class JobsService(object):
                                  params={'bulk': 'launch', 'filter': filter, 'all': all}, json=json)
         return self.service.decode(schema, resp, many=True)
 
-    def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of jobs."""
-        return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, all=all)
+        return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, type=type, all=all)

@@ -251,7 +251,7 @@ class CDRouter(object):
                          json={resource: [{'id': str(x)} for x in ids]})
         return self.decode(schema, resp, many=True)
 
-    def bulk_edit(self, base, resource, fields, ids=None, filter=None, all=False, testvars=None): # pylint: disable=redefined-builtin
+    def bulk_edit(self, base, resource, fields, ids=None, filter=None, type=None, all=False, testvars=None): # pylint: disable=redefined-builtin
         """Send an authorized POST request to bulk edit a set of resources."""
         json = {'fields': fields}
         if ids != None or testvars != None:
@@ -260,14 +260,14 @@ class CDRouter(object):
             if testvars != None:
                 json['testvars'] = testvars
 
-        return self.post(base, params={'bulk': 'edit', 'filter': filter, 'all': all}, json=json)
+        return self.post(base, params={'bulk': 'edit', 'filter': filter, 'type': type, 'all': all}, json=json)
 
-    def bulk_delete(self, base, resource, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_delete(self, base, resource, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Send an authorized POST request to bulk delete a set of resources."""
         json = None
         if ids != None:
             json = {resource: [{'id': str(x)} for x in ids]}
-        return self.post(base, params={'bulk': 'delete', 'filter': filter, 'all': all}, json=json)
+        return self.post(base, params={'bulk': 'delete', 'filter': filter, 'type': type, 'all': all}, json=json)
 
     def decode(self, schema, resp, many=None, links=False):
         json = resp.json()

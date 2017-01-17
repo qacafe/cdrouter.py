@@ -103,10 +103,10 @@ class UsersService(object):
         schema = UserSchema()
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
-    def bulk_edit(self, _fields, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_edit(self, _fields, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk edit a set of users."""
-        return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, all=all)
+        return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, type=type, all=all)
 
-    def bulk_delete(self, ids=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of users."""
-        return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, all=all)
+        return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, type=type, all=all)
