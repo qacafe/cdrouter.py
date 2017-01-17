@@ -234,9 +234,34 @@ class SystemService(object):
                                  files={'file': (filename, fd)})
         return self.service.decode(schema, resp)
 
+    def lounge_update_license(self):
+        """Download & install a license for your CDRouter system from the
+        CDRouter Support Lounge."""
+        schema = UpgradeSchema()
+        resp = self.service.post(self.base+'license/')
+        return self.service.decode(schema, resp)
+
+    def manual_update_license(self, fd, filename='cdrouter.lic'):
+        """"Update the license on your CDRouter system manually by uploading a
+        .lic license from the CDRouter Support Lounge."""
+        return self.service.post(self.base+'license/',
+                          files={'file': (filename, fd)})
+
     def restart(self):
         """Restart CDRouter web interface. Please note that any running tests will be stopped."""
         return self.service.post(self.base+'restart/')
+
+    def live(self):
+        """Get CDRouter Live info from cdrouter-cli -live output."""
+        return self.service.get(self.base+'live/').content
+
+    def info(self):
+        """Get system info from cdrouter-cli -info output."""
+        return self.service.get(self.base+'info/').content
+
+    def diagnostics(self):
+        """Get system diagnostics from cdrouter-diag output."""
+        return self.service.get(self.base+'diag/').content
 
     def time(self):
         """Get system time."""
