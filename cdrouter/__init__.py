@@ -5,6 +5,6 @@
 
 """Python client for the CDRouter Web API."""
 
-__version__ = "0.0.15"
+__version__ = "0.0.16"
 
 from .cdrouter import CDRouter
