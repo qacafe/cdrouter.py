@@ -138,15 +138,15 @@ class TestResultsService(object):
     def _base(self, id): # pylint: disable=invalid-name,redefined-builtin
         return 'results/'+str(id)+self.BASE
 
-    def list(self, id, filter=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
+    def list(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of test results."""
         schema = TestResultSchema()
-        resp = self.service.list(self._base(id), filter, sort, limit, page)
+        resp = self.service.list(self._base(id), filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)
 
-    def list_csv(self, id, filter=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
+    def list_csv(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of test results as CSV."""
-        return self.service.list(self._base(id), filter, sort, limit, page, format='csv')
+        return self.service.list(self._base(id), filter, type, sort, limit, page, format='csv')
 
     def get(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a test result."""

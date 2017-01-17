@@ -39,7 +39,7 @@ class HighlightsService(object):
     def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of highlights."""
         schema = HighlightSchema(exclude=('id', 'seq'))
-        resp = self.service.list(self._base(id, seq), filter)
+        resp = self.service.list(self._base(id, seq))
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin

@@ -83,13 +83,13 @@ class DevicesService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of devices."""
         schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password',
                                        'location', 'device_category', 'manufacturer', 'manufacturer_oui',
                                        'model_name', 'model_number', 'product_class', 'serial_number',
                                        'hardware_version', 'software_version', 'provisioning_code', 'note'))
-        resp = self.service.list(self.base, filter, sort, limit, page)
+        resp = self.service.list(self.base, filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin

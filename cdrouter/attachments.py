@@ -43,9 +43,9 @@ class AttachmentsService(object):
     def _base(self, id): # pylint: disable=invalid-name,redefined-builtin
         return 'devices/'+str(id)+self.BASE
 
-    def list(self, id, filter=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
+    def list(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         schema = AttachmentSchema(exclude=('path'))
-        resp = self.service.list(self._base(id), filter, sort, limit, page)
+        resp = self.service.list(self._base(id), filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id, attid): # pylint: disable=invalid-name,redefined-builtin

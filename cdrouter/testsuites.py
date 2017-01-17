@@ -201,10 +201,10 @@ class TestsuitesService(object):
         """Perform full text search of testsuite."""
         return self.service.get(self.base+'search/', params={'q': query})
 
-    def list_groups(self, filter=None, sort=None): # pylint: disable=redefined-builtin
+    def list_groups(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of groups."""
         schema = GroupSchema()
-        resp = self.service.list(self.base+'groups/', filter, sort)
+        resp = self.service.list(self.base+'groups/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_group(self, name):
@@ -213,10 +213,10 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'tests/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_modules(self, filter=None, sort=None): # pylint: disable=redefined-builtin
+    def list_modules(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of modules."""
         schema = ModuleSchema(exclude=('index', 'labels'))
-        resp = self.service.list(self.base+'modules/', filter, sort)
+        resp = self.service.list(self.base+'modules/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_module(self, name):
@@ -225,10 +225,10 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'modules/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_tests(self, filter=None, sort=None): # pylint: disable=redefined-builtin
+    def list_tests(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of tests."""
         schema = TestSchema(exclude=('description', 'labels', 'testvars', 'skip_name', 'skip_reason'))
-        resp = self.service.list(self.base+'tests/', filter, sort)
+        resp = self.service.list(self.base+'tests/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_test(self, name):
@@ -237,10 +237,10 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'tests/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_labels(self, filter=None, sort=None): # pylint: disable=redefined-builtin
+    def list_labels(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of labels."""
         schema = LabelSchema(exclude=('index', 'description', 'modules', 'tests'))
-        resp = self.service.list(self.base+'labels/', filter, sort)
+        resp = self.service.list(self.base+'labels/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_label(self, name):
@@ -249,10 +249,10 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'labels/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_errors(self, filter=None, sort=None): # pylint: disable=redefined-builtin
+    def list_errors(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of errors."""
         schema = ErrorSchema(exclude=('index', 'description'))
-        resp = self.service.list(self.base+'errors/', filter, sort)
+        resp = self.service.list(self.base+'errors/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_error(self, name):
@@ -261,12 +261,12 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'errors/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_testvars(self, filter=None, sort=None): # pylint: disable=redefined-builtin
+    def list_testvars(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of testvars."""
         schema = TestvarSchema(exclude=('index', 'humanname', 'addedin', 'deprecatedin', 'obsoletedin',
                                         'min', 'max', 'length', 'dyndefault', 'keywords', 'alsoaccept',
                                         'wildcard', 'instances', 'parent', 'children', 'tests'))
-        resp = self.service.list(self.base+'testvars/', filter, sort)
+        resp = self.service.list(self.base+'testvars/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_testvar(self, name):

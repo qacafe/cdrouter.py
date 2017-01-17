@@ -41,8 +41,8 @@ class HistoryService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of history entries."""
         schema = HistorySchema()
-        resp = self.service.list(self.base, filter, sort, limit, page)
+        resp = self.service.list(self.base, filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)

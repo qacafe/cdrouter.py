@@ -102,15 +102,15 @@ class ResultsService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of results."""
         schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info'))
-        resp = self.service.list(self.base, filter, sort, limit, page)
+        resp = self.service.list(self.base, filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)
 
-    def list_csv(self, filter=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list_csv(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of results as CSV."""
-        return self.service.list(self.base, filter, sort, limit, page, format='csv')
+        return self.service.list(self.base, filter, type, sort, limit, page, format='csv')
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a result."""
