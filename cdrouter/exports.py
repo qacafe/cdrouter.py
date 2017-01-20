@@ -36,8 +36,9 @@ class ExportsService(object):
             'results': map(int, result_ids),
             'options': {'exclude_captures': exclude_captures}
         }
-        resp = self.service.post(self.base, json=json)
+        resp = self.service.post(self.base, json=json, stream=True)
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
+        b.seek(0)
         return (b, self.service.filename(resp))

@@ -166,9 +166,9 @@ class CDRouter(object):
         """Send an authorized GET request."""
         return self._req(path, method='GET', params=params, stream=stream)
 
-    def post(self, path, json=None, data=None, params=None, files=None):
+    def post(self, path, json=None, data=None, params=None, files=None, stream=None):
         """Send an authorized POST request."""
-        return self._req(path, method='POST', json=json, data=data, params=params, files=files)
+        return self._req(path, method='POST', json=json, data=data, params=params, stream=stream, files=files)
 
     def patch(self, path, json, params=None):
         """Send an authorized PATCH request."""
@@ -232,6 +232,7 @@ class CDRouter(object):
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
+        b.seek(0)
         return (b, self.filename(resp))
 
     def bulk_export(self, base, ids, params=None):
@@ -243,6 +244,7 @@ class CDRouter(object):
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
+        b.seek(0)
         return (b, self.filename(resp))
 
     def bulk_copy(self, base, resource, ids, schema):

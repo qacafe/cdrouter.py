@@ -83,9 +83,9 @@ class ResultSchema(Schema):
     user_id = fields.Str()
     note = fields.Str()
     pause_message = fields.Str(missing=None)
-    build_info = fields.Str()
+    build_info = fields.Str(missing=None)
     tags = fields.List(fields.Str())
-    testcases = fields.List(fields.Str())
+    testcases = fields.List(fields.Str(), missing=None)
     options = fields.Nested(OptionsSchema)
 
     @post_load
@@ -148,8 +148,11 @@ class ResultsService(object):
 
     def edit(self, resource):
         """Edit a result."""
+        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options'))
+        json = self.service.encode(schema, resource)
+
         schema = ResultSchema()
-        resp = self.service.edit(self.base, resource['id'], resource)
+        resp = self.service.edit(self.base, resource.id, json)
         return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
