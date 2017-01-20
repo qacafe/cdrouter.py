@@ -41,7 +41,7 @@ class AttachmentsService(object):
         self.service = service
 
     def _base(self, id): # pylint: disable=invalid-name,redefined-builtin
-        return 'devices/'+str(id)+self.BASE
+        return 'devices/'+str(id)+'/'+self.BASE
 
     def list(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         schema = AttachmentSchema(exclude=('path'))
@@ -65,12 +65,12 @@ class AttachmentsService(object):
     def thumbnail(self, id, attid, size=None): # pylint: disable=invalid-name,redefined-builtin
         return self.service.get_id(self._base(id), attid, params={'format': 'thumbnail', 'size': size})
 
-    def edit(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
+    def edit(self, resource): # pylint: disable=invalid-name,redefined-builtin
         schema = AttachmentSchema(exclude=('id', 'created', 'updated', 'size', 'path', 'device_id'))
         json = self.service.encode(schema, resource)
 
         schema = AttachmentSchema()
-        resp = self.service.edit(self._base(id), resource.id, json)
+        resp = self.service.edit(self._base(resource.device_id), resource.id, json)
         return self.service.decode(schema, resp)
 
     def delete(self, id, attid): # pylint: disable=invalid-name,redefined-builtin

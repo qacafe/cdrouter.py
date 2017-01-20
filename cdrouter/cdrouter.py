@@ -17,6 +17,7 @@ from . import __version__
 from .cdr_datetime import DateTime
 from .configs import ConfigsService
 from .devices import DevicesService
+from .attachments import AttachmentsService
 from .jobs import JobsService
 from .packages import PackagesService
 from .results import ResultsService
@@ -135,6 +136,7 @@ class CDRouter(object):
         # resource-specific services
         self.configs = ConfigsService(self)
         self.devices = DevicesService(self)
+        self.attachments = AttachmentsService(self)
         self.jobs = JobsService(self)
         self.packages = PackagesService(self)
         self.results = ResultsService(self)
