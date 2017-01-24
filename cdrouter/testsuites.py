@@ -8,6 +8,20 @@
 from marshmallow import Schema, fields, post_load
 
 class Info(object):
+    """Model for CDRouter Testsuite Info.
+
+    :param build_info: (optional) CDRouter build info as string.
+    :param copyright: (optional) CDRouter copyright info as string.
+    :param customer: (optional) Customer name from license as string.
+    :param lifetime: (optional) License lifetime as string.
+    :param os: (optional) OS name as string.
+    :param serial_number: (optional) NTA serial number as string.
+    :param system_id: (optional) CDRouter system ID as string.
+    :param testsuite: (optional) CDRouter testsuite name as string.
+    :param release: (optional) CDRouter release as string.
+    :param addons: (optional) Enabled CDRouter addons as string list.
+    :param all_addons: (optional) All CDRouter addons as string list.
+    """
     def __init__(self, **kwargs):
         self.build_info = kwargs.get('build_info', None)
         self.copyright = kwargs.get('copyright', None)
@@ -39,6 +53,14 @@ class InfoSchema(Schema):
         return Info(**data)
 
 class Group(object):
+    """Model for CDRouter Groups.
+
+    :param id: (optional) Testsuite ID as an int.
+    :param name: (optional) Name as string.
+    :param index: (optional) Index as int.
+    :param test_count: (optional) Test count as int.
+    :param modules: (optional) Modules as string list.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.name = kwargs.get('name', None)
@@ -58,6 +80,18 @@ class GroupSchema(Schema):
         return Group(**data)
 
 class Module(object):
+    """Model for CDRouter Modules.
+
+    :param id: (optional) Testsuite ID as an int.
+    :param name: (optional) Name as string.
+    :param index: (optional) Index as int.
+    :param group: (optional) Group name as string.
+    :param description: (optional) Module description as string.
+    :param test_count: (optional) Test count as int.
+    :param tests: (optional) Tests as string list.
+    :param labels: (optional) Labels as string list.
+    :param aliases: (optional) Aliases as string list.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.name = kwargs.get('name', None)
@@ -85,6 +119,21 @@ class ModuleSchema(Schema):
         return Module(**data)
 
 class Test(object):
+    """Model for CDRouter Tests.
+
+    :param id: (optional) Testsuite ID as an int.
+    :param name: (optional) Name as string.
+    :param index: (optional) Index as int.
+    :param group: (optional) Group name as string.
+    :param module: (optional) Module name as string.
+    :param synopsis: (optional) Test synopsis as string.
+    :param description: (optional) Test description as string.
+    :param labels: (optional) Labels as string list.
+    :param aliases: (optional) Aliases as string list.
+    :param testvars: (optional) Testvars as string list.
+    :param skip_name: (optional) Skip name as string.
+    :param skip_reason: (optional) Skip reason as string.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.name = kwargs.get('name', None)
@@ -120,6 +169,16 @@ class TestSchema(Schema):
         return Test(**data)
 
 class Label(object):
+    """Model for CDRouter Skip Labels.
+
+    :param id: (optional) Testsuite ID as an int.
+    :param name: (optional) Name as string.
+    :param index: (optional) Index as int.
+    :param reason: (optional) Skip reason as string.
+    :param description: (optional) Description as string.
+    :param modules: (optional) Modules as string list.
+    :param tests: (optional) Tests as string list.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.name = kwargs.get('name', None)
@@ -143,6 +202,13 @@ class LabelSchema(Schema):
         return Label(**data)
 
 class Error(object):
+    """Model for CDRouter Start Errors.
+
+    :param id: (optional) Testsuite ID as an int.
+    :param name: (optional) Name as string.
+    :param index: (optional) Index as int.
+    :param description: (optional) Description as string.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.name = kwargs.get('name', None)
@@ -160,6 +226,32 @@ class ErrorSchema(Schema):
         return Error(**data)
 
 class Testvar(object):
+    """Model for CDRouter Start Errors.
+
+    :param id: (optional) Testsuite ID as an int.
+    :param name: (optional) Name as a string.
+    :param index: (optional) Index as an int.
+    :param humanname: (optional) Human-readable name as a string.
+    :param display: (optional) Display name as a string.
+    :param dataclass: (optional) Data-type as a string.
+    :param addedin: (optional) Added-in info as a string.
+    :param deprecatedin: (optional) Deprecated-in info as a string.
+    :param obsoletedin: (optional) Obsoleted-in info as a string.
+    :param min: (optional) Minimum value as a string.
+    :param max: (optional) Maximum value as a string.
+    :param length: (optional) Required length as a string.
+    :param description: (optional) Description as a string.
+    :param default: (optional) Default value as a string.
+    :param defaultdisabled: (optional) Bool `True` if testvar has no default value.
+    :param dyndefault: (optional) Bool `True` if testvar's default value is dynamically calculated.
+    :param keywords: (optional) Accepted values as a string list.
+    :param alsoaccept: (optional) Also-accepted values as a string list.
+    :param wildcard: (optional) Bool `True` if testvar is a wildcard testvar.
+    :param instances: (optional) Number of allowed wildcard instances as an int.
+    :param parent: (optional) Parent wildcard testvar name as a string.
+    :param children: (optional) Child testvars as a string list.
+    :param tests: (optional) Test names as a string list.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.name = kwargs.get('name', None)
@@ -215,6 +307,15 @@ class TestvarSchema(Schema):
         return Testvar(**data)
 
 class Search(object):
+    """Model for CDRouter Testsuite Searches.
+
+    :param addons: (optional) :class:`testsuites.Group <testsuites.Group>` list
+    :param modules: (optional) :class:`testsuites.Module <testsuites.Module>` list
+    :param tests: (optional) :class:`testsuites.Test <testsuites.Test>` list
+    :param reasons: (optional) :class:`testsuites.Label <testsuites.Label>` list
+    :param errors: (optional) :class:`testsuites.Error <testsuites.Error>` list
+    :param testvars: (optional) :class:`testsuites.Testvar <testsuites.Testvar>` list
+    """
     def __init__(self, **kwargs):
         self.addons = kwargs.get('addons', None)
         self.modules = kwargs.get('modules', None)
@@ -246,79 +347,149 @@ class TestsuitesService(object):
         self.base = self.BASE
 
     def info(self):
-        """Get testsuite info."""
+        """Get testsuite info.
+
+        :return: :class:`testsuites.Info <testsuites.Info>` object
+        :rtype: testsuites.Info
+        """
         schema = InfoSchema()
         resp = self.service.get(self.base)
         return self.service.decode(schema, resp)
 
     def search(self, query):
-        """Perform full text search of testsuite."""
+        """Perform full text search of testsuite.
+
+        :param query: Search query as a string.
+        :return: :class:`testsuites.Search <testsuites.Search>` object
+        :rtype: testsuites.Search
+        """
         schema = SearchSchema()
         resp = self.service.get(self.base+'search/', params={'q': query})
         return self.service.decode(schema, resp)
 
     def list_groups(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
-        """Get a list of groups."""
+        """Get a list of groups.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :return: :class:`testsuites.Group <testsuites.Group>` list
+        """
         schema = GroupSchema()
         resp = self.service.list(self.base+'groups/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_group(self, name):
-        """Get a group."""
+        """Get a group.
+
+        :param name: Group name as string.
+        :return: :class:`testsuites.Group <testsuites.Group>` object
+        :rtype: testsuites.Group
+        """
         schema = GroupSchema()
         resp = self.service.get(self.base+'tests/'+name+'/')
         return self.service.decode(schema, resp)
 
     def list_modules(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
-        """Get a list of modules."""
+        """Get a list of modules.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :return: :class:`testsuites.Module <testsuites.Module>` list
+        """
         schema = ModuleSchema(exclude=('index', 'labels'))
         resp = self.service.list(self.base+'modules/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_module(self, name):
-        """Get a module."""
+        """Get a module.
+
+        :param name: Module name as string.
+        :return: :class:`testsuites.Module <testsuites.Module>` object
+        :rtype: testsuites.Module
+        """
         schema = ModuleSchema()
         resp = self.service.get(self.base+'modules/'+name+'/')
         return self.service.decode(schema, resp)
 
     def list_tests(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
-        """Get a list of tests."""
+        """Get a list of tests.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :return: :class:`testsuites.Test <testsuites.Test>` list
+        """
         schema = TestSchema(exclude=('description', 'labels', 'testvars', 'skip_name', 'skip_reason'))
         resp = self.service.list(self.base+'tests/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_test(self, name):
-        """Get a test."""
+        """Get a test.
+
+        :param name: Test name as string.
+        :return: :class:`testsuites.Test <testsuites.Test>` object
+        :rtype: testsuites.Test
+        """
         schema = TestSchema(exclude=('skip_name', 'skip_reason'))
         resp = self.service.get(self.base+'tests/'+name+'/')
         return self.service.decode(schema, resp)
 
     def list_labels(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
-        """Get a list of labels."""
+        """Get a list of labels.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :return: :class:`testsuites.Label <testsuites.Label>` list
+        """
         schema = LabelSchema(exclude=('index', 'description', 'modules', 'tests'))
         resp = self.service.list(self.base+'labels/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_label(self, name):
-        """Get a label."""
+        """Get a label.
+
+        :param name: Label name as string.
+        :return: :class:`testsuites.Label <testsuites.Label>` object
+        :rtype: testsuites.Label
+        """
         schema = LabelSchema()
         resp = self.service.get(self.base+'labels/'+name+'/')
         return self.service.decode(schema, resp)
 
     def list_errors(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
-        """Get a list of errors."""
+        """Get a list of errors.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :return: :class:`testsuites.Error <testsuites.Error>` list
+        """
         schema = ErrorSchema(exclude=('index', 'description'))
         resp = self.service.list(self.base+'errors/', filter, type, sort)
         return self.service.decode(schema, resp, many=True)
 
     def get_error(self, name):
-        """Get a error."""
+        """Get an error.
+
+        :param name: Error name as string.
+        :return: :class:`testsuites.Error <testsuites.Error>` object
+        :rtype: testsuites.Error
+        """
         schema = ErrorSchema()
         resp = self.service.get(self.base+'errors/'+name+'/')
         return self.service.decode(schema, resp)
 
     def list_testvars(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
-        """Get a list of testvars."""
+        """Get a list of testvars.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :return: :class:`testsuites.Testvar <testsuites.Testvar>` list
+        """
         schema = TestvarSchema(exclude=('index', 'humanname', 'addedin', 'deprecatedin', 'obsoletedin',
                                         'min', 'max', 'length', 'dyndefault', 'keywords', 'alsoaccept',
                                         'wildcard', 'instances', 'parent', 'children', 'tests'))
@@ -326,7 +497,12 @@ class TestsuitesService(object):
         return self.service.decode(schema, resp, many=True)
 
     def get_testvar(self, name):
-        """Get a testvar."""
+        """Get a testvar.
+
+        :param name: Testvar name as string.
+        :return: :class:`testsuites.Testvar <testsuites.Testvar>` object
+        :rtype: testsuites.Testvar
+        """
         schema = TestvarSchema()
         resp = self.service.get(self.base+'testvars/'+name+'/')
         return self.service.decode(schema, resp)

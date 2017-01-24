@@ -163,10 +163,37 @@ cdrouter.history
 .. autoclass:: cdrouter.history.History
    :members:
 
-cdrouter.system.SystemService
+cdrouter.system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.system.SystemService
+   :members:
+
+.. autoclass:: cdrouter.system.Version
+   :members:
+
+.. autoclass:: cdrouter.system.ReleaseLatest
+   :members:
+
+.. autoclass:: cdrouter.system.Testsuite
+   :members:
+
+.. autoclass:: cdrouter.system.Release
+   :members:
+
+.. autoclass:: cdrouter.system.Upgrade
+   :members:
+
+.. autoclass:: cdrouter.system.InterfaceFlags
+   :members:
+
+.. autoclass:: cdrouter.system.InterfaceAddr
+   :members:
+
+.. autoclass:: cdrouter.system.Interface
+   :members:
+
+.. autoclass:: cdrouter.system.Preferences
    :members:
 
 cdrouter.tags
@@ -181,10 +208,34 @@ cdrouter.tags
 .. autoclass:: cdrouter.tags.ResourceTags
    :members:
 
-cdrouter.testsuites.TestsuitesService
+cdrouter.testsuites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.testsuites.TestsuitesService
+   :members:
+
+.. autoclass:: cdrouter.testsuites.Info
+   :members:
+
+.. autoclass:: cdrouter.testsuites.Group
+   :members:
+
+.. autoclass:: cdrouter.testsuites.Module
+   :members:
+
+.. autoclass:: cdrouter.testsuites.Test
+   :members:
+
+.. autoclass:: cdrouter.testsuites.Label
+   :members:
+
+.. autoclass:: cdrouter.testsuites.Error
+   :members:
+
+.. autoclass:: cdrouter.testsuites.Testvar
+   :members:
+
+.. autoclass:: cdrouter.testsuites.Search
    :members:
 
 cdrouter.users
