@@ -84,9 +84,9 @@ class Share(object):
     """Model for CDRouter Shares.
 
     :param user_id: (optional) User ID as string.
-    :param read: (optional) Bool `True` is reading is allowed.
-    :param write: (optional) Bool `True` is writing is allowed.
-    :param execute: (optional) Bool `True` is executing is allowed.
+    :param read: (optional) Bool `True` if reading is allowed.
+    :param write: (optional) Bool `True` if writing is allowed.
+    :param execute: (optional) Bool `True` if executing is allowed.
     """
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', None)

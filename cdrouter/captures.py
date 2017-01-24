@@ -335,8 +335,7 @@ class CapturesService(object):
         :param seq: TestResult sequence ID as string.
         :param intf: Interface name as string.
         :param inline: (optional) Use inline version of capture file.
-        :return: :class:`io.BytesIO <io.BytesIO>` object
-        :rtype: io.BytesIO
+        :rtype: tuple `(io.BytesIO, 'filename')`
         """
         resp = self.service.get_id(self._base(id, seq), intf, params={'format': format, 'inline': inline}, stream=True)
         resp.raise_for_status()

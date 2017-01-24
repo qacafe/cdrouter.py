@@ -9,6 +9,34 @@ from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
 class Device(object):
+    """Model for CDRouter Devices.
+
+    :param id: (optional) Device ID as a string.
+    :param name: (optional) Name as string.
+    :param created: (optional) Creation time as `DateTime`.
+    :param updated: (optional) Last-updated time as `DateTime`.
+    :param user_id: (optional) User ID as string.
+    :param result_id: (optional) Result ID as string (if a device snapshot).
+    :param attachments_dir: (optional) Filepath for attachments as string.
+    :param picture_id: (optional) Attachment ID for used for device picture as string.
+    :param tags: (optional) Tags as string list.
+    :param default_ip: Default IP as a string (optional)
+    :param default_login: Default login as a string (optional)
+    :param default_password: Default password as a string (optional)
+    :param location: Location as a string (optional)
+    :param device_category: Device category as a string (optional)
+    :param manufacturer: Manufacturer as a string (optional)
+    :param manufacturer_oui: Manufacturer OUI as a string (optional)
+    :param model_name: Model name as a string (optional)
+    :param model_number: Model number as a string (optional)
+    :param description: Description as a string (optional)
+    :param product_class: Product class as a string (optional)
+    :param serial_number: Serial number as a string (optional)
+    :param hardware_version: Hardware version as a string (optional)
+    :param software_version: Software version as a string (optional)
+    :param provisioning_code: Provisioning code as a string (optional)
+    :param note: Note as a string (optional)
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.name = kwargs.get('name', None)
@@ -84,7 +112,15 @@ class DevicesService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
-        """Get a list of devices."""
+        """Get a list of devices.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :return: :class:`devices.Device <devices.Device>` list
+        """
         schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password',
                                        'location', 'device_category', 'manufacturer', 'manufacturer_oui',
                                        'model_name', 'model_number', 'product_class', 'serial_number',
@@ -93,13 +129,23 @@ class DevicesService(object):
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Get a device."""
+        """Get a device.
+
+        :param id: Device ID as string.
+        :return: :class:`devices.Device <devices.Device>` object
+        :rtype: devices.Device
+        """
         schema = DeviceSchema()
         resp = self.service.get(self.base, id)
         return self.service.decode(schema, resp)
 
     def create(self, resource):
-        """Create a new device."""
+        """Create a new device.
+
+        :param resource: :class:`devices.Device <devices.Device>` object
+        :return: :class:`devices.Device <devices.Device>` object
+        :rtype: devices.Device
+        """
         schema = DeviceSchema(exclude=('id', 'created', 'updated', 'result_id', 'attachments_dir'))
         json = self.service.encode(schema, resource)
 
@@ -108,7 +154,12 @@ class DevicesService(object):
         return self.service.decode(schema, resp)
 
     def edit(self, resource):
-        """Edit a device."""
+        """Edit a device.
+
+        :param resource: :class:`devices.Device <devices.Device>` object
+        :return: :class:`devices.Device <devices.Device>` object
+        :rtype: devices.Device
+        """
         schema = DeviceSchema(exclude=('id', 'created', 'updated', 'result_id', 'attachments_dir'))
         json = self.service.encode(schema, resource)
 
@@ -117,36 +168,73 @@ class DevicesService(object):
         return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Delete a device."""
+        """Delete a device.
+
+        :param id: Device ID as string.
+        """
         return self.service.delete_id(self.base, id)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Get shares for a device."""
+        """Get shares for a device.
+
+        :param id: Device ID as string.
+        :return: :class:`cdrouter.Share <cdrouter.Share>` list
+        """
         return self.service.get_shares(self.base, id)
 
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
-        """Edit shares for a device."""
+        """Edit shares for a device.
+
+        :param id: Device ID as string.
+        :param user_ids: User IDs as int list.
+        :return: :class:`cdrouter.Share <cdrouter.Share>` list
+        """
         return self.service.edit_shares(self.base, id, user_ids)
 
     def export(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Export a device."""
+        """Export a device.
+
+        :param id: Device ID as string.
+        :rtype: tuple `(io.BytesIO, 'filename')`
+        """
         return self.service.export(self.base, id)
 
     def bulk_export(self, ids):
-        """Bulk export a set of devices."""
+        """Bulk export a set of devices.
+
+        :param ids: String list of device IDs.
+        :rtype: tuple `(io.BytesIO, 'filename')`
+        """
         return self.service.bulk_export(self.base, ids)
 
     def bulk_copy(self, ids):
-        """Bulk copy a set of devices."""
+        """Bulk copy a set of devices.
+
+        :param ids: String list of device IDs.
+        :return: :class:`devices.Device <devices.Device>` list
+        """
         schema = DeviceSchema()
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
     def bulk_edit(self, _fields, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
-        """Bulk edit a set of devices."""
+        """Bulk edit a set of devices.
+
+        :param _fields: :class:`devices.Device <devices.Device>` object
+        :param ids: (optional) String list of device IDs.
+        :param filter: (optional) String list of filters.
+        :param type: (optional) `union` or `inter` as string.
+        :param all: (optional) Apply to all if bool `True`.
+        """
         return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids,
                                       filter=filter, type=type, all=all)
 
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
-        """Bulk delete a set of devices."""
+        """Bulk delete a set of devices.
+
+        :param ids: (optional) String list of device IDs.
+        :param filter: (optional) String list of filters.
+        :param type: (optional) `union` or `inter` as string.
+        :param all: (optional) Apply to all if bool `True`.
+        """
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids,
                                         filter=filter, type=type, all=all)

@@ -40,14 +40,26 @@ cdrouter.configs
 .. autoclass:: cdrouter.configs.Testvar
    :members:
 
-cdrouter.devices.DevicesService
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cdrouter.devices
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.devices.DevicesService
    :members:
 
+.. autoclass:: cdrouter.devices.Device
+   :members:
+
+cdrouter.attachments
+~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.attachments.AttachmentsService
+   :members:
+
+.. autoclass:: cdrouter.attachments.Attachment
+   :members:
+
 cdrouter.jobs
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.jobs.JobsService
    :members:
@@ -58,14 +70,14 @@ cdrouter.jobs
 .. autoclass:: cdrouter.jobs.Options
    :members:
 
-cdrouter.packages.PackagesService
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cdrouter.packages
+~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.packages.PackagesService
    :members:
 
-cdrouter.results.ResultsService
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cdrouter.results
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.results.ResultsService
    :members:

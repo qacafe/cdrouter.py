@@ -27,8 +27,7 @@ class ExportsService(object):
         :param package_ids: (optional) Int list of package IDs.
         :param result_ids: (optional) Int list of result IDs.
         :param exclude_captures: (optional) Exclude capture files if bool `True`.
-        :return: :class:`io.BytesIO <io.BytesIO>` object
-        :rtype: io.BytesIO
+        :rtype: tuple `(io.BytesIO, 'filename')`
         """
         if config_ids is None:
             config_ids = []

@@ -264,8 +264,7 @@ class ConfigsService(object):
         """Export a config.
 
         :param id: Config ID as string.
-        :return: :class:`io.BytesIO <io.BytesIO>` object
-        :rtype: io.BytesIO
+        :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.export(self.base, id)
 
@@ -309,8 +308,7 @@ class ConfigsService(object):
         """Bulk export a set of configs.
 
         :param ids: String list of config IDs.
-        :return: :class:`io.BytesIO <io.BytesIO>` object
-        :rtype: io.BytesIO
+        :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.bulk_export(self.base, ids)
 
@@ -331,7 +329,7 @@ class ConfigsService(object):
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
-        :param all: (optional) :class:`configs.ConfigTestvars <configs.ConfigTestvars>` list
+        :param testvars: (optional) :class:`configs.ConfigTestvars <configs.ConfigTestvars>` list
         """
         return self.service.bulk_edit(self.base, self.RESOURCE,
                                       _fields, ids=ids, filter=filter, type=type, all=all, testvars=testvars)
