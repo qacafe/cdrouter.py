@@ -8,6 +8,13 @@
 from marshmallow import Schema, fields, post_load
 
 class Highlight(object):
+    """Model for CDRouter Highlights.
+
+    :param id: (optional) Result ID as string.
+    :param seq: (optional) TestResult sequence ID as string.
+    :param line: (optional) Line number in TestResult's logfile as string.
+    :param color: (optional) Highlight color as string.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.seq = kwargs.get('seq', None)
@@ -37,19 +44,37 @@ class HighlightsService(object):
         return 'results/'+str(id)+'/tests/'+str(seq)+'/'+self.BASE
 
     def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
-        """Get a list of highlights."""
+        """Get a list of highlights.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :return: :class:`highlights.Highlight <highlights.Highlight>` list
+        """
         schema = HighlightSchema(exclude=('id', 'seq'))
         resp = self.service.list(self._base(id, seq))
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
-        """Get a highlight."""
+        """Get a highlight.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :param line: Line number in TestResult's logfile as string.
+        :return: :class:`highlights.Highlight <highlights.Highlight>` object
+        """
         schema = HighlightSchema()
         resp = self.service.get_id(self._base(id, seq), line)
         return self.service.decode(schema, resp)
 
     def create_or_edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
-        """Create or edit a highlight."""
+        """Create or edit a highlight.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :param resource: :class:`highlights.Highlight <highlights.Highlight>` object
+        :return: :class:`highlights.Highlight <highlights.Highlight>` object
+        :rtype: highlights.Highlight
+        """
         schema = HighlightSchema(exclude=('id', 'seq'))
         json = self.service.encode(schema, resource)
 
@@ -58,11 +83,32 @@ class HighlightsService(object):
         return self.service.decode(schema, resp)
 
     def create(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
+        """Create a highlight.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :param resource: :class:`highlights.Highlight <highlights.Highlight>` object
+        :return: :class:`highlights.Highlight <highlights.Highlight>` object
+        :rtype: highlights.Highlight
+        """
         return self.create_or_edit(id, seq, resource)
 
     def edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
+        """Edit a highlight.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :param resource: :class:`highlights.Highlight <highlights.Highlight>` object
+        :return: :class:`highlights.Highlight <highlights.Highlight>` object
+        :rtype: highlights.Highlight
+        """
         return self.create_or_edit(id, seq, resource)
 
     def delete(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
-        """Get a highlight."""
+        """Delete a highlight.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :param line: Line number in TestResult's logfile as string.
+        """
         return self.service.delete_id(self._base(id, seq), line)

@@ -9,6 +9,13 @@ from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
 class Summary(object):
+    """Model for CDRouter Log Section Summaries.
+
+    :param errors: (optional) Error log count as int.
+    :param fails: (optional) Fail log count as int.
+    :param passes: (optional) Pass log count as int.
+    :param warning: (optional) Warning log count as int.
+    """
     def __init__(self, **kwargs):
         self.errors = kwargs.get('errors', None)
         self.fails = kwargs.get('fails', None)
@@ -26,6 +33,24 @@ class SummarySchema(Schema):
         return Summary(**data)
 
 class Line(object):
+    """Model for CDRouter Log Lines.
+
+    :param raw: (optional) Raw log text as string.
+    :param line: (optional) Line number as int.
+    :param header: (optional) `True` if line is a header.
+    :param section: (optional) `True` if line is a section.
+    :param prefix: (optional) Log prefix as string.
+    :param name: (optional) Log stack name as string.
+    :param timestamp: (optional) Log timestamp as string.
+    :param message: (optional) Log message as string.
+    :param interface: (optional) Log interface as string (if packet log).
+    :param packet: (optional) Log frame number as string (if packet log).
+    :param src: (optional) Log source address as string (if packet log).
+    :param dst: (optional) Log destination address as string (if packet log).
+    :param proto: (optional) Log protocol name as string (if packet log).
+    :param info: (optional) Log protocol summary as string (if packet log).
+    :param summary: (optional) :class:`testresults.Summary <testresults.Summary>` object (if section log)
+    """
     def __init__(self, **kwargs):
         self.raw = kwargs.get('raw', None)
 
@@ -73,6 +98,13 @@ class LineSchema(Schema):
         return Line(**data)
 
 class Log(object):
+    """Model for CDRouter Log.
+
+    :param offset: (optional) Zero-based offset in logfile as int.
+    :param limit: (optional) Limit as int.
+    :param lines: (optional) :class:`testresults.Line <testresults.Line>` list
+    :param total: (optional) Total line count as int.
+    """
     def __init__(self, **kwargs):
         self.offset = kwargs.get('offset', None)
         self.limit = kwargs.get('limit', None)
@@ -90,6 +122,23 @@ class LogSchema(Schema):
         return Log(**data)
 
 class TestResult(object):
+    """Model for CDRouter TestResults.
+
+    :param id: (optional) Result ID as string.
+    :param seq: (optional) TestResult sequence ID as string.
+    :param loop: (optional) Loop number as string.
+    :param result: (optional) Test result as string.
+    :param retries: (optional) Retry count as int.
+    :param started: (optional) Test start time as `DateTime`.
+    :param duration: (optional) Test duration as int.
+    :param flagged: (optional) `True` if test is flagged.
+    :param name: (optional) Test name as string.
+    :param description: (optional) Test description as string.
+    :param skip_name: (optional) Skip name for TestResult as string.
+    :param skip_reason: (optional) Skip reason for TestResult as string.
+    :param log: (optional) Logfile path for TestResult as string.
+    :param note: (optional) Note for TestResult as string.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.seq = kwargs.get('seq', None)
@@ -139,23 +188,53 @@ class TestResultsService(object):
         return 'results/'+str(id)+self.BASE
 
     def list(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a list of test results."""
+        """Get a list of test results.
+
+        :param id: Result ID as string.
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :return: :class:`testresults.TestResult <testresults.TestResult>` list
+        """
         schema = TestResultSchema()
         resp = self.service.list(self._base(id), filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)
 
     def list_csv(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a list of test results as CSV."""
-        return self.service.list(self._base(id), filter, type, sort, limit, page, format='csv')
+        """Get a list of test results as CSV.
+
+        :param id: Result ID as string.
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :rtype: string
+        """
+        return self.service.list(self._base(id), filter, type, sort, limit, page, format='csv').text
 
     def get(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
-        """Get a test result."""
+        """Get a test result.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :return: :class:`testresults.TestResult <testresults.TestResult>` object
+        :rtype: testresults.TestResult
+        """
         schema = TestResultSchema()
         resp = self.service.get_id(self._base(id), seq)
         return self.service.decode(schema, resp)
 
     def edit(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
-        """Edit a test result."""
+        """Edit a test result.
+
+        :param id: Result ID as string.
+        :param resource: :class:`testresults.TestResult <testresults.TestResult>` object
+        :return: :class:`testresults.TestResult <testresults.TestResult>` object
+        :rtype: testresults.TestResult
+        """
         schema = TestResultSchema(exclude=('id', 'seq', 'loop', 'result', 'retries', 'started', 'duration', 'name', 'description', 'skip_name', 'skip_reason', 'log'))
         json = self.service.encode(schema, resource)
 
@@ -164,7 +243,18 @@ class TestResultsService(object):
         return self.service.decode(schema, resp)
 
     def get_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, timestamp_format=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a test result's log."""
+        """Get a test result's log.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :param offset: (optional) Offset within logfile to get.
+        :param limit: (optional) Limit returned list length.
+        :param filter: (optional) Filters to apply as a string list.
+        :param packets: (optional) Set to bool `False` to omit packet logs.
+        :param timestamp_format: (optional) Timestamp format to use, must be string `long` or `short`.
+        :return: :class:`testresults.Log <testresults.Log>` object
+        :rtype: testresults.Log
+        """
         schema = LogSchema()
         resp = self.service.get(self._base(id)+str(seq)+'/log/',
                                 params={'offset': offset, 'limit': limit, 'filter': filter,
@@ -172,6 +262,11 @@ class TestResultsService(object):
         return self.service.decode(schema, resp)
 
     def get_log_plaintext(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
-        """Get a test result's log as plaintext."""
+        """Get a test result's log as plaintext.
+
+        :param id: Result ID as string.
+        :param seq: TestResult sequence ID as string.
+        :rtype: string
+        """
         return self.service.get(self._base(id)+str(seq)+'/log/',
-                                params={'format': 'text'})
+                                params={'format': 'text'}).text
