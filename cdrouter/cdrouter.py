@@ -81,6 +81,13 @@ class ListResponseSchema(ResponseSchema):
         return Response(**data)
 
 class Share(object):
+    """Model for CDRouter Shares.
+
+    :param user_id: (optional) User ID as string.
+    :param read: (optional) Bool `True` is reading is allowed.
+    :param write: (optional) Bool `True` is writing is allowed.
+    :param execute: (optional) Bool `True` is executing is allowed.
+    """
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', None)
         self.read = kwargs.get('read', None)

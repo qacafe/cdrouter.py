@@ -7,6 +7,7 @@
 
 import io
 
+from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
 
 class Section(object):

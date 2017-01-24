@@ -13,10 +13,31 @@ cdrouter.CDRouter
 .. autoclass:: cdrouter.CDRouter
    :members:
 
-cdrouter.configs.ConfigsService
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: cdrouter.cdrouter.Share
+   :members:
+
+cdrouter.configs
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.configs.ConfigsService
+   :members:
+
+.. autoclass:: cdrouter.configs.Config
+   :members:
+
+.. autoclass:: cdrouter.configs.ConfigError
+   :members:
+
+.. autoclass:: cdrouter.configs.CheckConfig
+   :members:
+
+.. autoclass:: cdrouter.configs.UpgradeConfig
+   :members:
+
+.. autoclass:: cdrouter.configs.Networks
+   :members:
+
+.. autoclass:: cdrouter.configs.Testvar
    :members:
 
 cdrouter.devices.DevicesService
@@ -50,9 +71,12 @@ cdrouter.results.ResultsService
    :members:
 
 cdrouter.testresults
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.testresults.TestResultsService
+   :members:
+
+.. autoclass:: cdrouter.testresults.TestResult
    :members:
 
 .. autoclass:: cdrouter.testresults.Summary
@@ -64,11 +88,8 @@ cdrouter.testresults
 .. autoclass:: cdrouter.testresults.Log
    :members:
 
-.. autoclass:: cdrouter.testresults.TestResult
-   :members:
-
 cdrouter.annotations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.annotations.AnnotationsService
    :members:
@@ -77,9 +98,12 @@ cdrouter.annotations
    :members:
 
 cdrouter.captures
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.captures.CapturesService
+   :members:
+
+.. autoclass:: cdrouter.captures.Capture
    :members:
 
 .. autoclass:: cdrouter.captures.Section
@@ -118,14 +142,11 @@ cdrouter.captures
 .. autoclass:: cdrouter.captures.ASCII
    :members:
 
-.. autoclass:: cdrouter.captures.Capture
-   :members:
-
 .. autoclass:: cdrouter.captures.CloudShark
    :members:
 
 cdrouter.highlights
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.highlights.HighlightsService
    :members:
@@ -134,7 +155,7 @@ cdrouter.highlights
    :members:
 
 cdrouter.imports
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.imports.ImportsService
    :members:
@@ -149,13 +170,13 @@ cdrouter.imports
    :members:
 
 cdrouter.exports
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.exports.ExportsService
    :members:
 
 cdrouter.history
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.history.HistoryService
    :members:
@@ -164,7 +185,7 @@ cdrouter.history
    :members:
 
 cdrouter.system
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.system.SystemService
    :members:
@@ -197,7 +218,7 @@ cdrouter.system
    :members:
 
 cdrouter.tags
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.tags.TagsService
    :members:
@@ -209,7 +230,7 @@ cdrouter.tags
    :members:
 
 cdrouter.testsuites
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.testsuites.TestsuitesService
    :members:
@@ -239,7 +260,7 @@ cdrouter.testsuites
    :members:
 
 cdrouter.users
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.users.UsersService
    :members:
