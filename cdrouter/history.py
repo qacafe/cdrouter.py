@@ -9,6 +9,16 @@ from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
 class History(object):
+    """Model for CDRouter History entries.
+
+    :param user_id: (optional) User ID as string.
+    :param created: (optional) Entry creation time as `DateTime`.
+    :param resource: (optional) Resource type as string.
+    :param id: (optional) Resource ID as string.
+    :param name: (optional) Resource name as string.
+    :param action: (optional) Action name as string.
+    :param description: (optional) Resource description as string.
+    """
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', None)
         self.created = kwargs.get('created', None)
@@ -42,7 +52,15 @@ class HistoryService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
-        """Get a list of history entries."""
+        """Get a list of history entries.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :return: :class:`history.History <history.History>` list
+        """
         schema = HistorySchema()
         resp = self.service.list(self.base, filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)

@@ -133,22 +133,34 @@ cdrouter.highlights
 .. autoclass:: cdrouter.highlights.Highlight
    :members:
 
-cdrouter.imports.ImportsService
+cdrouter.imports
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.imports.ImportsService
    :members:
 
-cdrouter.exports.ExportsService
+.. autoclass:: cdrouter.imports.Import
+   :members:
+
+.. autoclass:: cdrouter.imports.Response
+   :members:
+
+.. autoclass:: cdrouter.imports.Request
+   :members:
+
+cdrouter.exports
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.exports.ExportsService
    :members:
 
-cdrouter.history.HistoryService
+cdrouter.history
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.history.HistoryService
+   :members:
+
+.. autoclass:: cdrouter.history.History
    :members:
 
 cdrouter.system.SystemService
@@ -157,10 +169,16 @@ cdrouter.system.SystemService
 .. autoclass:: cdrouter.system.SystemService
    :members:
 
-cdrouter.tags.TagsService
+cdrouter.tags
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.tags.TagsService
+   :members:
+
+.. autoclass:: cdrouter.tags.Tag
+   :members:
+
+.. autoclass:: cdrouter.tags.ResourceTags
    :members:
 
 cdrouter.testsuites.TestsuitesService

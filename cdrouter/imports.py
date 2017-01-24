@@ -10,6 +10,18 @@ from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
 class Import(object):
+    """Model for CDRouter Staged Imports.
+
+    :param id: (optional) Staged import ID as string.
+    :param user_id: (optional) User ID as string.
+    :param created: (optional) Creation time as `DateTime`.
+    :param updated: (optional) Last-updated time as `DateTime`.
+    :param archive: (optional) Path to archive as string.
+    :param path: (optional) Local filepath as string.
+    :param url: (optional) URL to fetch as string.
+    :param insecure: (optional) Allow insecure HTTPS connections if bool `True`.
+    :param size: (optional) Size of import as int.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.user_id = kwargs.get('user_id', None)
@@ -37,6 +49,13 @@ class ImportSchema(Schema):
         return Import(**data)
 
 class Response(object):
+    """Model for CDRouter Import Responses.
+
+    :param imported: (optional) Bool `True` if resource imported successfully.
+    :param id: (optional) Resource ID as string.
+    :param name: (optional) Resource name as string.
+    :param message: (optional) Response message as string.
+    """
     def __init__(self, **kwargs):
         self.imported = kwargs.get('imported', None)
         self.id = kwargs.get('id', None)
@@ -54,6 +73,14 @@ class ResponseSchema(Schema):
         return Response(**data)
 
 class Request(object):
+    """Model for CDRouter Import Requests.
+
+    :param replace_existing: (optional) Bool `True` if existing resources should be overwritten.
+    :param configs: (optional) Dict of configs.
+    :param devices: (optional) Dict of devices.
+    :param packages: (optional) Dict of packages.
+    :param results: (optional) Dict of results.
+    """
     def __init__(self, **kwargs):
         self.replace_existing = kwargs.get('replace_existing', None)
 
@@ -89,46 +116,80 @@ class ImportsService(object):
         self.base = self.BASE
 
     def list(self):
-        """Get a list of staged (in-progress) imports."""
+        """Get a list of staged (in-progress) imports.
+
+        :return: :class:`imports.Import <imports.Import>` list
+        """
         schema = ImportSchema()
         resp = self.service.list(self.base)
         return self.service.decode(schema, resp, many=True)
 
     def stage_import_from_file(self, fd, filename='upload.gz'):
-        """Stage an import from a file upload."""
+        """Stage an import from a file upload.
+
+        :param fd: File-like object to upload.
+        :param filename: (optional) Filename to use for import as string.
+        :return: :class:`imports.Import <imports.Import>` object
+        """
         schema = ImportSchema()
         resp = self.service.post(self.base,
                                  files={'file': (filename, fd)})
         return self.service.decode(schema, resp)
 
     def stage_import_from_filesystem(self, filepath):
-        """Stage an import from a filesystem path."""
+        """Stage an import from a filesystem path.
+
+        :param filepath: Local filesystem path as string.
+        :return: :class:`imports.Import <imports.Import>` object
+        """
         schema = ImportSchema()
         resp = self.service.post(self.base,
                                  params={'path': filepath})
         return self.service.decode(schema, resp)
 
     def stage_import_from_url(self, url, token=None, insecure=False):
-        """Stage an import from a URL to another CDRouter system."""
+        """Stage an import from a URL to another CDRouter system.
+
+        :param url: URL to import as string.
+        :param token: (optional) API token to use as string (may be required if importing from a CDRouter 10+ system).
+        :param insecure: (optional) Allow insecure HTTPS connections if bool `True`.
+        :return: :class:`imports.Import <imports.Import>` object
+        """
         schema = ImportSchema()
         resp = self.service.post(self.base,
                                  params={'url': url, 'token': token, 'insecure': insecure})
         return self.service.decode(schema, resp)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Get a staged import."""
+        """Get a staged import.
+
+        :param id: Staged import ID as string.
+        :return: :class:`imports.Import <imports.Import>` object
+        :rtype: imports.Import
+        """
         schema = ImportSchema()
         resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
 
     def get_commit_request(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Get a commit request for a staged import."""
+        """Get a commit request for a staged import.
+
+        :param id: Staged import ID as string.
+        :return: :class:`imports.Request <imports.Request>` object
+        :rtype: imports.Request
+        """
         schema = RequestSchema()
         resp = self.service.get(self.base+str(id)+'/request/')
         return self.service.decode(schema, resp)
 
     def commit(self, id, impreq): # pylint: disable=invalid-name,redefined-builtin
-        """Commit a staged import."""
+        """Commit a staged import.
+
+        :param id: Staged import ID as string.
+        :param impreq: :class:`imports.Request <imports.Request>` object
+        :return: :class:`imports.Request <imports.Request>` object
+        :rtype: imports.Request
+        """
         schema = RequestSchema()
         json = self.service.encode(schema, impreq)
 
@@ -137,5 +198,8 @@ class ImportsService(object):
         return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Delete a staged import."""
+        """Delete a staged import.
+
+        :param id: Staged import ID as string.
+        """
         return self.service.delete_id(self.base, id)

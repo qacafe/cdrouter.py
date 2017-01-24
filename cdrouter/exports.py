@@ -20,7 +20,16 @@ class ExportsService(object):
         self.base = self.BASE
 
     def bulk_export(self, config_ids=None, device_ids=None, package_ids=None, result_ids=None, exclude_captures=False):
-        """Bulk export a set of configs, devices, packages and results."""
+        """Bulk export a set of configs, devices, packages and results.
+
+        :param config_ids: (optional) Int list of config IDs.
+        :param device_ids: (optional) Int list of device IDs.
+        :param package_ids: (optional) Int list of package IDs.
+        :param result_ids: (optional) Int list of result IDs.
+        :param exclude_captures: (optional) Exclude capture files if bool `True`.
+        :return: :class:`io.BytesIO <io.BytesIO>` object
+        :rtype: io.BytesIO
+        """
         if config_ids is None:
             config_ids = []
         if device_ids is None:
