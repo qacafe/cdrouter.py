@@ -82,6 +82,18 @@ cdrouter.results
 .. autoclass:: cdrouter.results.ResultsService
    :members:
 
+.. autoclass:: cdrouter.results.Result
+   :members:
+
+.. autoclass:: cdrouter.results.Options
+   :members:
+
+.. autoclass:: cdrouter.results.Metric
+   :members:
+
+.. autoclass:: cdrouter.results.LogDirFile
+   :members:
+
 cdrouter.testresults
 ~~~~~~~~~~~~~~~~~~~~
 

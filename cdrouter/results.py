@@ -5,10 +5,81 @@
 
 """Module for accessing CDRouter Results."""
 
+import io
+
+from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
+class Metric(object):
+    """Model for CDRouter Metrics.
+
+    :param log_file: (optional) Filepath to logfile as a string.
+    :param timestamp: (optional) Timestamp for metric as a `DateTime`.
+    :param metric: (optional) Metric name as a string.
+    :param value: (optional) Metric value as a string.
+    :param units: (optional) Metric units as a string.
+    :param result: (optional) Metric result as a string.
+    :param interface_1: (optional) First interface as a string.
+    :param interface_2: (optional) Second interface as a string.
+    :param streams: (optional) Stream count as a string.
+    """
+    def __init__(self, **kwargs):
+        self.log_file = kwargs.get('log_file', None)
+        self.timestamp = kwargs.get('timestamp', None)
+        self.metric = kwargs.get('metric', None)
+        self.value = kwargs.get('value', None)
+        self.units = kwargs.get('units', None)
+        self.result = kwargs.get('result', None)
+        self.interface_1 = kwargs.get('interface_1', None)
+        self.interface_2 = kwargs.get('interface_2', None)
+        self.streams = kwargs.get('streams', None)
+
+class MetricSchema(object):
+    log_file = fields.Str()
+    timestamp = DateTime()
+    metric = fields.Str()
+    value = fields.Str()
+    units = fields.Str()
+    result = fields.Str()
+    interface_1 = fields.Str()
+    interface_2 = fields.Str()
+    streams = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return Metric(**data)
+
+class LogDirFile(object):
+    """Model for CDRouter Logdir Files.
+
+    :param name: (optional) Name as a string.
+    :param size: (optional) Filesize as an int.
+    :param modified: (optional) Last-updated time as a `DateTime`.
+    """
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.size = kwargs.get('size', None)
+        self.modified = kwargs.get('modified', None)
+
+class LogDirFileSchema(Schema):
+    name = fields.Str()
+    size = fields.Int()
+    modified = DateTime()
+
+    @post_load
+    def post_load(self, data):
+        return LogDirFile(**data)
+
 class Options(object):
+    """Model for CDRouter Result Options.
+
+    :param tags: (optional) Tags as string list.
+    :param skip_tests: (optional) Tests to skip as string list.
+    :param begin_at: (optional) Test name to begin testing at as string.
+    :param end_at: (optional) Test name to end testing at as string.
+    :param extra_cli_args: (optional) Extra `cdrouter-cli` arguments as string.
+    """
     def __init__(self, **kwargs):
         self.tags = kwargs.get('tags', None)
         self.skip_tests = kwargs.get('skip_tests', None)
@@ -28,6 +99,37 @@ class OptionsSchema(Schema):
         return Options(**data)
 
 class Result(object):
+    """Model for CDRouter Results.
+
+    :param id: (optional) Result ID as a string.
+    :param created: (optional) Creation time as `DateTime`.
+    :param updated: (optional) Last-updated time as `DateTime`.
+    :param result: (optional) Result as a string.
+    :param status: (optional) Status as a string.
+    :param loops: (optional) Loop count as an int.
+    :param tests: (optional) Test count as an int.
+    :param passed: (optional) Passed count as an int.
+    :param fail: (optional) Failed count as an int.
+    :param duration: (optional) Duration in seconds as an int.
+    :param size_on_disk: (optional) Size on disk in bytes as an int.
+    :param starred: (optional) Bool `True` if result is starred.
+    :param archived: (optional) Bool `True` if result is archived.
+    :param result_dir: (optional) Filepath to result directory as a string.
+    :param agent_name: (optional) Agent name as a string.
+    :param package_name: (optional) Package name as a string.
+    :param device_name: (optional) Device name as a string.
+    :param config_name: (optional) Config name as a string.
+    :param package_id: (optional) Package ID as a string.
+    :param device_id: (optional) Device ID as a string.
+    :param config_id: (optional) Config ID as a string.
+    :param user_id: (optional) User ID as a string.
+    :param note: (optional) Note as a string.
+    :param pause_message: (optional) Pause message as a string (if currently paused).
+    :param build_info: (optional) Build info as a string.
+    :param tags: (optional) Tags as a string list.
+    :param testcases: (optional) Testcases as a string list.
+    :param options: (optional) :class:`results.Options <results.Options>` object
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.created = kwargs.get('created', None)
@@ -103,51 +205,100 @@ class ResultsService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
-        """Get a list of results."""
+        """Get a list of results.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :return: :class:`results.Result <results.Result>` list
+        """
         schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)
 
     def list_csv(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
-        """Get a list of results as CSV."""
-        return self.service.list(self.base, filter, type, sort, limit, page, format='csv')
+        """Get a list of results as CSV.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :rtype: string
+        """
+        return self.service.list(self.base, filter, type, sort, limit, page, format='csv').text
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Get a result."""
+        """Get a result.
+
+        :param id: Result ID as string.
+        :return: :class:`results.Result <results.Result>` object
+        :rtype: results.Result
+        """
         schema = ResultSchema()
         resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
 
     def stop(self, id, when=None): # pylint: disable=invalid-name,redefined-builtin
-        """Stop a running result."""
+        """Stop a running result.
+
+        :param id: Result ID as string.
+        :param when: Must be string `end-of-test` or `end-of-loop`.
+        """
         return self.service.post(self.base+str(id)+'/stop/', params={'when': when})
 
     def stop_end_of_test(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Stop a running result at the end of the current test."""
+        """Stop a running result at the end of the current test.
+
+        :param id: Result ID as string.
+        """
         return self.stop(id, 'end-of-test')
 
     def stop_end_of_loop(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Stop a running result at the end of the current loop."""
+        """Stop a running result at the end of the current loop.
+
+        :param id: Result ID as string.
+        """
         return self.stop(id, 'end-of-loop')
 
     def pause(self, id, when=None): # pylint: disable=invalid-name,redefined-builtin
-        """Pause a running result."""
+        """Pause a running result.
+
+        :param id: Result ID as string.
+        :param when: Must be string `end-of-test` or `end-of-loop`.
+        """
         return self.service.post(self.base+str(id)+'/pause/', params={'when': when})
 
     def pause_end_of_test(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Pause a running result at the end of the current test."""
+        """Pause a running result at the end of the current test.
+
+        :param id: Result ID as string.
+        """
         return self.pause(id, 'end-of-test')
 
     def pause_end_of_loop(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Pause a running result at the end of the current loop."""
+        """Pause a running result at the end of the current loop.
+
+        :param id: Result ID as string.
+        """
         return self.pause(id, 'end-of-loop')
 
     def unpause(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Unpause a running result."""
+        """Unpause a running result.
+
+        :param id: Result ID as string.
+        """
         return self.service.post(self.base+str(id)+'/unpause/')
 
     def edit(self, resource):
-        """Edit a result."""
+        """Edit a result.
+
+        :param resource: :class:`results.Result <results.Result>` object
+        :return: :class:`results.Result <results.Result>` object
+        :rtype: results.Result
+        """
         schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options'))
         json = self.service.encode(schema, resource)
 
@@ -156,36 +307,73 @@ class ResultsService(object):
         return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Delete a result."""
+        """Delete a result.
+
+        :param id: Result ID as string.
+        """
         return self.service.delete_id(self.base, id)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Get shares for a result."""
+        """Get shares for a result.
+
+        :param id: Config ID as string.
+        :return: :class:`cdrouter.Share <cdrouter.Share>` list
+        """
         return self.service.get_shares(self.base, id)
 
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
-        """Edit shares for a result."""
+        """Edit shares for a result.
+
+        :param id: Config ID as string.
+        :return: :class:`cdrouter.Share <cdrouter.Share>` list
+        """
         return self.service.edit_shares(self.base, id, user_ids)
 
     def export(self, id, exclude_captures=False): # pylint: disable=invalid-name,redefined-builtin
-        """Export a result."""
+        """Export a result.
+
+        :param id: Result ID as string.
+        :param exclude_captures: If bool `True`, don't export capture files
+        :rtype: tuple `(io.BytesIO, 'filename')`
+        """
         return self.service.export(self.base, id, params={'exclude_captures': exclude_captures})
 
     def bulk_export(self, ids, exclude_captures=False):
-        """Bulk export a set of results."""
+        """Bulk export a set of results.
+
+        :param ids: String list of result IDs.
+        :rtype: tuple `(io.BytesIO, 'filename')`
+        """
         return self.service.bulk_export(self.base, ids, params={'exclude_captures': exclude_captures})
 
     def bulk_copy(self, ids):
-        """Bulk copy a set of results."""
+        """Bulk copy a set of results.
+
+        :param ids: String list of result IDs.
+        :return: :class:`results.Result <results.Result>` list
+        """
         schema = ResultSchema()
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
     def bulk_edit(self, _fields, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
-        """Bulk edit a set of results."""
+        """Bulk edit a set of results.
+
+        :param _fields: :class:`results.Result <results.Result>` object
+        :param ids: (optional) String list of result IDs.
+        :param filter: (optional) String list of filters.
+        :param type: (optional) `union` or `inter` as string.
+        :param all: (optional) Apply to all if bool `True`.
+        """
         return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, type=type, all=all)
 
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
-        """Bulk delete a set of results."""
+        """Bulk delete a set of results.
+
+        :param ids: (optional) String list of result IDs.
+        :param filter: (optional) String list of filters.
+        :param type: (optional) `union` or `inter` as string.
+        :param all: (optional) Apply to all if bool `True`.
+        """
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, type=type, all=all)
 
     def all_stats(self):
@@ -197,26 +385,71 @@ class ResultsService(object):
         return self.service.post(self.base, params={'stats': 'set'}, json=[{'id': str(x)} for x in ids])
 
     def single_stats(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Compute stats for a result."""
+        """Compute stats for a result.
+
+        :param id: Result ID as string.
+        """
         return self.service.get(self.base+str(id)+'/', params={'stats': 'all'})
 
     def list_logdir(self, id, filter=None, sort=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a list of logdir files."""
-        return self.service.list(self.base+str(id)+'/logdir/', filter, sort)
+        """Get a list of logdir files.
+
+        :param id: Result ID as string.
+        :param filter: Filter to apply as string.
+        :param sort: Sort field to apply as string.
+        """
+        schema = LogDirFileSchema()
+        resp = self.service.list(self.base+str(id)+'/logdir/', filter, sort)
+        return self.service.decode(schema, resp, many=True)
 
     def get_logdir_file(self, id, filename): # pylint: disable=invalid-name,redefined-builtin
-        """Download a logdir file."""
-        return self.service.get(self.base+str(id)+'/logdir/'+filename+'/')
+        """Download a logdir file.
 
-    def download_logdir_archive(self, id, filename, format='zip', exclude_captures=False): # pylint: disable=invalid-name,redefined-builtin
-        """Download logdir archive in tgz or zip format."""
-        return self.service.get(self.base+str(id)+'/logdir/'+filename+'/', params={'format': format, 'exclude_captures': exclude_captures})
+        :param id: Result ID as string.
+        :param filename: Logdir filename as string.
+        :return: :class:`results.LogDirFile <results.LogDirFile>` object
+        :rtype: results.LogDirFile
+        """
+        schema = LogDirFileSchema()
+        resp = self.service.get(self.base+str(id)+'/logdir/'+filename+'/')
+        return self.service.decode(schema, resp)
 
-    def get_test_metric(self, id, name, metric, format=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a test metric."""
-        return self.service.get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/',
+    def download_logdir_archive(self, id, format='zip', exclude_captures=False): # pylint: disable=invalid-name,redefined-builtin
+        """Download logdir archive in tgz or zip format.
+
+        :param id: Result ID as string.
+        :param format: (optional) Format to download, must be string `zip` or `tgz`.
+        :param exclude_captures: If bool `True`, don't include capture files
+        :rtype: tuple `(io.BytesIO, 'filename')`
+        """
+        resp = self.service.get(self.base+str(id)+'/logdir/', params={'format': format, 'exclude_captures': exclude_captures})
+        resp.raise_for_status()
+        b = io.BytesIO()
+        stream.stream_response_to_file(resp, path=b)
+        b.seek(0)
+        return (b, self.service.filename(resp))
+
+    def get_test_metric(self, id, name, metric): # pylint: disable=invalid-name,redefined-builtin
+        """Get a test metric.
+
+        :param id: Result ID as string.
+        :param name: Test name as string.
+        :param metric: Metric name as string.
+        :return: :class:`results.Metric <results.Metric>` object
+        :rtype: results.Metric
+        """
+        schema = MetricSchema()
+        resp = self.service.get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/',
                                 params={'format': format})
+        return self.service.decode(schema, resp)
 
     def get_test_metric_csv(self, id, name, metric): # pylint: disable=invalid-name,redefined-builtin
-        """Get a test metric as CSV."""
-        return self.get_test_metric(id, name, metric, format='csv')
+        """Get a test metric as CSV.
+
+        :param id: Result ID as string.
+        :param name: Test name as string.
+        :param id: Metric name as string.
+        :rtype: string
+        """
+        return self.service.get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/',
+                                params={'format': 'csv'}).text
