@@ -325,6 +325,7 @@ class ResultsService(object):
         """Edit shares for a result.
 
         :param id: Config ID as string.
+        :param user_ids: User IDs as int list.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
         return self.service.edit_shares(self.base, id, user_ids)
