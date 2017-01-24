@@ -25,10 +25,16 @@ cdrouter.devices.DevicesService
 .. autoclass:: cdrouter.devices.DevicesService
    :members:
 
-cdrouter.jobs.JobsService
+cdrouter.jobs
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.jobs.JobsService
+   :members:
+
+.. autoclass:: cdrouter.jobs.Job
+   :members:
+
+.. autoclass:: cdrouter.jobs.Options
    :members:
 
 cdrouter.packages.PackagesService
@@ -46,6 +52,9 @@ cdrouter.results.ResultsService
 cdrouter.testresults
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. autoclass:: cdrouter.testresults.TestResultsService
+   :members:
+
 .. autoclass:: cdrouter.testresults.Summary
    :members:
 
@@ -58,20 +67,20 @@ cdrouter.testresults
 .. autoclass:: cdrouter.testresults.TestResult
    :members:
 
-.. autoclass:: cdrouter.testresults.TestResultsService
-   :members:
-
 cdrouter.annotations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.annotations.Annotation
-   :members:
 
 .. autoclass:: cdrouter.annotations.AnnotationsService
    :members:
 
+.. autoclass:: cdrouter.annotations.Annotation
+   :members:
+
 cdrouter.captures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.captures.CapturesService
+   :members:
 
 .. autoclass:: cdrouter.captures.Section
    :members:
@@ -115,16 +124,13 @@ cdrouter.captures
 .. autoclass:: cdrouter.captures.CloudShark
    :members:
 
-.. autoclass:: cdrouter.captures.CapturesService
-   :members:
-
 cdrouter.highlights
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: cdrouter.highlights.Highlight
+.. autoclass:: cdrouter.highlights.HighlightsService
    :members:
 
-.. autoclass:: cdrouter.highlights.HighlightsService
+.. autoclass:: cdrouter.highlights.Highlight
    :members:
 
 cdrouter.imports.ImportsService
@@ -163,8 +169,11 @@ cdrouter.testsuites.TestsuitesService
 .. autoclass:: cdrouter.testsuites.TestsuitesService
    :members:
 
-cdrouter.users.UsersService
+cdrouter.users
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: cdrouter.users.UsersService
+   :members:
+
+.. autoclass:: cdrouter.users.User
    :members:

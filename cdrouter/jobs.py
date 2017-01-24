@@ -8,21 +8,15 @@
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
-class Job(object):
-    def __init__(self, **kwargs):
-        self.id = kwargs.get('id', None)
-        self.status = kwargs.get('status', None)
-        self.options = kwargs.get('options', None)
-        self.package_id = kwargs.get('package_id', None)
-        self.package_name = kwargs.get('package_name', None)
-        self.device_id = kwargs.get('device_id', None)
-        self.device_name = kwargs.get('device_name', None)
-        self.result_id = kwargs.get('result_id', None)
-        self.user_id = kwargs.get('user_id', None)
-        self.created = kwargs.get('created', None)
-        self.updated = kwargs.get('updated', None)
-
 class Options(object):
+    """Model for CDRouter Job Options.
+
+    :param tags: (optional) Tags as string list.
+    :param skip_tests: (optional) Tests to skip as string list.
+    :param begin_at: (optional) Test name to begin testing at as string.
+    :param end_at: (optional) Test name to end testing at as string.
+    :param extra_cli_args: (optional) Extra `cdrouter-cli` arguments as string.
+    """
     def __init__(self, **kwargs):
         self.tags = kwargs.get('tags', None)
         self.skip_tests = kwargs.get('skip_tests', None)
@@ -40,6 +34,34 @@ class OptionsSchema(Schema):
     @post_load
     def post_load(self, data):
         return Options(**data)
+
+class Job(object):
+    """Model for CDRouter Jobs.
+
+    :param id: (optional) Job ID as string.
+    :param status: (optional) Bool `True` if user is an administrator.
+    :param options: (optional) :class:`jobs.Options <jobs.Options>` object
+    :param package_id: (optional) Package ID as string.
+    :param package_name: (optional) Package name as string.
+    :param device_id: (optional) Device ID as string.
+    :param device_name: (optional) Device name as string.
+    :param result_id: (optional) Result ID as string.
+    :param user_id: (optional) User ID as string.
+    :param created: (optional) Job creation time as `DateTime`.
+    :param updated: (optional) Job last-updated time as `DateTime`.
+    """
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id', None)
+        self.status = kwargs.get('status', None)
+        self.options = kwargs.get('options', None)
+        self.package_id = kwargs.get('package_id', None)
+        self.package_name = kwargs.get('package_name', None)
+        self.device_id = kwargs.get('device_id', None)
+        self.device_name = kwargs.get('device_name', None)
+        self.result_id = kwargs.get('result_id', None)
+        self.user_id = kwargs.get('user_id', None)
+        self.created = kwargs.get('created', None)
+        self.updated = kwargs.get('updated', None)
 
 class JobSchema(Schema):
     id = fields.Str()
@@ -69,19 +91,37 @@ class JobsService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
-        """Get a list of jobs."""
+        """Get a list of jobs.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :return: :class:`jobs.Job <jobs.Job>` list
+        """
         schema = JobSchema()
         resp = self.service.list(self.base, filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Get a job."""
+        """Get a job.
+
+        :param id: Job ID as string.
+        :return: :class:`jobs.Job <jobs.Job>` object
+        :rtype: jobs.Job
+        """
         schema = JobSchema()
         resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
 
     def edit(self, resource):
-        """Edit a tag."""
+        """Edit a job.
+
+        :param resource: :class:`jobs.Job <jobs.Job>` object
+        :return: :class:`jobs.Job <jobs.Job>` object
+        :rtype: jobs.Job
+        """
         schema = JobSchema(exclude=('id', 'status', 'options', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated'))
         json = self.service.encode(schema, resource)
 
@@ -90,7 +130,12 @@ class JobsService(object):
         return self.service.decode(schema, resp)
 
     def launch(self, resource):
-        """Launch a new job."""
+        """Launch a new job.
+
+        :param resource: :class:`jobs.Job <jobs.Job>` object
+        :return: :class:`jobs.Job <jobs.Job>` object
+        :rtype: jobs.Job
+        """
         schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated'))
         json = self.service.encode(schema, resource)
 
@@ -99,7 +144,10 @@ class JobsService(object):
         return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Delete a job."""
+        """Delete a job.
+
+        :param id: Job ID as string.
+        """
         return self.service.delete_id(self.base, id)
 
     @staticmethod
@@ -109,7 +157,12 @@ class JobsService(object):
         return id
 
     def bulk_launch(self, jobs=None, filter=None, all=False): # pylint: disable=redefined-builtin
-        """Bulk launch a set of jobs."""
+        """Bulk launch a set of jobs.
+
+        :param jobs: :class:`jobs.Job <jobs.Job>` list
+        :param filter: (optional) Filters to apply as a string list.
+        :param all: (optional) Apply to all if bool `True`.
+        """
         json = None
         if jobs is not None:
             schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated'))
@@ -122,5 +175,11 @@ class JobsService(object):
         return self.service.decode(schema, resp, many=True)
 
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
-        """Bulk delete a set of jobs."""
+        """Bulk delete a set of jobs.
+
+        :param ids: (optional) String list of job IDs.
+        :param filter: (optional) String list of filters.
+        :param type: (optional) `union` or `inter` as string.
+        :param all: (optional) Apply to all if bool `True`.
+        """
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, type=type, all=all)

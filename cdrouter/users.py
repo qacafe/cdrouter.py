@@ -9,6 +9,17 @@ from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
 class User(object):
+    """Model for CDRouter Users.
+
+    :param id: (optional) User ID as string.
+    :param admin: (optional) Bool `True` if user is an administrator.
+    :param disabled: (optional) Bool `True` if user is disabled.
+    :param name: (optional) User name as string.
+    :param description: (optional) User description as string.
+    :param created: (optional) User creation time as `DateTime`.
+    :param updated: (optional) User last-updated time as `DateTime`.
+    :param token: (optional) User's API token as string.
+    """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.admin = kwargs.get('admin', None)
@@ -51,19 +62,37 @@ class UsersService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
-        """Get a list of users."""
+        """Get a list of users.
+
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :return: :class:`users.User <users.User>` list
+        """
         schema = UserSchema(exclude=('created', 'updated', 'token', 'password', 'password_confirm'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Get a user."""
+        """Get a user.
+
+        :param id: User ID as string.
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
         schema = UserSchema()
         resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
 
     def create(self, resource):
-        """Create a new user."""
+        """Create a new user.
+
+        :param resource: :class:`users.User <users.User>` object
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
         schema = UserSchema(exclude=('id', 'created', 'updated', 'token'))
         json = self.service.encode(schema, resource)
 
@@ -72,7 +101,12 @@ class UsersService(object):
         return self.service.decode(schema, resp)
 
     def edit(self, resource):
-        """Edit a user."""
+        """Edit a user.
+
+        :param resource: :class:`users.User <users.User>` object
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
         schema = UserSchema(exclude=('id', 'created', 'updated', 'token', 'password', 'password_confirm'))
         json = self.service.encode(schema, resource)
 
@@ -81,7 +115,15 @@ class UsersService(object):
         return self.service.decode(schema, resp)
 
     def change_password(self, id, new, old=None, change_token=True): # pylint: disable=invalid-name,redefined-builtin
-        """Change a user's password."""
+        """Change a user's password.
+
+        :param id: User ID as string.
+        :param new: New password as string.
+        :param old: (optional) Old password as string (required if performing action as non-admin).
+        :param change_token: (optional) If bool `True`, also generate a new API token for user.
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
         schema = UserSchema(exclude=('password', 'password_confirm'))
         resp = self.service.post(self.base+str(id)+'/password/',
                                   params={'change_token', change_token},
@@ -89,24 +131,49 @@ class UsersService(object):
         return self.service.decode(schema, resp)
 
     def change_token(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Change a user's token."""
+        """Change a user's token.
+
+        :param id: User ID as string.
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
         schema = UserSchema(exclude=('password', 'password_confirm'))
         resp = self.service.post(self.base+str(id)+'/token/')
         return self.service.decode(schema, resp)
 
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
-        """Delete a user."""
+        """Delete a user.
+
+        :param id: User ID as string.
+        """
         return self.service.delete_id(self.base, id)
 
     def bulk_copy(self, ids):
-        """Bulk copy a set of users."""
+        """Bulk copy a set of users.
+
+        :param ids: String list of user IDs.
+        :return: :class:`users.User <users.User>` list
+        """
         schema = UserSchema()
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
     def bulk_edit(self, _fields, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
-        """Bulk edit a set of users."""
+        """Bulk edit a set of users.
+
+        :param _fields: :class:`users.User <users.User>` object
+        :param ids: (optional) String list of user IDs.
+        :param filter: (optional) String list of filters.
+        :param type: (optional) `union` or `inter` as string.
+        :param all: (optional) Apply to all if bool `True`.
+        """
         return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, type=type, all=all)
 
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
-        """Bulk delete a set of users."""
+        """Bulk delete a set of users.
+
+        :param ids: (optional) String list of user IDs.
+        :param filter: (optional) String list of filters.
+        :param type: (optional) `union` or `inter` as string.
+        :param all: (optional) Apply to all if bool `True`.
+        """
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, type=type, all=all)
