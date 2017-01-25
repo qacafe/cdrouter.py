@@ -140,23 +140,39 @@ class CDRouter(object):
 
         self.session = sessions.BaseUrlSession(base_url=base+self.BASE)
 
-        # resource-specific services
+        #: :class:`configs.ConfigsService <configs.ConfigsService>` object
         self.configs = ConfigsService(self)
+        #: :class:`devices.DevicesService <devices.DevicesService>` object
         self.devices = DevicesService(self)
+        #: :class:`attachments.AttachmentsService <attachments.AttachmentsService>` object
         self.attachments = AttachmentsService(self)
+        #: :class:`jobs.JobsService <jobs.JobsService>` object
         self.jobs = JobsService(self)
+        #: :class:`packages.PackagesService <packages.PackagesService>` object
         self.packages = PackagesService(self)
+        #: :class:`results.ResultsService <results.ResultsService>` object
         self.results = ResultsService(self)
+        #: :class:`testresults.TestResultsService <testresults.TestResultsService>` object
         self.tests = TestResultsService(self)
+        #: :class:`annotations.AnnotationsService <annotations.AnnotationsService>` object
         self.annotations = AnnotationsService(self)
+        #: :class:`captures.CapturesService <captures.CapturesService>` object
         self.captures = CapturesService(self)
+        #: :class:`highlights.HighlightsService <highlights.HighlightsService>` object
         self.highlights = HighlightsService(self)
+        #: :class:`imports.ImportsService <imports.ImportsService>` object
         self.imports = ImportsService(self)
+        #: :class:`exports.ExportsService <exports.ExportsService>` object
         self.exports = ExportsService(self)
+        #: :class:`history.HistoryService <history.HistoryService>` object
         self.history = HistoryService(self)
+        #: :class:`system.SystemService <system.SystemService>` object
         self.system = SystemService(self)
+        #: :class:`tags.TagsService <tags.TagsService>` object
         self.tags = TagsService(self)
+        #: :class:`testsuites.TestsuitesService <testsuites.TestsuitesService>` object
         self.testsuites = TestsuitesService(self)
+        #: :class:`users.UsersService <users.UsersService>` object
         self.users = UsersService(self)
 
     # base request methods
@@ -172,24 +188,19 @@ class CDRouter(object):
                                     json=json, data=data, verify=(not self.insecure), auth=Auth(token=self.token))
 
     def get(self, path, params=None, stream=None):
-        """Send an authorized GET request."""
         return self._req(path, method='GET', params=params, stream=stream)
 
     def post(self, path, json=None, data=None, params=None, files=None, stream=None):
-        """Send an authorized POST request."""
         return self._req(path, method='POST', json=json, data=data, params=params, stream=stream, files=files)
 
     def patch(self, path, json, params=None):
-        """Send an authorized PATCH request."""
         return self._req(path, method='PATCH', json=json, params=params)
 
     def delete(self, path, params=None):
-        """Send an authorized DELETE request."""
         return self._req(path, method='DELETE', params=params)
 
     # cdrouter-specific request methods
     def list(self, base, filter=None, type=None, sort=None, limit=None, page=None, format=None): # pylint: disable=redefined-builtin
-        """Send an authorized GET request for a collection."""
         if sort != None:
             if not isinstance(sort, list):
                 sort = [sort]
@@ -198,29 +209,23 @@ class CDRouter(object):
                                       'page': page, 'format': format})
 
     def get_id(self, base, id, params=None): # pylint: disable=invalid-name,redefined-builtin
-        """Send an authorized GET request to get a resource by ID."""
         return self.get(base+str(id)+'/', params=params)
 
     def create(self, base, resource):
-        """Send an authorized POST request to create a new resource."""
         return self.post(base, json=resource)
 
     def edit(self, base, id, resource): # pylint: disable=invalid-name,redefined-builtin
-        """Send an authorized PATCH request to edit a resource."""
         return self.patch(base+str(id)+'/', json=resource)
 
     def delete_id(self, base, id): # pylint: disable=invalid-name,redefined-builtin
-        """Send an authorized DELETE request to delete a resource by ID."""
         return self.delete(base+str(id)+'/')
 
     def get_shares(self, base, id): # pylint: disable=invalid-name,redefined-builtin
-        """Send an authorized GET request to get a resource's shares."""
         schema = ShareSchema()
         resp = self.get(base+str(id)+'/shares/')
         return self.decode(schema, resp, many=True)
 
     def edit_shares(self, base, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
-        """Send an authorized PATCH request to edit a resource's shares."""
         schema = ShareSchema()
         resp = self.patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
         return self.decode(schema, resp, many=True)
@@ -233,7 +238,6 @@ class CDRouter(object):
         return filename
 
     def export(self, base, id, format='gz', params=None): # pylint: disable=invalid-name,redefined-builtin
-        """Send an authorized GET request to export a resource."""
         if params is None:
             params = {}
         params.update({'format': format})
@@ -245,7 +249,6 @@ class CDRouter(object):
         return (b, self.filename(resp))
 
     def bulk_export(self, base, ids, params=None):
-        """Send an authorized GET request to bulk export a set of resources."""
         if params is None:
             params = {}
         params.update({'bulk': 'export', 'ids': map(str, ids)})
@@ -257,13 +260,11 @@ class CDRouter(object):
         return (b, self.filename(resp))
 
     def bulk_copy(self, base, resource, ids, schema):
-        """Send an authorized POST request to bulk copy a set of resources."""
         resp = self.post(base, params={'bulk': 'copy'},
                          json={resource: [{'id': str(x)} for x in ids]})
         return self.decode(schema, resp, many=True)
 
     def bulk_edit(self, base, resource, fields, ids=None, filter=None, type=None, all=False, testvars=None): # pylint: disable=redefined-builtin
-        """Send an authorized POST request to bulk edit a set of resources."""
         json = {'fields': fields}
         if ids != None or testvars != None:
             if ids != None:
@@ -274,7 +275,6 @@ class CDRouter(object):
         return self.post(base, params={'bulk': 'edit', 'filter': filter, 'type': type, 'all': all}, json=json)
 
     def bulk_delete(self, base, resource, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
-        """Send an authorized POST request to bulk delete a set of resources."""
         json = None
         if ids != None:
             json = {resource: [{'id': str(x)} for x in ids]}
