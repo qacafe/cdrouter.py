@@ -223,8 +223,8 @@ class CDRouter(object):
         return self.get(base, params={'filter': filter, 'type': type, 'sort': sort, 'limit': limit,
                                       'page': page, 'format': format})
 
-    def get_id(self, base, id, params=None): # pylint: disable=invalid-name,redefined-builtin
-        return self.get(base+str(id)+'/', params=params)
+    def get_id(self, base, id, params=None, stream=None): # pylint: disable=invalid-name,redefined-builtin
+        return self.get(base+str(id)+'/', params=params, stream=stream)
 
     def create(self, base, resource):
         return self.post(base, json=resource)

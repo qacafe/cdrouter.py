@@ -647,7 +647,7 @@ class ResultsService(object):
         :param filename: Logdir filename as string.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
-        resp = self.service.get(self.base+str(id)+'/logdir/'+filename+'/')
+        resp = self.service.get(self.base+str(id)+'/logdir/'+filename+'/', stream=True)
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
@@ -662,7 +662,7 @@ class ResultsService(object):
         :param exclude_captures: If bool `True`, don't include capture files
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
-        resp = self.service.get(self.base+str(id)+'/logdir/', params={'format': format, 'exclude_captures': exclude_captures})
+        resp = self.service.get(self.base+str(id)+'/logdir/', params={'format': format, 'exclude_captures': exclude_captures}, stream=True)
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
