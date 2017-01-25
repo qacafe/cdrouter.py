@@ -543,11 +543,7 @@ class ResultsService(object):
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         """Edit shares for a result.
 
-<<<<<<< HEAD
         :param id: Result ID as string.
-=======
-        :param id: Config ID as string.
->>>>>>> e757d837e8c4ae8b27a3101ba993e37733bbe88a
         :param user_ids: User IDs as int list.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
