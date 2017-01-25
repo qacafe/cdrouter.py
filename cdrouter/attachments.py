@@ -92,7 +92,7 @@ class AttachmentsService(object):
         :return: :class:`attachments.Attachment <attachments.Attachment>` object
         :rtype: attachments.Attachment
         """
-        schema = AttachmentSchema()
+        schema = AttachmentSchema(exclude=('id', 'created', 'updated', 'size', 'path', 'device_id'))
         resp = self.service.post(self._base(id),
                                  files={'file': (filename, fd)})
         return self.service.decode(schema, resp)
