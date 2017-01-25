@@ -21,6 +21,13 @@ cdrouter is available on PyPI_.
 Usage
 -----
 
+First create a :class:`CDRouter <cdrouter.CDRouter>` object, passing
+it the URL of your CDRouter system.  The ``token`` parameter should be
+set to a valid API token on your CDRouter system.  If ``token`` is not
+specified, it will default to the value of the ``CDROUTER_API_TOKEN``
+environment variable.  The ``token`` argument can be omitted for
+CDRouter systems where Automatic Login is enabled.
+
 .. code-block:: python
 
     import time
@@ -41,3 +48,11 @@ Usage
         print('    Result-ID: ' + j.result_id)
 
     print('done.')
+
+More examples of using cdrouter can be found here_.  Please see the
+:ref:`Reference <reference>` page for more information on available
+fields and methods for each class.
+
+.. _here: https://github.com/qacafe/cdrouter.py/tree/master/examples
+
+
