@@ -11,6 +11,225 @@ from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
+class TestCount(object):
+    """Model for CDRouter Test Counts.
+
+    :param name: (optional) Name as a string.
+    :param count: (optional) Count as a string.
+    """
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.count = kwargs.get('count', None)
+
+class TestCountSchema(Schema):
+    name = fields.Str()
+    count = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return TestCount(**data)
+
+class TestDuration(object):
+    """Model for CDRouter Test Durations.
+
+    :param name: (optional) Name as a string.
+    :param duration: (optional) Duration as a string.
+    """
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.duration = kwargs.get('duration', None)
+
+class TestDurationSchema(Schema):
+    name = fields.Str()
+    duration = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return TestDuration(**data)
+
+class ResultBreakdown(object):
+    """Model for CDRouter Result Breakdowns.
+
+    :param passed: (optional) Pass count as a string.
+    :param failed: (optional) Fail count as a string.
+    :param skipped: (optional) Skipped count as a string.
+    """
+    def __init__(self, **kwargs):
+        self.passed = kwargs.get('passed', None)
+        self.failed = kwargs.get('failed', None)
+        self.skipped = kwargs.get('skipped', None)
+
+class ResultBreakdownSchema(Schema):
+    passed = fields.Str()
+    failed = fields.Str()
+    skipped = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return ResultBreakdown(**data)
+
+class TimeBreakdown(object):
+    """Model for CDRouter Time Breakdowns.
+
+    :param passed: (optional) Pass duration as a string.
+    :param failed: (optional) Fail duration as a string.
+    """
+    def __init__(self, **kwargs):
+        self.passed = kwargs.get('passed', None)
+        self.failed = kwargs.get('failed', None)
+
+class TimeBreakdownSchema(Schema):
+    passed = fields.Str()
+    failed = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return TimeBreakdown(**data)
+
+class SetStats(object):
+    """Model for CDRouter Result Set Stats.
+
+    :param frequent_failures: (optional) :class:`results.TestCount <results.TestCount>` list
+    :param longest_tests: (optional) :class:`results.TestDuration <results.TestDuration>` list
+    :param result_breakdown: (optional) :class:`results.ResultBreakdown <results.ResultBreakdown>` object
+    :param time_breakdown: (optional) :class:`results.TimeBreakdown <results.TimeBreakdown>` object
+    """
+    def __init__(self, **kwargs):
+        self.frequent_failures = kwargs.get('frequent_failures', None)
+        self.longest_tests = kwargs.get('longest_tests', None)
+        self.result_breakdown = kwargs.get('result_breakdown', None)
+        self.time_breakdown = kwargs.get('time_breakdown', None)
+
+class SetStatsSchema(Schema):
+    frequent_failures = fields.Nested(TestCountSchema, many=True)
+    longest_tests = fields.Nested(TestDurationSchema, many=True)
+    result_breakdown = fields.Nested(ResultBreakdownSchema)
+    time_breakdown = fields.Nested(TimeBreakdownSchema)
+
+    @post_load
+    def post_load(self, data):
+        return SetStats(**data)
+
+class TestResultBreakdown(object):
+    """Model for CDRouter TestResult Breakdowns.
+
+    :param failed_at_least_once: (optional) :class:`results.TestCount <results.TestCount>` list
+    :param passed_every_time: (optional) :class:`results.TestCount <results.TestCount>` list
+    """
+    def __init__(self, **kwargs):
+        self.failed_at_least_once = kwargs.get('failed_at_least_once', None)
+        self.passed_every_time = kwargs.get('passed_every_time', None)
+
+class TestResultBreakdownSchema(Schema):
+    failed_at_least_once = fields.Nested(TestCountSchema, many=True)
+    passed_every_time = fields.Nested(TestCountSchema, many=True)
+
+    @post_load
+    def post_load(self, data):
+        return TestResultBreakdown(**data)
+
+class Progress(object):
+    """Model for CDRouter Result Progress.
+
+    :param finished: (optional) Finished count as an int.
+    :param total: (optional) Total count as an int.
+    :param progress: (optional) Progress as an int.
+    :param unit: (optional) Unit as a string.
+    """
+    def __init__(self, **kwargs):
+        self.finished = kwargs.get('finished', None)
+        self.total = kwargs.get('total', None)
+        self.progress = kwargs.get('progress', None)
+        self.unit = kwargs.get('unit', None)
+
+class ProgressSchema(Schema):
+    finished = fields.Int()
+    total = fields.Int()
+    progress = fields.Int()
+    unit = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return Progress(**data)
+
+class SingleStats(object):
+    """Model for CDRouter Single Results Stats.
+
+    :param result_breakdown: (optional) :class:`results.ResultBreakdown <results.ResultBreakdown>` object
+    :param progress: (optional) :class:`results.Progress <results.Progress>` object
+    """
+    def __init__(self, **kwargs):
+        self.result_breakdown = kwargs.get('result_breakdown', None)
+        self.progress = kwargs.get('progress', None)
+
+class SingleStatsSchema(Schema):
+    result_breakdown = fields.Nested(ResultBreakdownSchema)
+    progress = fields.Nested(ProgressSchema)
+
+    @post_load
+    def post_load(self, data):
+        return SingleStats(**data)
+
+class PackageCount(object):
+    """Model for CDRouter Package Counts.
+
+    :param package_name: (optional) Package name as a string.
+    :param count: (optional) Count as a string.
+    """
+    def __init__(self, **kwargs):
+        self.package_name = kwargs.get('package_name', None)
+        self.count = kwargs.get('count', None)
+
+class PackageCountSchema(Schema):
+    package_name = fields.Str()
+    count = fields.Str(missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return PackageCount(**data)
+
+class DeviceCount(object):
+    """Model for CDRouter Device Counts.
+
+    :param device_name: (optional) Device name as a string.
+    :param count: (optional) Count as a string.
+    """
+    def __init__(self, **kwargs):
+        self.device_name = kwargs.get('device_name', None)
+        self.count = kwargs.get('count', None)
+
+class DeviceCountSchema(Schema):
+    device_name = fields.Str()
+    count = fields.Str(missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return DeviceCount(**data)
+
+class AllStats(object):
+    """Model for CDRouter All Results Stats.
+
+    :param frequent_packages: (optional) :class:`results.PackageCount <results.PackageCount>` list
+    :param package_names: (optional) :class:`results.PackageCount <results.PackageCount>` list
+    :param frequent_devices: (optional) :class:`results.DeviceCount <results.DeviceCount>` list
+    :param device_names: (optional) :class:`results.DeviceCount <results.DeviceCount>` list
+    """
+    def __init__(self, **kwargs):
+        self.frequent_packages = kwargs.get('frequent_packages', None)
+        self.package_names = kwargs.get('package_names', None)
+        self.frequent_devices = kwargs.get('frequent_devices', None)
+        self.device_names = kwargs.get('device_names', None)
+
+class AllStatsSchema(Schema):
+    frequent_packages = fields.Nested(PackageCountSchema, many=True)
+    package_names = fields.Nested(PackageCountSchema, many=True)
+    frequent_devices = fields.Nested(DeviceCountSchema, many=True)
+    device_names = fields.Nested(DeviceCountSchema, many=True)
+
+    @post_load
+    def post_load(self, data):
+        return AllStats(**data)
+
 class Metric(object):
     """Model for CDRouter Metrics.
 
@@ -35,7 +254,7 @@ class Metric(object):
         self.interface_2 = kwargs.get('interface_2', None)
         self.streams = kwargs.get('streams', None)
 
-class MetricSchema(object):
+class MetricSchema(Schema):
     log_file = fields.Str()
     timestamp = DateTime()
     metric = fields.Str()
@@ -316,7 +535,7 @@ class ResultsService(object):
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a result.
 
-        :param id: Config ID as string.
+        :param id: Result ID as string.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
         return self.service.get_shares(self.base, id)
@@ -324,7 +543,8 @@ class ResultsService(object):
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         """Edit shares for a result.
 
-        :param id: Config ID as string.
+        :param id: Result ID as string.
+        :param user_ids: User IDs as int list.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
         return self.service.edit_shares(self.base, id, user_ids)
@@ -377,19 +597,36 @@ class ResultsService(object):
         return self.service.bulk_delete(self.base, self.RESOURCE, ids=ids, filter=filter, type=type, all=all)
 
     def all_stats(self):
-        """Compute stats for all results."""
-        return self.service.post(self.base, params={'stats': 'all'})
+        """Compute stats for all results.
+
+        :return: :class:`results.AllStats <results.AllStats>` object
+        :rtype: results.AllStats
+        """
+        schema = AllStatsSchema()
+        resp = self.service.post(self.base, params={'stats': 'all'})
+        return self.service.decode(schema, resp)
 
     def set_stats(self, ids):
-        """Compute stats for a set of results."""
-        return self.service.post(self.base, params={'stats': 'set'}, json=[{'id': str(x)} for x in ids])
+        """Compute stats for a set of results.
+
+        :param id: Result IDs as string list.
+        :return: :class:`results.SetStats <results.SetStats>` object
+        :rtype: results.SetStats
+        """
+        schema = SetStatsSchema()
+        resp = self.service.post(self.base, params={'stats': 'set'}, json=[{'id': str(x)} for x in ids])
+        return self.service.decode(schema, resp)
 
     def single_stats(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Compute stats for a result.
 
         :param id: Result ID as string.
+        :return: :class:`results.SingleStats <results.SingleStats>` object
+        :rtype: results.SingleStats
         """
-        return self.service.get(self.base+str(id)+'/', params={'stats': 'all'})
+        schema = SingleStatsSchema()
+        resp = self.service.get(self.base+str(id)+'/', params={'stats': 'all'})
+        return self.service.decode(schema, resp)
 
     def list_logdir(self, id, filter=None, sort=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of logdir files.
@@ -397,6 +634,7 @@ class ResultsService(object):
         :param id: Result ID as string.
         :param filter: Filter to apply as string.
         :param sort: Sort field to apply as string.
+        :return: :class:`results.LogDirFile <results.LogDirFile>` list
         """
         schema = LogDirFileSchema()
         resp = self.service.list(self.base+str(id)+'/logdir/', filter, sort)
@@ -407,12 +645,14 @@ class ResultsService(object):
 
         :param id: Result ID as string.
         :param filename: Logdir filename as string.
-        :return: :class:`results.LogDirFile <results.LogDirFile>` object
-        :rtype: results.LogDirFile
+        :rtype: tuple `(io.BytesIO, 'filename')`
         """
-        schema = LogDirFileSchema()
         resp = self.service.get(self.base+str(id)+'/logdir/'+filename+'/')
-        return self.service.decode(schema, resp)
+        resp.raise_for_status()
+        b = io.BytesIO()
+        stream.stream_response_to_file(resp, path=b)
+        b.seek(0)
+        return (b, self.service.filename(resp))
 
     def download_logdir_archive(self, id, format='zip', exclude_captures=False): # pylint: disable=invalid-name,redefined-builtin
         """Download logdir archive in tgz or zip format.
@@ -441,7 +681,7 @@ class ResultsService(object):
         schema = MetricSchema()
         resp = self.service.get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/',
                                 params={'format': format})
-        return self.service.decode(schema, resp)
+        return self.service.decode(schema, resp, many=True)
 
     def get_test_metric_csv(self, id, name, metric): # pylint: disable=invalid-name,redefined-builtin
         """Get a test metric as CSV.

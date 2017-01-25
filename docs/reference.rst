@@ -85,13 +85,49 @@ cdrouter.results
 .. autoclass:: cdrouter.results.Result
    :members:
 
-.. autoclass:: cdrouter.results.Options
+.. autoclass:: cdrouter.results.TestCount
+   :members:
+
+.. autoclass:: cdrouter.results.TestDuration
+   :members:
+
+.. autoclass:: cdrouter.results.ResultBreakdown
+   :members:
+
+.. autoclass:: cdrouter.results.TimeBreakdown
+   :members:
+
+.. autoclass:: cdrouter.results.SetStats
+   :members:
+
+.. autoclass:: cdrouter.results.TestResultBreakdown
+   :members:
+
+.. autoclass:: cdrouter.results.Progress
+   :members:
+
+.. autoclass:: cdrouter.results.SingleStats
+   :members:
+
+.. autoclass:: cdrouter.results.PackageCount
+   :members:
+
+.. autoclass:: cdrouter.results.DeviceCount
+   :members:
+
+.. autoclass:: cdrouter.results.AllStats
    :members:
 
 .. autoclass:: cdrouter.results.Metric
    :members:
 
 .. autoclass:: cdrouter.results.LogDirFile
+   :members:
+
+.. autoclass:: cdrouter.results.Options
+   :members:
+
+.. autoclass:: cdrouter.results.Result
    :members:
 
 cdrouter.testresults
