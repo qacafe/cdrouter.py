@@ -8,6 +8,7 @@
 import os.path
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
+from .cdr_dictfield import DictField
 
 class Import(object):
     """Model for CDRouter Staged Imports.
@@ -72,14 +73,38 @@ class ResponseSchema(Schema):
     def post_load(self, data):
         return Response(**data)
 
+class Resource(object):
+    """Model for CDRouter Import Resources.
+
+    :param name: (optional) Set to string to rename resource, leave empty to keep original
+    :param should_import: (optional) Bool `True` if resource should be imported.
+    :param existing_id: (optional) Contains ID of existing resource which will be overwritten if `should_import` is `True`.
+    :param response: (optional) :class:`imports.Response <imports.Response>` object
+    """
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.should_import = kwargs.get('should_import', None)
+        self.existing_id = kwargs.get('existing_id', None)
+        self.response = kwargs.get('response', None)
+
+class ResourceSchema(Schema):
+    name = fields.Str(missing=None)
+    should_import = fields.Bool(attribute='should_import', load_from='import', dump_to='import')
+    existing_id = fields.Str(missing=None)
+    response = fields.Nested(ResponseSchema, missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return Resource(**data)
+
 class Request(object):
     """Model for CDRouter Import Requests.
 
     :param replace_existing: (optional) Bool `True` if existing resources should be overwritten.
-    :param configs: (optional) Dict of configs.
-    :param devices: (optional) Dict of devices.
-    :param packages: (optional) Dict of packages.
-    :param results: (optional) Dict of results.
+    :param configs: (optional) Dict of strings to :class:`imports.Resource <imports.Resource>` objects.
+    :param devices: (optional) Dict of strings to :class:`imports.Resource <imports.Resource>` objects.
+    :param packages: (optional) Dict of strings to :class:`imports.Resource <imports.Resource>` objects.
+    :param results: (optional) Dict of strings to :class:`imports.Resource <imports.Resource>` objects.
     """
     def __init__(self, **kwargs):
         self.replace_existing = kwargs.get('replace_existing', None)
@@ -94,10 +119,10 @@ class Request(object):
 class RequestSchema(Schema):
     replace_existing = fields.Bool()
 
-    configs = fields.Dict()
-    devices = fields.Dict()
-    packages = fields.Dict()
-    results = fields.Dict()
+    configs = DictField(fields.Str(), ResourceSchema())
+    devices = DictField(fields.Str(), ResourceSchema())
+    packages = DictField(fields.Str(), ResourceSchema())
+    results = DictField(fields.Str(), ResourceSchema())
 
     tags = fields.List(fields.Str(), missing=None)
 

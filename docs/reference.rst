@@ -235,6 +235,9 @@ cdrouter.imports
 .. autoclass:: cdrouter.imports.Response
    :members:
 
+.. autoclass:: cdrouter.imports.Resource
+   :members:
+
 .. autoclass:: cdrouter.imports.Request
    :members:
 
