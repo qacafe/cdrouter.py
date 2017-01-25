@@ -302,7 +302,7 @@ class CapturesService(object):
         self.service = service
 
     def _base(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
-        return 'results/'+str(id)+'/tests/'+str(seq)+self.BASE
+        return 'results/'+str(id)+'/tests/'+str(seq)+'/'+self.BASE
 
     def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of captures.
@@ -312,7 +312,7 @@ class CapturesService(object):
         :return: :class:`captures.Capture <captures.Capture>` list
         """
         schema = CaptureSchema(exclude=('id', 'seq'))
-        resp = self.service.list(self._base(id, seq), filter)
+        resp = self.service.list(self._base(id, seq))
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id, seq, intf): # pylint: disable=invalid-name,redefined-builtin

@@ -42,7 +42,7 @@ class AnnotationsService(object):
         self.service = service
 
     def _base(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
-        return 'results/'+str(id)+'/tests/'+str(seq)+self.BASE
+        return 'results/'+str(id)+'/tests/'+str(seq)+'/'+self.BASE
 
     def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of annotations.
