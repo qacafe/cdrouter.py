@@ -76,6 +76,15 @@ cdrouter.packages
 .. autoclass:: cdrouter.packages.PackagesService
    :members:
 
+.. autoclass:: cdrouter.packages.Package
+   :members:
+
+.. autoclass:: cdrouter.packages.Options
+   :members:
+
+.. autoclass:: cdrouter.packages.Analysis
+   :members:
+
 cdrouter.results
 ~~~~~~~~~~~~~~~~
 
