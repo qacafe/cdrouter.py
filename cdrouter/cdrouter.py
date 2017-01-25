@@ -124,7 +124,22 @@ class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
         return r
 
 class CDRouter(object):
-    """Service for accessing the CDRouter Web API."""
+    """Service for accessing the CDRouter Web API.
+
+    :param base: Base HTTP or HTTPS URL for CDRouter system as a
+        string, optionally including a port.  For example
+        `http://localhost`, `http://cdrouter.lan:8015` or
+        `https://127.0.0.1`.
+
+    :param token: (optional) CDRouter API token as a string.  Not
+        required if Automatic Login is enabled.  If omitted, value
+        will be taken from CDROUTER_API_TOKEN environment variable.
+
+    :param insecure: (optional) If bool `True` and `base` is an HTTPS
+        URL, skip certificate verification and allow insecure
+        connections to the CDRouter system.
+
+    """
     BASE = '/api/v1/'
 
     def __init__(self, base, token=None, insecure=False):
