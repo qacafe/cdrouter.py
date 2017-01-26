@@ -3,44 +3,7 @@
 # All Rights Reserved.
 #
 
-"""Module for constructing CDRouter Web API filters.  Field objects
-can be passed to ``filter`` parameters to make constructing filters
-easier.
-
-The ``value`` parameter passed to Field methods is converted to a
-string using the builtin ``str`` function.  Bool values are
-additionally lowercased such that bool ``True`` becomes string
-``'true'`` and ``False`` becomes string ``'false'``.  The Field
-methods ``contains``, ``contained_by`` and ``overlaps`` accept a
-variable number of values which are converted into a list in
-accordance with the API's syntax.  For example, the int values ``1, 2,
-3`` is converted to the string ``'{1,2,3}'`` and the string values
-``'one', 'two', 'three'`` is converted to the string
-``'{one,two,three}'``.
-
-Usage::
-
-  from cdrouter.filters import Field as field
-  # each pair of filters below are equivalent
-  c.packages.list(filter=[
-      field('id').eq(123),
-      'id=123',
-      #
-      field('use_as_testlist').ne(True),
-      'use_as_testlist!=true',
-      #
-      field('name').not_().match('^(foo|bar)$', ignorecase=True),
-      'name!~*^(foo|bar)$',
-      #
-      field('tags').contains('foo', 'bar', 'baz'),
-      'tags@>{foo,bar,baz}',
-  ])
-
-See this_ page for more details on CDRouter Web API filters.
-
-.. _this: https://support.qacafe.com/cdrouter-web-api/overview/#filtering
-
-"""
+"""Module for constructing CDRouter Web API filters."""
 
 import collections
 
@@ -52,7 +15,43 @@ class CDRouterFilterError(BaseException):
         return self.message
 
 class Field(object):
-    """Class for constructing CDRouter Web API filters."""
+    """Class for constructing CDRouter Web API filters.  Field objects can
+    be passed to ``filter`` parameters to make constructing filters
+    easier.
+
+    The ``value`` parameter passed to Field methods is converted to a
+    string using the builtin ``str`` function.  Bool values are
+    additionally lowercased such that bool ``True`` becomes string
+    ``'true'`` and ``False`` becomes string ``'false'``.  The Field
+    methods ``contains``, ``contained_by`` and ``overlaps`` accept a
+    variable number of values which are converted into a list in
+    accordance with the API's syntax.  For example, the int values ``1, 2,
+    3`` is converted to the string ``'{1,2,3}'`` and the string values
+    ``'one', 'two', 'three'`` is converted to the string
+    ``'{one,two,three}'``.
+
+    Usage::
+
+      from cdrouter.filters import Field as field
+      # each pair of filters below are equivalent
+      c.packages.list(filter=[
+          field('id').eq(123),
+          'id=123',
+          #
+          field('use_as_testlist').ne(True),
+          'use_as_testlist!=true',
+          #
+          field('name').not_().match('^(foo|bar)$', ignorecase=True),
+          'name!~*^(foo|bar)$',
+          #
+          field('tags').contains('foo', 'bar', 'baz'),
+          'tags@>{foo,bar,baz}',
+      ])
+
+    See this_ page for more details on CDRouter Web API filters.
+
+    .. _this: https://support.qacafe.com/cdrouter-web-api/overview/#filtering
+    """
 
     def __init__(self, field):
         self.negate = False

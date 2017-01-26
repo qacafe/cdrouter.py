@@ -21,9 +21,6 @@ cdrouter.CDRouter
 cdrouter.filters
 ~~~~~~~~~~~~~~~~
 
-.. automodule:: cdrouter.filters
-   :members:
-
 .. autoclass:: cdrouter.filters.Field
    :members:
 
