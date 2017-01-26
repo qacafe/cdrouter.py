@@ -11,11 +11,12 @@ The ``value`` parameter passed to Field methods is converted to a
 string using the builtin ``str`` function.  Bool values are
 additionally lowercased such that bool ``True`` becomes string
 ``'true'`` and ``False`` becomes string ``'false'``.  The Field
-methods ``contains``, ``contained_by`` and `overlaps`` accept a
-variable number of values which are converted into a list.  For
-example, the int values ``1, 2, 3`` is converted to the string
-``'{1,2,3}'`` and the string values ``'one', 'two', 'three'`` is
-converted to the string ``'{one,two,three}'``.
+methods ``contains``, ``contained_by`` and ``overlaps`` accept a
+variable number of values which are converted into a list in
+accordance with the API's syntax.  For example, the int values ``1, 2,
+3`` is converted to the string ``'{1,2,3}'`` and the string values
+``'one', 'two', 'three'`` is converted to the string
+``'{one,two,three}'``.
 
 Usage::
 
