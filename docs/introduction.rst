@@ -32,11 +32,12 @@ CDRouter systems where Automatic Login is enabled.
 
     import time
     from cdrouter import CDRouter
+    from cdrouter.filters import Field as field
     from cdrouter.jobs import Job
 
     c = CDRouter('http://localhost:8015', token='deadbeef')
 
-    for p in c.packages.list(filter=['tags@>{noretry}'], limit='none'):
+    for p in c.packages.list(filter=field('tags').contains('noretry'), limit='none'):
         print('Launching package ' + p.name)
 
         j = c.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
