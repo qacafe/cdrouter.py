@@ -54,12 +54,12 @@ class CDRouterFilterError(BaseException):
 class Field(object):
     """Class for constructing CDRouter Web API filters."""
 
-    def __init__(self, field, op=None, negate_op=None, value=None):
+    def __init__(self, field):
         self.negate = False
         self.field = field
-        self.op = op
+        self.op = None
         self.negate_op = None
-        self.value = value
+        self.value = None
 
     def __str__(self):
         if self.field is None:
@@ -110,7 +110,7 @@ class Field(object):
         return self
 
     def ne(self, value):
-        """Construct an not equal to (``!=``) filter.
+        """Construct a not equal to (``!=``) filter.
 
         :param value: Filter value
         :return: :class:`filters.Field <filters.Field>` object
@@ -128,8 +128,8 @@ class Field(object):
         :return: :class:`filters.Field <filters.Field>` object
         :rtype: filters.Field
         """
-        self.op = '>',
-        self.negate_op = '<=',
+        self.op = '>'
+        self.negate_op = '<='
         self.value = self._value(value)
         return self
 
@@ -152,8 +152,8 @@ class Field(object):
         :return: :class:`filters.Field <filters.Field>` object
         :rtype: filters.Field
         """
-        self.op = '<',
-        self.negate_op = '>=',
+        self.op = '<'
+        self.negate_op = '>='
         self.value = self._value(value)
         return self
 
