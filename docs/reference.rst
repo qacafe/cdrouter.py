@@ -18,6 +18,15 @@ cdrouter.CDRouter
 .. autoclass:: cdrouter.cdrouter.Share
    :members:
 
+cdrouter.filters
+~~~~~~~~~~~~~~~~
+
+.. automodule:: cdrouter.filters
+   :members:
+
+.. autoclass:: cdrouter.filters.Field
+   :members:
+
 cdrouter.configs
 ~~~~~~~~~~~~~~~~
 
