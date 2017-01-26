@@ -36,6 +36,10 @@ Usage::
       'tags@>{foo,bar,baz}',
   ])
 
+See this_ page for more details on CDRouter Web API filters.
+
+.. _this: https://support.qacafe.com/cdrouter-web-api/overview/#filtering
+
 """
 
 import collections
@@ -166,10 +170,10 @@ class Field(object):
         return self
 
     def match(self, value, ignorecase=False):
-        """Construct a regexp match (``~``) filter.
+        """Construct a regexp match (``~``) filter.  Combine with ``not_`` method to construct a negative regexp match (``!~``) filter.
 
         :param value: Filter value
-        :param ignorecase: If bool `True`, make match case insensitive (``~*``)
+        :param ignorecase: If bool `True`, make match case insensitive (``~*``, ``!~*``)
         :return: :class:`filters.Field <filters.Field>` object
         :rtype: filters.Field
         """
