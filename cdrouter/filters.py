@@ -88,7 +88,7 @@ class Field(object):
 
     def not_(self):
         """Negate the filter.  Not supported by ``contains``, ``contained_by``
-        or `overlaps`` methods.
+        or ``overlaps`` methods.
 
         :return: :class:`filters.Field <filters.Field>` object
         :rtype: filters.Field
