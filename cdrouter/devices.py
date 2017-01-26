@@ -6,7 +6,9 @@
 """Module for accessing CDRouter Devices."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
+from .filters import Field as field
 
 class Device(object):
     """Model for CDRouter Devices.
@@ -138,6 +140,18 @@ class DevicesService(object):
         schema = DeviceSchema()
         resp = self.service.get(self.base, id)
         return self.service.decode(schema, resp)
+
+    def get_by_name(self, name): # pylint: disable=invalid-name,redefined-builtin
+        """Get a device by name.
+
+        :param name: Device name as string.
+        :return: :class:`devices.Device <devices.Device>` object
+        :rtype: devices.Device
+        """
+        rs = self.list(filter=field('name').eq(name), limit=1)
+        if len(rs) is 0:
+            raise CDRouterError('no such device')
+        return rs[0]
 
     def create(self, resource):
         """Create a new device.

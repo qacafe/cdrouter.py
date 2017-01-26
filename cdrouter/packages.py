@@ -6,8 +6,10 @@
 """Module for accessing CDRouter Packages."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_error import CDRouterError
 from .testsuites import TestSchema
 from .cdr_datetime import DateTime
+from .filters import Field as field
 
 class Analysis(object):
     """Model for CDRouter Package Analysis.
@@ -175,6 +177,18 @@ class PackagesService(object):
         schema = PackageSchema()
         resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
+
+    def get_by_name(self, name): # pylint: disable=invalid-name,redefined-builtin
+        """Get a package by name.
+
+        :param name: Package name as string.
+        :return: :class:`packages.Package <packages.Package>` object
+        :rtype: packages.Package
+        """
+        rs = self.list(filter=field('name').eq(name), limit=1)
+        if len(rs) is 0:
+            raise CDRouterError('no such package')
+        return rs[0]
 
     def create(self, resource):
         """Create a new package.

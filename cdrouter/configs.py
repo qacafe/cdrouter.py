@@ -6,7 +6,9 @@
 """Module for accessing CDRouter Configs."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
+from .filters import Field as field
 
 class ConfigError(object):
     """Model for CDRouter Check Config Error.
@@ -207,6 +209,18 @@ class ConfigsService(object):
         :rtype: string
         """
         return self.service.get_id(self.base, id, params={'format': 'text'}).text
+
+    def get_by_name(self, name): # pylint: disable=invalid-name,redefined-builtin
+        """Get a config by name.
+
+        :param name: Config name as string.
+        :return: :class:`configs.Config <configs.Config>` object
+        :rtype: configs.Config
+        """
+        rs = self.list(filter=field('name').eq(name), limit=1)
+        if len(rs) is 0:
+            raise CDRouterError('no such config')
+        return rs[0]
 
     def create(self, resource):
         """Create a new config.

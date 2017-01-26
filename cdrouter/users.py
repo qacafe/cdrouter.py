@@ -6,7 +6,9 @@
 """Module for accessing CDRouter Users."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
+from .filters import Field as field
 
 class User(object):
     """Model for CDRouter Users.
@@ -85,6 +87,18 @@ class UsersService(object):
         schema = UserSchema()
         resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
+
+    def get_by_name(self, name): # pylint: disable=invalid-name,redefined-builtin
+        """Get a user by name.
+
+        :param name: User name as string.
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
+        rs = self.list(filter=field('name').eq(name), limit=1)
+        if len(rs) is 0:
+            raise CDRouterError('no such user')
+        return rs[0]
 
     def create(self, resource):
         """Create a new user.

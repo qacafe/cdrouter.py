@@ -14,6 +14,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from marshmallow import Schema, fields, post_load
 
 from . import __version__
+from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
 from .configs import ConfigsService
 from .devices import DevicesService
@@ -103,14 +104,6 @@ class ShareSchema(Schema):
     @post_load
     def post_load(self, data):
         return Share(**data)
-
-class CDRouterError(BaseException):
-    def __init__(self, message, response):
-        self.message = message
-        self.response = response
-
-    def __str__(self):
-        return self.message
 
 class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
     """Class for authorizing CDRouter Web API requests."""
