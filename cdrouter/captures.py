@@ -239,8 +239,8 @@ class ASCIIFrameSchema(Schema):
 class ASCII(object):
     """Model for CDRouter Capture ASCII.
 
-    :param frame: (optional) :class:`captures.ASCIIFrame <captures.ASCIIFrame>` list
-    :param reassembled: (optional) :class:`captures.ASCIIFrame <captures.ASCIIFrame>` list
+    :param frame: (optional) :class:`captures.ASCIIFrame <captures.ASCIIFrame>` object
+    :param reassembled: (optional) :class:`captures.ASCIIFrame <captures.ASCIIFrame>` object
     """
     def __init__(self, **kwargs):
         self.frame = kwargs.get('frame', None)
