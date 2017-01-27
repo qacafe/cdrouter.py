@@ -37,7 +37,7 @@ CDRouter systems where Automatic Login is enabled.
 
     c = CDRouter('http://localhost:8015', token='deadbeef')
 
-    for p in c.packages.list(filter=field('tags').contains('noretry'), limit='none'):
+    for p in c.packages.list(filter=field('tags').contains('noretry'), limit='none').data:
         print('Launching package ' + p.name)
 
         j = c.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))

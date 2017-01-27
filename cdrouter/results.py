@@ -5,6 +5,7 @@
 
 """Module for accessing CDRouter Results."""
 
+import collections
 import io
 
 from requests_toolbelt.downloadutils import stream
@@ -413,6 +414,13 @@ class ResultSchema(Schema):
     def post_load(self, data):
         return Result(**data)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`results.Result <results.Result>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class ResultsService(object):
     """Service for accessing CDRouter Results."""
 
@@ -431,11 +439,12 @@ class ResultsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`results.Result <results.Result>` list
+        :return: :class:`results.Page <results.Page>` object
         """
         schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        rs, l = self.service.decode(schema, resp, many=True)
+        return Page(rs, l)
 
     def list_csv(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of results as CSV.

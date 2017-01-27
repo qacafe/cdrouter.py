@@ -5,6 +5,8 @@
 
 """Module for accessing CDRouter Devices."""
 
+import collections
+
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
@@ -103,6 +105,13 @@ class DeviceSchema(Schema):
     def post_load(self, data):
         return Device(**data)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`devices.Device <devices.Device>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class DevicesService(object):
     """Service for accessing CDRouter Devices."""
 
@@ -121,14 +130,15 @@ class DevicesService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`devices.Device <devices.Device>` list
+        :return: :class:`devices.Page <devices.Page>` object
         """
         schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password',
                                        'location', 'device_category', 'manufacturer', 'manufacturer_oui',
                                        'model_name', 'model_number', 'product_class', 'serial_number',
                                        'hardware_version', 'software_version', 'provisioning_code', 'note'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        ds, l = self.service.decode(schema, resp, many=True)
+        return Page(ds, l)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a device.
@@ -148,7 +158,7 @@ class DevicesService(object):
         :return: :class:`devices.Device <devices.Device>` object
         :rtype: devices.Device
         """
-        rs = self.list(filter=field('name').eq(name), limit=1)
+        rs, _ = self.list(filter=field('name').eq(name), limit=1)
         if len(rs) is 0:
             raise CDRouterError('no such device')
         return rs[0]

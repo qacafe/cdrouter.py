@@ -14,8 +14,8 @@ token = sys.argv[2]
 
 c = CDRouter(base, token=token)
 
-for r in c.results.list(sort=['-id'], limit=25):
-    for tr in c.tests.list(r.id, limit='none'):
+for r in c.results.list(sort=['-id'], limit=25).data:
+    for tr in c.tests.list(r.id, limit='none').data:
         try:
             logs = c.tests.get_log(tr.id, tr.seq, filter=['proto=DHCP', 'info~*offer'], limit='100000')
         except:

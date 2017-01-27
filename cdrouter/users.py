@@ -5,6 +5,8 @@
 
 """Module for accessing CDRouter Users."""
 
+import collections
+
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
@@ -53,6 +55,13 @@ class UserSchema(Schema):
     def post_load(self, data):
         return User(**data)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`users.User <users.User>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class UsersService(object):
     """Service for accessing CDRouter Users."""
 
@@ -71,11 +80,12 @@ class UsersService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`users.User <users.User>` list
+        :return: :class:`users.Page <users.Page>` object
         """
         schema = UserSchema(exclude=('created', 'updated', 'token', 'password', 'password_confirm'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        us, l = self.service.decode(schema, resp, many=True)
+        return Page(us, l)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a user.
@@ -95,7 +105,7 @@ class UsersService(object):
         :return: :class:`users.User <users.User>` object
         :rtype: users.User
         """
-        rs = self.list(filter=field('name').eq(name), limit=1)
+        rs, _ = self.list(filter=field('name').eq(name), limit=1)
         if len(rs) is 0:
             raise CDRouterError('no such user')
         return rs[0]

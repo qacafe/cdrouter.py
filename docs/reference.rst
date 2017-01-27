@@ -36,6 +36,9 @@ cdrouter.configs
 .. autoclass:: cdrouter.configs.Config
    :members:
 
+.. autoclass:: cdrouter.configs.Page
+   :members:
+
 .. autoclass:: cdrouter.configs.ConfigError
    :members:
 
@@ -60,6 +63,9 @@ cdrouter.devices
 .. autoclass:: cdrouter.devices.Device
    :members:
 
+.. autoclass:: cdrouter.devices.Page
+   :members:
+
 cdrouter.attachments
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -81,6 +87,9 @@ cdrouter.jobs
 .. autoclass:: cdrouter.jobs.Options
    :members:
 
+.. autoclass:: cdrouter.jobs.Page
+   :members:
+
 cdrouter.packages
 ~~~~~~~~~~~~~~~~~
 
@@ -93,6 +102,9 @@ cdrouter.packages
 .. autoclass:: cdrouter.packages.Options
    :members:
 
+.. autoclass:: cdrouter.packages.Page
+   :members:
+
 .. autoclass:: cdrouter.packages.Analysis
    :members:
 
@@ -103,6 +115,9 @@ cdrouter.results
    :members:
 
 .. autoclass:: cdrouter.results.Result
+   :members:
+
+.. autoclass:: cdrouter.results.Page
    :members:
 
 .. autoclass:: cdrouter.results.TestCount
@@ -157,6 +172,9 @@ cdrouter.testresults
    :members:
 
 .. autoclass:: cdrouter.testresults.TestResult
+   :members:
+
+.. autoclass:: cdrouter.testresults.Page
    :members:
 
 .. autoclass:: cdrouter.testresults.Summary
@@ -267,6 +285,9 @@ cdrouter.history
 .. autoclass:: cdrouter.history.History
    :members:
 
+.. autoclass:: cdrouter.history.Page
+   :members:
+
 cdrouter.system
 ~~~~~~~~~~~~~~~
 
@@ -349,4 +370,7 @@ cdrouter.users
    :members:
 
 .. autoclass:: cdrouter.users.User
+   :members:
+
+.. autoclass:: cdrouter.users.Page
    :members:

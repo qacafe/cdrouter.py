@@ -5,6 +5,8 @@
 
 """Module for accessing CDRouter Jobs."""
 
+import collections
+
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
@@ -80,6 +82,13 @@ class JobSchema(Schema):
     def post_load(self, data):
         return Job(**data)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`jobs.Job <jobs.Job>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class JobsService(object):
     """Service for accessing CDRouter Jobs."""
 
@@ -98,11 +107,12 @@ class JobsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`jobs.Job <jobs.Job>` list
+        :return: :class:`jobs.Page <jobs.Page>` object
         """
         schema = JobSchema()
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        js, l = self.service.decode(schema, resp, many=True)
+        return Page(js, l)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a job.

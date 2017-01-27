@@ -5,6 +5,8 @@
 
 """Module for accessing CDRouter TestResults."""
 
+import collections
+
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
@@ -175,6 +177,13 @@ class TestResultSchema(Schema):
     def post_load(self, data):
         return TestResult(**data)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`testresults.TestResult <testresults.TestResult>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class TestResultsService(object):
     """Service for accessing CDRouter TestResults."""
 
@@ -196,11 +205,12 @@ class TestResultsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`testresults.TestResult <testresults.TestResult>` list
+        :return: :class:`testresults.Page <testresults.Page>` object
         """
         schema = TestResultSchema()
         resp = self.service.list(self._base(id), filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        trs, l =self.service.decode(schema, resp, many=True)
+        return Page(trs, l)
 
     def list_csv(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of test results as CSV.

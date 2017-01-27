@@ -5,6 +5,8 @@
 
 """Module for accessing CDRouter Configs."""
 
+import collections
+
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
@@ -144,6 +146,13 @@ class Config(object):
         self.tags = kwargs.get('tags', None)
         self.note = kwargs.get('note', None)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`configs.Config <configs.Config>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class ConfigSchema(Schema):
     id = fields.Str()
     name = fields.Str()
@@ -166,6 +175,11 @@ class ConfigsService(object):
     RESOURCE = 'configs'
     BASE = RESOURCE + '/'
 
+    GET_SCHEMA = ConfigSchema()
+    LIST_SCHEMA = ConfigSchema(exclude=('contents', 'note'))
+    CREATE_SCHEMA = ConfigSchema(exclude=('id', 'created', 'updated', 'result_id'))
+    EDIT_SCHEMA = CREATE_SCHEMA
+
     def __init__(self, service):
         self.service = service
         self.base = self.BASE
@@ -178,11 +192,12 @@ class ConfigsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`configs.Config <configs.Config>` list
+        :return: :class:`configs.Page <configs.Page>` object
         """
-        schema = ConfigSchema(exclude=('contents', 'note'))
+        schema = self.LIST_SCHEMA
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        cs, l = self.service.decode(schema, resp, many=True, links=True)
+        return Page(cs, l)
 
     def get_new(self):
         """Get output of cdrouter-cli -new-config.
@@ -198,7 +213,7 @@ class ConfigsService(object):
         :return: :class:`configs.Config <configs.Config>` object
         :rtype: configs.Config
         """
-        schema = ConfigSchema()
+        schema = self.GET_SCHEMA
         resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
 
@@ -217,7 +232,7 @@ class ConfigsService(object):
         :return: :class:`configs.Config <configs.Config>` object
         :rtype: configs.Config
         """
-        rs = self.list(filter=field('name').eq(name), limit=1)
+        rs, _ = self.list(filter=field('name').eq(name), limit=1)
         if len(rs) is 0:
             raise CDRouterError('no such config')
         return rs[0]
@@ -229,10 +244,10 @@ class ConfigsService(object):
         :return: :class:`configs.Config <configs.Config>` object
         :rtype: configs.Config
         """
-        schema = ConfigSchema(exclude=('id', 'created', 'updated', 'result_id'))
+        schema = self.CREATE_SCHEMA
         json = self.service.encode(schema, resource)
 
-        schema = ConfigSchema()
+        schema = self.GET_SCHEMA
         resp = self.service.create(self.base, json)
         return self.service.decode(schema, resp)
 
@@ -243,10 +258,10 @@ class ConfigsService(object):
         :return: :class:`configs.Config <configs.Config>` object
         :rtype: configs.Config
         """
-        schema = ConfigSchema(exclude=('id', 'created', 'updated', 'result_id'))
+        schema = self.EDIT_SCHEMA
         json = self.service.encode(schema, resource)
 
-        schema = ConfigSchema()
+        schema = self.GET_SCHEMA
         resp = self.service.edit(self.base, resource.id, json)
         return self.service.decode(schema, resp)
 
@@ -332,7 +347,7 @@ class ConfigsService(object):
         :param ids: String list of config IDs.
         :return: :class:`configs.Config <configs.Config>` list
         """
-        schema = ConfigSchema()
+        schema = self.GET_SCHEMA
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
     def bulk_edit(self, _fields, ids=None, filter=None, type=None, all=False, testvars=None): # pylint: disable=redefined-builtin

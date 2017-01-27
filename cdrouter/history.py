@@ -5,6 +5,8 @@
 
 """Module for accessing CDRouter History."""
 
+import collections
+
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 
@@ -41,6 +43,13 @@ class HistorySchema(Schema):
     def post_load(self, data):
         return History(**data)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`history.History <history.History>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class HistoryService(object):
     """Service for accessing CDRouter History."""
 
@@ -59,8 +68,9 @@ class HistoryService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`history.History <history.History>` list
+        :return: :class:`history.Page <history.Page>` object
         """
         schema = HistorySchema()
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        hs, l = self.service.decode(schema, resp, many=True)
+        return Page(hs, l)

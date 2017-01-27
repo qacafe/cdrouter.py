@@ -20,7 +20,7 @@ if len(sys.argv) > 3:
 # create service
 c = CDRouter(base, token=token)
 
-packages = c.packages.list(filter=['tags@>{'+tag_name+'}'])
+packages = c.packages.list(filter=['tags@>{'+tag_name+'}']).data
 jobs = [Job(package_id=p.id) for p in packages]
 
 for j in c.jobs.bulk_launch(jobs=jobs):

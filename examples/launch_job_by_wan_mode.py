@@ -28,7 +28,7 @@ print('{0} possible WAN modes defined: {1}'.format(len(choices), ', '.join(choic
 print('')
 
 # find all packages with given tag
-packages = c.packages.list(filter=['tags@>{'+tag_name+'}'], limit='none')
+packages = c.packages.list(filter=['tags@>{'+tag_name+'}'], limit='none').data
 
 print('Found {0} packages with {1} tag'.format(len(packages), tag_name))
 print('')

@@ -5,6 +5,8 @@
 
 """Module for accessing CDRouter Packages."""
 
+import collections
+
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
 from .testsuites import TestSchema
@@ -143,6 +145,13 @@ class PackageSchema(Schema):
     def post_load(self, data):
         return Package(**data)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`packages.Package <packages.Package>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class PackagesService(object):
     """Service for accessing CDRouter Packages."""
 
@@ -161,11 +170,12 @@ class PackagesService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`packages.Package <packages.Package>` list
+        :return: :class:`packages.Page <packages.Page>` object
         """
         schema = PackageSchema(exclude=('testlist', 'extra_cli_args', 'agent_id', 'options', 'note'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        ps, l = self.service.decode(schema, resp, many=True)
+        return Page(ps, l)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a package.
@@ -185,7 +195,7 @@ class PackagesService(object):
         :return: :class:`packages.Package <packages.Package>` object
         :rtype: packages.Package
         """
-        rs = self.list(filter=field('name').eq(name), limit=1)
+        rs, _ = self.list(filter=field('name').eq(name), limit=1)
         if len(rs) is 0:
             raise CDRouterError('no such package')
         return rs[0]
