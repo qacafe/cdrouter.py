@@ -15,6 +15,9 @@ cdrouter.CDRouter
 .. autoclass:: cdrouter.CDRouter
    :members:
 
+.. autoclass:: cdrouter.cdrouter.Links
+   :members:
+
 .. autoclass:: cdrouter.cdrouter.Share
    :members:
 

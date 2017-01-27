@@ -150,12 +150,6 @@ class JobsService(object):
         """
         return self.service.delete_id(self.base, id)
 
-    @staticmethod
-    def _package_id(id): # pylint: disable=invalid-name,redefined-builtin
-        if isinstance(id, (str, int)):
-            return {'package_id': str(id)}
-        return id
-
     def bulk_launch(self, jobs=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk launch a set of jobs.
 

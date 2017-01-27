@@ -35,6 +35,16 @@ from .testsuites import TestsuitesService
 from .users import UsersService
 
 class Links(object):
+    """Class representing paging information returned by ``list`` calls to the CDRouter Web API.
+
+    :param first: (optional) First page number as an int.
+    :param last: (optional) Last page number as an int.
+    :param current: (optional) Current page number as an int.
+    :param total: (optional) Total element count across all pages as an int.
+    :param limit: (optional) Resources per page limit as an int.
+    :param next: (optional) Next page number as an int.
+    :param prev: (optional) Previous page number as an int.
+    """
     def __init__(self, **kwargs):
         self.first = kwargs.get('first', None)
         self.last = kwargs.get('last', None)
