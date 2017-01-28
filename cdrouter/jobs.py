@@ -111,7 +111,7 @@ class JobsService(object):
         """
         schema = JobSchema()
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        js, l = self.service.decode(schema, resp, many=True)
+        js, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(js, l)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin

@@ -443,7 +443,7 @@ class ResultsService(object):
         """
         schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        rs, l = self.service.decode(schema, resp, many=True)
+        rs, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(rs, l)
 
     def list_csv(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
