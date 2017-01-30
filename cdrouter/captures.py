@@ -342,6 +342,7 @@ class CapturesService(object):
         resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
+        resp.close()
         b.seek(0)
         return (b, self.service.filename(resp))
 
