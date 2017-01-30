@@ -356,7 +356,7 @@ class CDRouter(object):
         return getpass.getpass('{}\'s password on {}: '.format(username, base))
 
     def authenticate(self, username=None, password=None, _getuser=None, _getpass=None):
-        """Learn API token by authenticating via username/password.
+        """Set API token by authenticating via username/password.
 
         :param username: Username as string.
         :param password: Password as string.

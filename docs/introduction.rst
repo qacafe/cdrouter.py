@@ -32,6 +32,7 @@ CDRouter systems where Automatic Login is enabled.
 
     import time
     from cdrouter import CDRouter
+    from cdrouter.cdrouter import CDRouterError
     from cdrouter.filters import Field as field
     from cdrouter.jobs import Job
 
@@ -40,7 +41,10 @@ CDRouter systems where Automatic Login is enabled.
     for p in c.packages.list(filter=field('tags').contains('noretry'), limit='none').data:
         print('Launching package ' + p.name)
 
-        j = c.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
+        try:
+            j = c.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
+        except CDRouterError, ce:
+            print('Error launching job: {}'.format(ce))
 
         while j.result_id == None:
             time.sleep(1)
