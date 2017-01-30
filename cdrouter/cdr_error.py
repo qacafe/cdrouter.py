@@ -5,16 +5,7 @@
 
 """Module for handling CDRouter Web API errors."""
 
-class CDRouterError(BaseException):
-    """Class for representing CDRouter Web API errors.
+from requests.exceptions import HTTPError
 
-    :param message: Error message from API.
-    :param response: (optional) Response object.
-    """
-    def __init__(self, message, response=None):
-        self.message = message
-        self.response = response
-
-    def __str__(self):
-        return self.message
-
+class CDRouterError(HTTPError):
+    """Class for representing CDRouter Web API errors."""

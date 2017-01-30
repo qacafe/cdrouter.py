@@ -12,6 +12,7 @@ from requests_toolbelt.downloadutils import stream
 from requests_toolbelt import sessions
 from requests_toolbelt.utils.user_agent import user_agent
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from requests.exceptions import HTTPError
 from marshmallow import Schema, fields, post_load
 
 from . import __version__
@@ -203,8 +204,10 @@ class CDRouter(object):
         if files is None:
             files = {}
             headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
-        return self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
+        resp = self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
                                     json=json, data=data, verify=(not self.insecure), auth=Auth(token=self.token))
+        self.raise_for_status(resp)
+        return resp
 
     def get(self, path, params=None, stream=None):
         return self._req(path, method='GET', params=params, stream=stream)
@@ -261,7 +264,6 @@ class CDRouter(object):
             params = {}
         params.update({'format': format})
         resp = self.get(base+str(id)+'/', params=params, stream=True)
-        resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
         resp.close()
@@ -273,7 +275,6 @@ class CDRouter(object):
             params = {}
         params.update({'bulk': 'export', 'ids': map(str, ids)})
         resp = self.get(base, params=params, stream=True)
-        resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
         resp.close()
@@ -301,6 +302,29 @@ class CDRouter(object):
             json = {resource: [{'id': str(x)} for x in ids]}
         return self.post(base, params={'bulk': 'delete', 'filter': filter, 'type': type, 'all': all}, json=json)
 
+    @staticmethod
+    def raise_for_status(resp):
+        if 400 <= resp.status_code < 600:
+            message = 'unknown error'
+
+            try:
+                resp.raise_for_status()
+            except HTTPError, he:
+                message = str(he)
+
+            try:
+                json = resp.json()
+                resp_schema = ResponseSchema()
+                result = resp_schema.load(json).data
+                if result.error is not None:
+                    message = result.error
+            except HTTPError, he:
+                message = str(he)
+            except:
+                pass
+
+            raise CDRouterError(message, response=resp)
+
     def decode(self, schema, resp, many=None, links=False):
         json = resp.json()
         resp_schema = ResponseSchema()
@@ -309,13 +333,8 @@ class CDRouter(object):
 
         result = resp_schema.load(json).data
 
-        if 400 <= resp.status_code < 600 and result.error is not None:
-                raise CDRouterError(result.error, resp)
-
-        resp.raise_for_status()
-
         if result.data is None:
-            raise CDRouterError('no data field in JSON response!', resp)
+            raise CDRouterError('no data field in JSON response!', response=resp)
 
         data = schema.load(result.data, many=many).data
 

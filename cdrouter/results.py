@@ -657,7 +657,6 @@ class ResultsService(object):
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         resp = self.service.get(self.base+str(id)+'/logdir/'+filename+'/', stream=True)
-        resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
         resp.close()
@@ -673,7 +672,6 @@ class ResultsService(object):
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         resp = self.service.get(self.base+str(id)+'/logdir/', params={'format': format, 'exclude_captures': exclude_captures}, stream=True)
-        resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
         resp.close()

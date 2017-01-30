@@ -339,7 +339,6 @@ class CapturesService(object):
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         resp = self.service.get_id(self._base(id, seq), intf, params={'format': format, 'inline': inline}, stream=True)
-        resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
         resp.close()

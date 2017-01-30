@@ -105,7 +105,6 @@ class AttachmentsService(object):
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         resp = self.service.get_id(self._base(id), attid, params={'format': 'download'}, stream=True)
-        resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
         resp.close()
@@ -123,7 +122,6 @@ class AttachmentsService(object):
         """
 
         resp = self.service.get_id(self._base(id), attid, params={'format': 'thumbnail', 'size': size}, stream=True)
-        resp.raise_for_status()
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
         resp.close()
