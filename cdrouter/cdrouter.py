@@ -3,6 +3,7 @@
 # All Rights Reserved.
 #
 
+import getpass
 import io
 import os
 import re
@@ -32,7 +33,7 @@ from .history import HistoryService
 from .system import SystemService
 from .tags import TagsService
 from .testsuites import TestsuitesService
-from .users import UsersService
+from .users import UsersService, UserSchema
 
 class Links(object):
     """Class representing paging information returned by ``list`` calls to the CDRouter Web API.
@@ -122,7 +123,7 @@ class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
         self.token = token
 
     def __call__(self, r):
-        if self.token != None:
+        if self.token is not None:
             r.headers['authorization'] = 'Bearer ' + self.token
         return r
 
@@ -146,7 +147,7 @@ class CDRouter(object):
     BASE = '/api/v1/'
 
     def __init__(self, base, token=None, insecure=False):
-        self.base = base.rstrip('/')+self.BASE
+        self.base = base.rstrip('/')
         self.token = token
         if self.token is None:
             self.token = os.environ.get('CDROUTER_API_TOKEN')
@@ -156,7 +157,7 @@ class CDRouter(object):
             # disable annoying InsecureRequestWarning
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-        self.session = sessions.BaseUrlSession(base_url=base+self.BASE)
+        self.session = sessions.BaseUrlSession(base_url=self.base+self.BASE)
 
         #: :class:`configs.ConfigsService <configs.ConfigsService>` object
         self.configs = ConfigsService(self)
@@ -326,3 +327,41 @@ class CDRouter(object):
     def encode(self, schema, resource, many=None):
         result = schema.dump(resource, many=many)
         return result.data
+
+    @staticmethod
+    def _getuser_default(base):
+        return raw_input('username on {}: '.format(base))
+
+    @staticmethod
+    def _getpass_default(base, username):
+        return getpass.getpass('{}\'s password on {}: '.format(username, base))
+
+    def authenticate(self, username=None, password=None, _getuser=None, _getpass=None):
+        """Learn API token by authenticating via username/password.
+
+        :param username: Username as string.
+        :param password: Password as string.
+        :param _getuser: If username is `None`, function to call as ``_getuser(base)`` which returns a username as a string.  If ``_getuser`` is `None`, ``authenticate`` will print a prompt to stdout and read the username from stdin.
+        :param _getpass: If password is `None`, a function to call as ``_getpass(base, username)`` which returns user's password as a string.  If ``_getpass`` is `None`, ``authenticate`` will print a password prompt to stdout and read the password from stdin.
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
+
+        if _getuser is None:
+           _getuser = self._getuser_default
+        if _getpass is None:
+           _getpass = self._getpass_default
+
+        if username is None:
+            username = _getuser(self.base)
+        if password is None:
+            password = _getpass(self.base, username)
+
+        schema = UserSchema()
+        resp = requests.post(self.base+'/authenticate', params={'username': username, 'password': password})
+        u = self.decode(schema, resp)
+
+        if u.token is not None:
+            self.token = u.token
+
+        return u

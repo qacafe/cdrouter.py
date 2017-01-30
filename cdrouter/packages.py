@@ -174,7 +174,7 @@ class PackagesService(object):
         """
         schema = PackageSchema(exclude=('testlist', 'extra_cli_args', 'agent_id', 'options', 'note'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        ps, l = self.service.decode(schema, resp, many=True)
+        ps, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ps, l)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin

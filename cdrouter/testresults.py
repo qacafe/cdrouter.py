@@ -209,7 +209,7 @@ class TestResultsService(object):
         """
         schema = TestResultSchema()
         resp = self.service.list(self._base(id), filter, type, sort, limit, page)
-        trs, l =self.service.decode(schema, resp, many=True)
+        trs, l =self.service.decode(schema, resp, many=True, links=True)
         return Page(trs, l)
 
     def list_csv(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin

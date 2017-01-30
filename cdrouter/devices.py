@@ -137,7 +137,7 @@ class DevicesService(object):
                                        'model_name', 'model_number', 'product_class', 'serial_number',
                                        'hardware_version', 'software_version', 'provisioning_code', 'note'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        ds, l = self.service.decode(schema, resp, many=True)
+        ds, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ds, l)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin

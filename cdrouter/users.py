@@ -84,7 +84,7 @@ class UsersService(object):
         """
         schema = UserSchema(exclude=('created', 'updated', 'token', 'password', 'password_confirm'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        us, l = self.service.decode(schema, resp, many=True)
+        us, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(us, l)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin

@@ -72,5 +72,5 @@ class HistoryService(object):
         """
         schema = HistorySchema()
         resp = self.service.list(self.base, filter, type, sort, limit, page)
-        hs, l = self.service.decode(schema, resp, many=True)
+        hs, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(hs, l)
