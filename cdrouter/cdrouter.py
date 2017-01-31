@@ -377,7 +377,7 @@ class CDRouter(object):
             password = _getpass(self.base, username)
 
         schema = UserSchema()
-        resp = requests.post(self.base+'/authenticate', params={'username': username, 'password': password})
+        resp = self.post(self.base+'/authenticate', params={'username': username, 'password': password})
         u = self.decode(schema, resp)
 
         if u.token is not None:
