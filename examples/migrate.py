@@ -8,6 +8,7 @@ import sys
 
 from cdrouter import CDRouter
 from cdrouter.cdrouter import CDRouterError
+from cdrouter.filters import Field as field
 
 parser = argparse.ArgumentParser(description="""
 Migrate resources between CDRouter systems.
@@ -83,7 +84,7 @@ resources = args.resources.split(',')
 src_devices = re.match('^10\.0\.', src.testsuites.info().release) is None
 dst_devices = re.match('^10\.0\.', dst.testsuites.info().release) is None
 
-def migrate(src, dst, resource, name_or_id='name', filter=None):
+def migrate(src, dst, resource, name_or_id, filter):
     plural = '{}s'.format(resource)
     src_service = getattr(src, plural)
     dst_service = getattr(dst, plural)
@@ -144,18 +145,18 @@ def migrate(src, dst, resource, name_or_id='name', filter=None):
 try:
     filter = []
     if args.after is not None:
-        filter.append('created>{}'.format(args.after))
+        filter.append(field('created').gt(args.after))
     if args.before is not None:
-        filter.append('created<{}'.format(args.before))
+        filter.append(field('created').lt(args.before))
 
     if 'configs' in resources:
-        migrate(src, dst, 'config', 'name', filter=filter)
+        migrate(src, dst, 'config', 'name', filter)
     if src_devices and dst_devices and 'devices' in resources:
-        migrate(src, dst, 'device', 'name', filter=filter)
+        migrate(src, dst, 'device', 'name', filter)
     if 'packages' in resources:
-        migrate(src, dst, 'package', 'name', filter=filter)
+        migrate(src, dst, 'package', 'name', filter)
     if 'results' in resources:
-        migrate(src, dst, 'result', 'id', filter=filter)
+        migrate(src, dst, 'result', 'id', filter)
 except KeyboardInterrupt:
     print('Caught interrupt, terminating...')
     sys.exit(1)
