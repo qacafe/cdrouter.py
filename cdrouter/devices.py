@@ -151,7 +151,7 @@ class DevicesService(object):
         :return: :class:`devices.Device <devices.Device>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        return self.service.iter_list(self.list, *args, **kwargs)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a device.

@@ -6,6 +6,7 @@
 """Module for accessing CDRouter TestResults."""
 
 import collections
+from functools import partial
 
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
@@ -212,18 +213,20 @@ class TestResultsService(object):
         trs, l =self.service.decode(schema, resp, many=True, links=True)
         return Page(trs, l)
 
-    def iter_list(self, *args, **kwargs):
+    def iter_list(self, id, *args, **kwargs):
         """Get a list of test results.  Whereas ``list`` fetches a single page
         of test results according to its ``limit`` and ``page``
         arguments, ``iter_list`` returns all test results by
         internally making successive calls to ``list``.
 
+        :param id: Result ID as string.
         :param args: Arguments that ``list`` takes.
         :param kwargs: Optional arguments that ``list`` takes.
         :return: :class:`testresults.TestResult <testresults.TestResult>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        l = partial(self.list, id)
+        return self.service.iter_list(l, *args, **kwargs)
 
     def list_csv(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of test results as CSV.

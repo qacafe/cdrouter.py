@@ -457,7 +457,7 @@ class ResultsService(object):
         :return: :class:`results.Result <results.Result>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        return self.service.iter_list(self.list, *args, **kwargs)
 
     def list_csv(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of results as CSV.

@@ -98,7 +98,7 @@ class UsersService(object):
         :return: :class:`users.User <users.User>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        return self.service.iter_list(self.list, *args, **kwargs)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a user.

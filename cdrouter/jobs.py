@@ -125,7 +125,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        return self.service.iter_list(self.list, *args, **kwargs)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a job.

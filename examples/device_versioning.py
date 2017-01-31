@@ -26,7 +26,7 @@ a = c.attachments.create(d.id, software)
 a.description = 'Firmware for {}'.format(software_version)
 a = c.attachments.edit(a)
 
-packages = c.packages.list(filter=['device_id='+d.id], limit='none').data
+packages = c.packages.iter_list(filter=['device_id='+d.id])
 jobs = [Job(package_id=p.id, tags=[software_version]) for p in packages]
 
 c.jobs.bulk_launch(jobs)

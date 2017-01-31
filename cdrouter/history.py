@@ -86,4 +86,4 @@ class HistoryService(object):
         :return: :class:`historys.History <historys.History>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        return self.service.iter_list(self.list, *args, **kwargs)

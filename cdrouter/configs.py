@@ -210,7 +210,7 @@ class ConfigsService(object):
         :return: :class:`configs.Config <configs.Config>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        return self.service.iter_list(self.list, *args, **kwargs)
 
     def get_new(self):
         """Get output of cdrouter-cli -new-config.

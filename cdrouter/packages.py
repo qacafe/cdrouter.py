@@ -188,7 +188,7 @@ class PackagesService(object):
         :return: :class:`packages.Package <packages.Package>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        return self.service.iter_list(self.list, *args, **kwargs)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a package.

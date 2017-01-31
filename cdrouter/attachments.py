@@ -4,6 +4,7 @@
 #
 
 import collections
+from functools import partial
 import io
 import os.path
 
@@ -80,18 +81,20 @@ class AttachmentsService(object):
         at, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(at, l)
 
-    def iter_list(self, *args, **kwargs):
+    def iter_list(self, id, *args, **kwargs):
         """Get a list of attachments.  Whereas ``list`` fetches a single page
         of attachments according to its ``limit`` and ``page``
         arguments, ``iter_list`` returns all attachments by internally
         making successive calls to ``list``.
 
+        :param id: Device ID as string.
         :param args: Arguments that ``list`` takes.
         :param kwargs: Optional arguments that ``list`` takes.
         :return: :class:`attachments.Attachment <attachments.Attachment>` list
 
         """
-        return self.service.iter_list(self.list, args, kwargs)
+        l = partial(self.list, id)
+        return self.service.iter_list(l, *args, **kwargs)
 
     def get(self, id, attid): # pylint: disable=invalid-name,redefined-builtin
         """Get a device's attachment.

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 
 from cdrouter import CDRouter
@@ -13,20 +14,21 @@ token = sys.argv[2]
 archive = sys.argv[3]
 
 # create service
-c = CDRouter(base, token=token, insecure=True)
+c = CDRouter(base, token=token)
 
-si = c.imports.stage_import_from_file(archive)
+with open(archive, 'r+') as fd:
+    si = c.imports.stage_import_from_file(fd, filename=os.path.basename(archive))
 
 impreq = c.imports.get_commit_request(si.id)
 
 for name in impreq.configs:
-    impreq.configs[name]['import'] = True
+    impreq.configs[name].should_import = True
 for id in impreq.packages:
-    impreq.packages[id]['import'] = True
+    impreq.packages[id].should_import = True
 for id in impreq.devices:
-    impreq.devices[id]['import'] = True
+    impreq.devices[id].should_import = True
 for id in impreq.results:
-    impreq.results[id]['import'] = True
+    impreq.results[id].should_import = True
 
 resp = c.imports.commit(si.id, impreq)
 
