@@ -65,26 +65,13 @@ parser.add_argument('--resources', metavar='LIST', help='Comma-separated list of
 parser.add_argument('--after', metavar='DATE', help='Migrate only resources created after this date (format: YYYY-MM-DD)', type=valid_date, default=None)
 parser.add_argument('--before', metavar='DATE', help='Migrate only resources created before this date (format: YYYY-MM-DD)', type=valid_date, default=None)
 
+parser.add_argument('--verbose', help='Enable verbose output', action='store_true', default=False)
+
 args = parser.parse_args()
 
-# don't allow API token to be set from environment variable since
-# behavior is potentially confusing with two CDRouter systems
-if 'CDROUTER_API_TOKEN' in os.environ:
-    del os.environ['CDROUTER_API_TOKEN']
-
-src = CDRouter(args.src_base, token=args.src_token, insecure=args.insecure)
-if args.src_token is None and args.src_user is not None:
-    src.authenticate(args.src_user, args.src_password)
-
-dst = CDRouter(args.dst_base, token=args.dst_token, insecure=args.insecure)
-if args.dst_token is None and args.dst_user is not None:
-    dst.authenticate(args.dst_user, args.dst_password)
-
-resources = args.resources.split(',')
-
-# devices were added in CDRouter 10.1
-src_devices = re.match('^10\.0\.', src.testsuites.info().release) is None
-dst_devices = re.match('^10\.0\.', dst.testsuites.info().release) is None
+def print_verbose(msg):
+    if args.verbose:
+        print(msg)
 
 def migrate(src, dst, resource, name_or_id, filter):
     plural = '{}s'.format(resource)
@@ -110,7 +97,7 @@ def migrate(src, dst, resource, name_or_id, filter):
                         raise cde
 
                 if dst_r is not None:
-                    print('Skipping {} {}, already exists'.format(resource, dst_name))
+                    print_verbose('Skipping {} {}, already exists'.format(resource, dst_name))
                     continue
 
             url = '{}/{}/{}/'.format(args.src_base.rstrip('/'), plural, r.id)
@@ -119,13 +106,14 @@ def migrate(src, dst, resource, name_or_id, filter):
 
             should_import = False
 
-            rs = getattr(impreq, plural)
-            for name in rs:
-                if args.overwrite or rs[name].existing_id is None:
-                    rs[name].should_import = should_import = True
+            for rtype in ['configs', 'devices', 'packages', 'results']:
+                rs = getattr(impreq, rtype)
+                for name in rs:
+                    if args.overwrite or rs[name].existing_id is None:
+                        rs[name].should_import = should_import = True
 
             if not should_import:
-                print('Skipping {} {}'.format(resource, r.id))
+                print_verbose('Skipping {} {}'.format(resource, r.id))
                 dst.imports.delete(si.id)
                 continue
 
@@ -136,27 +124,46 @@ def migrate(src, dst, resource, name_or_id, filter):
                 if not rs[name].should_import:
                     continue
                 if rs[name].response.imported:
-                    print('Imported {} {} with ID {}'.format(resource, name, rs[name].response.id))
+                    print('Imported {} {}'.format(resource, name))
                 else:
-                    print('Error importing {} {}: {}'.format(resource, name, rs[name].response.message))
+                    print_verbose('Error importing {} {}: {}'.format(resource, name, rs[name].response.message))
         except CDRouterError as cde:
             print('Error migrating {} {}: {}'.format(resource, r.id, cde))
             if si is not None:
                 dst.imports.delete(si.id)
 
 try:
+    # don't allow API token to be set from environment variable since
+    # behavior is potentially confusing with two CDRouter systems
+    if 'CDROUTER_API_TOKEN' in os.environ:
+        del os.environ['CDROUTER_API_TOKEN']
+
+    src = CDRouter(args.src_base, token=args.src_token, insecure=args.insecure)
+    if args.src_token is None and args.src_user is not None:
+        src.authenticate(args.src_user, args.src_password)
+
+    dst = CDRouter(args.dst_base, token=args.dst_token, insecure=args.insecure)
+    if args.dst_token is None and args.dst_user is not None:
+        dst.authenticate(args.dst_user, args.dst_password)
+
+    resources = args.resources.split(',')
+
+    # devices were added in CDRouter 10.1
+    src_devices = re.match('^10\.0\.', src.testsuites.info().release) is None
+    dst_devices = re.match('^10\.0\.', dst.testsuites.info().release) is None
+
     filter = []
     if args.after is not None:
         filter.append(field('created').gt(args.after))
     if args.before is not None:
         filter.append(field('created').lt(args.before))
 
+    if 'packages' in resources:
+        migrate(src, dst, 'package', 'name', filter)
     if 'configs' in resources:
         migrate(src, dst, 'config', 'name', filter)
     if src_devices and dst_devices and 'devices' in resources:
         migrate(src, dst, 'device', 'name', filter)
-    if 'packages' in resources:
-        migrate(src, dst, 'package', 'name', filter)
     if 'results' in resources:
         migrate(src, dst, 'result', 'id', filter)
 except KeyboardInterrupt:
