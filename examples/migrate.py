@@ -93,8 +93,7 @@ def migrate(src, dst, resource, name_or_id, filter, should_import_rtypes):
                         dst_name = r.name
                         dst_r = dst_service.get_by_name(r.name)
                 except CDRouterError as cde:
-                    if cde.response is None or cde.response.status_code != 404:
-                        raise cde
+                    pass
 
                 if dst_r is not None:
                     print_verbose('Skipping {} {}, already exists'.format(resource, dst_name))
