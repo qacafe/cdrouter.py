@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import os
 import re
 import sys
 
@@ -51,6 +52,11 @@ parser.add_argument('--overwrite', help='Overwrite existing resources on destina
 parser.add_argument('--resources', metavar='LIST', help='Comma-separated list of resource types to migrate (default: %(default)s)', type=str, default='configs,devices,packages,results')
 
 args = parser.parse_args()
+
+# don't allow API token to be set from environment variable since
+# behavior is potentially confusing with two CDRouter systems
+if 'CDROUTER_API_TOKEN' in os.environ:
+    del os.environ['CDROUTER_API_TOKEN']
 
 src = CDRouter(args.src_base, token=args.src_token, insecure=args.insecure)
 if args.src_token is None and args.src_user is not None:
