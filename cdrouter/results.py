@@ -446,6 +446,19 @@ class ResultsService(object):
         rs, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(rs, l)
 
+    def iter_list(self, *args, **kwargs):
+        """Get a list of results.  Whereas ``list`` fetches a single page of
+        results according to its ``limit`` and ``page`` arguments,
+        ``iter_list`` returns all results by internally making
+        successive calls to ``list``.
+
+        :param args: Arguments that ``list`` takes.
+        :param kwargs: Optional arguments that ``list`` takes.
+        :return: :class:`results.Result <results.Result>` list
+
+        """
+        return self.service.iter_list(self.list, args, kwargs)
+
     def list_csv(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
         """Get a list of results as CSV.
 

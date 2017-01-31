@@ -199,6 +199,19 @@ class ConfigsService(object):
         cs, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(cs, l)
 
+    def iter_list(self, *args, **kwargs):
+        """Get a list of configs.  Whereas ``list`` fetches a single page of
+        configs according to its ``limit`` and ``page`` arguments,
+        ``iter_list`` returns all configs by internally making
+        successive calls to ``list``.
+
+        :param args: Arguments that ``list`` takes.
+        :param kwargs: Optional arguments that ``list`` takes.
+        :return: :class:`configs.Config <configs.Config>` list
+
+        """
+        return self.service.iter_list(self.list, args, kwargs)
+
     def get_new(self):
         """Get output of cdrouter-cli -new-config.
 

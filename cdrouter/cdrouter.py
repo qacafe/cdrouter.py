@@ -230,6 +230,15 @@ class CDRouter(object):
         return self.get(base, params={'filter': filter, 'type': type, 'sort': sort, 'limit': limit,
                                       'page': page, 'format': format})
 
+    def iter_list(self, list_fn, *args, **kwargs):
+        while True:
+            data, links = list_fn(*args, **kwargs)
+            if links.next is None:
+                break
+            kwargs.update({'page': links.next})
+            for d in data:
+                yield d
+
     def get_id(self, base, id, params=None, stream=None): # pylint: disable=invalid-name,redefined-builtin
         return self.get(base+str(id)+'/', params=params, stream=stream)
 

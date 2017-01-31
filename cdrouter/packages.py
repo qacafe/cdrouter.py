@@ -177,6 +177,19 @@ class PackagesService(object):
         ps, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ps, l)
 
+    def iter_list(self, *args, **kwargs):
+        """Get a list of packages.  Whereas ``list`` fetches a single page of
+        packages according to its ``limit`` and ``page`` arguments,
+        ``iter_list`` returns all packages by internally making
+        successive calls to ``list``.
+
+        :param args: Arguments that ``list`` takes.
+        :param kwargs: Optional arguments that ``list`` takes.
+        :return: :class:`packages.Package <packages.Package>` list
+
+        """
+        return self.service.iter_list(self.list, args, kwargs)
+
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a package.
 

@@ -87,6 +87,19 @@ class UsersService(object):
         us, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(us, l)
 
+    def iter_list(self, *args, **kwargs):
+        """Get a list of users.  Whereas ``list`` fetches a single page of
+        users according to its ``limit`` and ``page`` arguments,
+        ``iter_list`` returns all users by internally making
+        successive calls to ``list``.
+
+        :param args: Arguments that ``list`` takes.
+        :param kwargs: Optional arguments that ``list`` takes.
+        :return: :class:`users.User <users.User>` list
+
+        """
+        return self.service.iter_list(self.list, args, kwargs)
+
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a user.
 

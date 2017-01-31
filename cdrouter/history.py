@@ -74,3 +74,16 @@ class HistoryService(object):
         resp = self.service.list(self.base, filter, type, sort, limit, page)
         hs, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(hs, l)
+
+    def iter_list(self, *args, **kwargs):
+        """Get a list of history entries.  Whereas ``list`` fetches a single
+        page of history entries according to its ``limit`` and
+        ``page`` arguments, ``iter_list`` returns all history entries
+        by internally making successive calls to ``list``.
+
+        :param args: Arguments that ``list`` takes.
+        :param kwargs: Optional arguments that ``list`` takes.
+        :return: :class:`historys.History <historys.History>` list
+
+        """
+        return self.service.iter_list(self.list, args, kwargs)
