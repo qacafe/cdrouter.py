@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+from datetime import datetime
 import os
 import re
 import sys
@@ -35,6 +36,13 @@ migrated.  To change this behavior, use the --overwrite flag.
 
 """, formatter_class=argparse.RawDescriptionHelpFormatter)
 
+def valid_date(s):
+    try:
+        return datetime.strptime(s, "%Y-%m-%d")
+    except ValueError:
+        msg = "Not a valid date: '{0}'.".format(s)
+        raise argparse.ArgumentTypeError(msg)
+
 parser.add_argument('src_base', help='Base URL of CDRouter source system')
 parser.add_argument('dst_base', help='Base URL of CDRouter destination system')
 
@@ -50,6 +58,9 @@ parser.add_argument('--dst-password', metavar='STR', help='Password to use with 
 parser.add_argument('--insecure', help='Allow insecure HTTPS connections (default: %(default)s)', action='store_true', default=False)
 parser.add_argument('--overwrite', help='Overwrite existing resources on destination CDRouter system', action='store_true', default=False)
 parser.add_argument('--resources', metavar='LIST', help='Comma-separated list of resource types to migrate (default: %(default)s)', type=str, default='configs,devices,packages,results')
+
+parser.add_argument('--after', metavar='DATE', help='Migrate only resources created after this date (format: YYYY-MM-DD)', type=valid_date, default=None)
+parser.add_argument('--before', metavar='DATE', help='Migrate only resources created before this date (format: YYYY-MM-DD)', type=valid_date, default=None)
 
 args = parser.parse_args()
 
@@ -72,12 +83,12 @@ resources = args.resources.split(',')
 src_devices = re.match('^10\.0\.', src.testsuites.info().release) is None
 dst_devices = re.match('^10\.0\.', dst.testsuites.info().release) is None
 
-def migrate(src, dst, resource, name_or_id='name'):
+def migrate(src, dst, resource, name_or_id='name', filter=None):
     plural = '{}s'.format(resource)
     src_service = getattr(src, plural)
     dst_service = getattr(dst, plural)
 
-    for r in src_service.iter_list():
+    for r in src_service.iter_list(filter=filter):
         try:
             si = None
 
@@ -131,14 +142,20 @@ def migrate(src, dst, resource, name_or_id='name'):
                 dst.imports.delete(si.id)
 
 try:
+    filter = []
+    if args.after is not None:
+        filter.append('created>{}'.format(args.after))
+    if args.before is not None:
+        filter.append('created<{}'.format(args.before))
+
     if 'configs' in resources:
-        migrate(src, dst, 'config')
+        migrate(src, dst, 'config', 'name', filter=filter)
     if src_devices and dst_devices and 'devices' in resources:
-        migrate(src, dst, 'device')
+        migrate(src, dst, 'device', 'name', filter=filter)
     if 'packages' in resources:
-        migrate(src, dst, 'package')
+        migrate(src, dst, 'package', 'name', filter=filter)
     if 'results' in resources:
-        migrate(src, dst, 'result', 'id')
+        migrate(src, dst, 'result', 'id', filter=filter)
 except KeyboardInterrupt:
     print('Caught interrupt, terminating...')
     sys.exit(1)
