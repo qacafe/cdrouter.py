@@ -73,7 +73,7 @@ def print_verbose(msg):
     if args.verbose:
         print(msg)
 
-def migrate(src, dst, resource, name_or_id, filter):
+def migrate(src, dst, resource, name_or_id, filter, should_import_rtypes):
     plural = '{}s'.format(resource)
     src_service = getattr(src, plural)
     dst_service = getattr(dst, plural)
@@ -106,7 +106,7 @@ def migrate(src, dst, resource, name_or_id, filter):
 
             should_import = False
 
-            for rtype in ['configs', 'devices', 'packages', 'results']:
+            for rtype in should_import_rtypes:
                 rs = getattr(impreq, rtype)
                 for name in rs:
                     if args.overwrite or rs[name].existing_id is None:
@@ -159,13 +159,13 @@ try:
         filter.append(field('created').lt(args.before))
 
     if 'packages' in resources:
-        migrate(src, dst, 'package', 'name', filter)
+        migrate(src, dst, 'package', 'name', filter, ['configs', 'devices', 'packages'])
     if 'configs' in resources:
-        migrate(src, dst, 'config', 'name', filter)
+        migrate(src, dst, 'config', 'name', filter, ['configs'])
     if src_devices and dst_devices and 'devices' in resources:
-        migrate(src, dst, 'device', 'name', filter)
+        migrate(src, dst, 'device', 'name', filter, ['devices'])
     if 'results' in resources:
-        migrate(src, dst, 'result', 'id', filter)
+        migrate(src, dst, 'result', 'id', filter, ['results'])
 except KeyboardInterrupt:
     print('Caught interrupt, terminating...')
     sys.exit(1)
