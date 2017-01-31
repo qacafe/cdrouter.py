@@ -30,7 +30,9 @@ runtime.
 By default, all supported resource types are migrated.  This can be
 customized by providing a comma-separated list of resource types to
 the --resources flag.  For example, to only migrate configs and
-packages, use '--resources configs,packages'.
+packages, use '--resources configs,packages'.  To further restrict the
+resources to migrate based on their creation time, pass a date in
+YYYY-MM-DD format to the --after or --before flags.
 
 Resources that already exist on the destination system are not
 migrated.  To change this behavior, use the --overwrite flag.
@@ -56,7 +58,7 @@ parser.add_argument('--src-password', metavar='STR', help='Password to use with 
 parser.add_argument('--dst-user', metavar='STR', help='Username to use with destination CDRouter system', default=None)
 parser.add_argument('--dst-password', metavar='STR', help='Password to use with destination CDRouter system', default=None)
 
-parser.add_argument('--insecure', help='Allow insecure HTTPS connections (default: %(default)s)', action='store_true', default=False)
+parser.add_argument('--insecure', help='Allow insecure HTTPS connections', action='store_true', default=False)
 parser.add_argument('--overwrite', help='Overwrite existing resources on destination CDRouter system', action='store_true', default=False)
 parser.add_argument('--resources', metavar='LIST', help='Comma-separated list of resource types to migrate (default: %(default)s)', type=str, default='configs,devices,packages,results')
 
