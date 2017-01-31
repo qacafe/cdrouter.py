@@ -78,6 +78,9 @@ cdrouter.attachments
 .. autoclass:: cdrouter.attachments.Attachment
    :members:
 
+.. autoclass:: cdrouter.attachments.Page
+   :members:
+
 cdrouter.jobs
 ~~~~~~~~~~~~~
 

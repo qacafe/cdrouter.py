@@ -114,6 +114,19 @@ class JobsService(object):
         js, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(js, l)
 
+    def iter_list(self, *args, **kwargs):
+        """Get a list of jobs.  Whereas ``list`` fetches a single page of jobs
+        according to its ``limit`` and ``page`` arguments,
+        ``iter_list`` returns all jobs by internally making successive
+        calls to ``list``.
+
+        :param args: Arguments that ``list`` takes.
+        :param kwargs: Optional arguments that ``list`` takes.
+        :return: :class:`jobs.Job <jobs.Job>` list
+
+        """
+        return self.service.iter_list(self.list, args, kwargs)
+
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a job.
 

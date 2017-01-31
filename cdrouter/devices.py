@@ -140,6 +140,19 @@ class DevicesService(object):
         ds, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ds, l)
 
+    def iter_list(self, *args, **kwargs):
+        """Get a list of devices.  Whereas ``list`` fetches a single page of
+        devices according to its ``limit`` and ``page`` arguments,
+        ``iter_list`` returns all devices by internally making
+        successive calls to ``list``.
+
+        :param args: Arguments that ``list`` takes.
+        :param kwargs: Optional arguments that ``list`` takes.
+        :return: :class:`devices.Device <devices.Device>` list
+
+        """
+        return self.service.iter_list(self.list, args, kwargs)
+
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a device.
 

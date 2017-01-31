@@ -3,6 +3,7 @@
 # All Rights Reserved.
 #
 
+import collections
 import io
 import os.path
 
@@ -46,6 +47,13 @@ class AttachmentSchema(Schema):
     def post_load(self, data):
         return Attachment(**data)
 
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`attachments.Attachment <attachments.Attachment>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
+
 class AttachmentsService(object):
     RESOURCE = 'attachments'
     BASE = RESOURCE + '/'
@@ -65,11 +73,25 @@ class AttachmentsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
-        :return: :class:`attachments.Attachment <attachments.Attachment>` list
+        :return: :class:`attachments.Page <attachments.Page>` object
         """
         schema = AttachmentSchema(exclude=('path'))
         resp = self.service.list(self._base(id), filter, type, sort, limit, page)
-        return self.service.decode(schema, resp, many=True)
+        at, l = self.service.decode(schema, resp, many=True, links=True)
+        return Page(at, l)
+
+    def iter_list(self, *args, **kwargs):
+        """Get a list of attachments.  Whereas ``list`` fetches a single page
+        of attachments according to its ``limit`` and ``page``
+        arguments, ``iter_list`` returns all attachments by internally
+        making successive calls to ``list``.
+
+        :param args: Arguments that ``list`` takes.
+        :param kwargs: Optional arguments that ``list`` takes.
+        :return: :class:`attachments.Attachment <attachments.Attachment>` list
+
+        """
+        return self.service.iter_list(self.list, args, kwargs)
 
     def get(self, id, attid): # pylint: disable=invalid-name,redefined-builtin
         """Get a device's attachment.
