@@ -318,7 +318,7 @@ class CDRouter(object):
 
             try:
                 resp.raise_for_status()
-            except HTTPError, he:
+            except HTTPError as he:
                 message = str(he)
 
             try:
@@ -327,7 +327,7 @@ class CDRouter(object):
                 result = resp_schema.load(json).data
                 if result.error is not None:
                     message = result.error
-            except HTTPError, he:
+            except HTTPError as he:
                 message = str(he)
             except:
                 pass

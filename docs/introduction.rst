@@ -43,7 +43,7 @@ CDRouter systems where Automatic Login is enabled.
 
         try:
             j = c.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
-        except CDRouterError, ce:
+        except CDRouterError as ce:
             print('Error launching job: {}'.format(ce))
 
         while j.result_id == None:
