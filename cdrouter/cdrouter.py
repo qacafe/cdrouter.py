@@ -96,7 +96,7 @@ class ListResponseSchema(ResponseSchema):
 class Share(object):
     """Model for CDRouter Shares.
 
-    :param user_id: (optional) User ID as string.
+    :param user_id: (optional) User ID as an int.
     :param read: (optional) Bool `True` if reading is allowed.
     :param write: (optional) Bool `True` if writing is allowed.
     :param execute: (optional) Bool `True` if executing is allowed.
@@ -108,7 +108,7 @@ class Share(object):
         self.execute = kwargs.get('execute', None)
 
 class ShareSchema(Schema):
-    user_id = fields.Str()
+    user_id = fields.Int(as_string=True)
     read = fields.Bool()
     write = fields.Bool()
     execute = fields.Bool()

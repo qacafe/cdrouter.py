@@ -10,9 +10,9 @@ from marshmallow import Schema, fields, post_load
 class Annotation(object):
     """Model for CDRouter Annotations.
 
-    :param id: (optional) Result ID as string.
-    :param seq: (optional) TestResult sequence ID as string.
-    :param line: (optional) Line number in TestResult's logfile as string.
+    :param id: (optional) Result ID as an int.
+    :param seq: (optional) TestResult sequence ID as an int.
+    :param line: (optional) Line number in TestResult's logfile as an int.
     :param comment: (optional) Comment text as string.
     """
 
@@ -23,9 +23,9 @@ class Annotation(object):
         self.comment = kwargs.get('comment', None)
 
 class AnnotationSchema(Schema):
-    id = fields.Str()
-    seq = fields.Str()
-    line = fields.Str()
+    id = fields.Int(as_string=True)
+    seq = fields.Int(as_string=True)
+    line = fields.Int(as_string=True)
     comment = fields.Str()
 
     @post_load
@@ -47,8 +47,8 @@ class AnnotationsService(object):
     def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of annotations.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :return: :class:`annotations.Annotation <annotations.Annotation>` list
         """
         schema = AnnotationSchema(exclude=('id', 'seq'))
@@ -58,9 +58,9 @@ class AnnotationsService(object):
     def get(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
         """Get an annotation.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
-        :param line: Line number in TestResult's logfile as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
+        :param line: Line number in TestResult's logfile as an int.
         :return: :class:`annotations.Annotation <annotations.Annotation>` object
         :rtype: annotations.Annotation
         """
@@ -71,8 +71,8 @@ class AnnotationsService(object):
     def create_or_edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
         """Create or edit an annotation.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param resource: :class:`annotations.Annotation <annotations.Annotation>` object
         :return: :class:`annotations.Annotation <annotations.Annotation>` object
         :rtype: annotations.Annotation
@@ -87,8 +87,8 @@ class AnnotationsService(object):
     def create(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
         """Create an annotation.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param resource: :class:`annotations.Annotation <annotations.Annotation>` object
         :return: :class:`annotations.Annotation <annotations.Annotation>` object
         :rtype: annotations.Annotation
@@ -98,8 +98,8 @@ class AnnotationsService(object):
     def edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
         """Edit an annotation.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param resource: :class:`annotations.Annotation <annotations.Annotation>` object
         :return: :class:`annotations.Annotation <annotations.Annotation>` object
         :rtype: annotations.Annotation
@@ -109,8 +109,8 @@ class AnnotationsService(object):
     def delete(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
         """Delete an annotation.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
-        :param line: Line number in TestResult's logfile as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
+        :param line: Line number in TestResult's logfile as an int.
         """
         return self.service.delete_id(self._base(id, seq), line)

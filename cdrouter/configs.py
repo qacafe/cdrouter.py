@@ -123,14 +123,14 @@ class TestvarSchema(Schema):
 class Config(object):
     """Model for CDRouter Configs.
 
-    :param id: (optional) Config ID as string.
+    :param id: (optional) Config ID as an int.
     :param name: (optional) Config name as string.
     :param description: (optional) Config description as string.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
     :param contents: (optional) Config contents as string.
-    :param user_id: (optional) User ID as string.
-    :param result_id: (optional) Result ID as string (if a config snapshot).
+    :param user_id: (optional) User ID as an int.
+    :param result_id: (optional) Result ID as an int (if a config snapshot).
     :param tags: (optional) Tags as string list.
     :param note: (optional) Note as string.
     """
@@ -154,14 +154,14 @@ class Page(collections.namedtuple('Page', ['data', 'links'])):
     """
 
 class ConfigSchema(Schema):
-    id = fields.Str()
+    id = fields.Int(as_string=True)
     name = fields.Str()
     description = fields.Str()
     created = DateTime()
     updated = DateTime()
     contents = fields.Str()
-    user_id = fields.Str()
-    result_id = fields.Str(missing=None)
+    user_id = fields.Int(as_string=True, )
+    result_id = fields.Int(as_string=True, missing=None)
     tags = fields.List(fields.Str())
     note = fields.Str()
 
@@ -222,7 +222,7 @@ class ConfigsService(object):
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a config.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :return: :class:`configs.Config <configs.Config>` object
         :rtype: configs.Config
         """
@@ -233,7 +233,7 @@ class ConfigsService(object):
     def get_plaintext(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a config as plaintext.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :rtype: string
         """
         return self.service.get_id(self.base, id, params={'format': 'text'}).text
@@ -281,14 +281,14 @@ class ConfigsService(object):
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a config.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         """
         return self.service.delete_id(self.base, id)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a config.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
         return self.service.get_shares(self.base, id)
@@ -296,7 +296,7 @@ class ConfigsService(object):
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         """Edit shares for a config.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :param user_ids: User IDs as int list.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
@@ -305,7 +305,7 @@ class ConfigsService(object):
     def export(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Export a config.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.export(self.base, id)
@@ -390,7 +390,7 @@ class ConfigsService(object):
     def list_testvars(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of a config's testvars.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :return: :class:`configs.Testvar <configs.Testvar>` list
         """
         schema = TestvarSchema()
@@ -400,7 +400,7 @@ class ConfigsService(object):
     def get_testvar(self, id, name, group=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a testvar from a config.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :param name: Testvar name as string.
         :param group: (optional) Testvar group as string.
         :return: :class:`configs.Testvar <configs.Testvar>` object
@@ -413,7 +413,7 @@ class ConfigsService(object):
     def edit_testvar(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
         """Edit a testvar in a config.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :param resource: :class:`configs.Testvar <configs.Testvar>` object.
         :return: :class:`configs.Testvar <configs.Testvar>` object
         :rtype: configs.Testvar
@@ -430,7 +430,7 @@ class ConfigsService(object):
         """Delete a testvar in a config. Deleting a testvar unsets any
         explicitly configured value for it in the config.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :param name: Testvar name as string.
         :param group: (optional) Testvar group as string.
         """
@@ -439,7 +439,7 @@ class ConfigsService(object):
     def bulk_edit_testvars(self, id, testvars): # pylint: disable=invalid-name,redefined-builtin
         """Bulk edit a config's testvars.
 
-        :param id: Config ID as string.
+        :param id: Config ID as an int.
         :param testvars: :class:`configs.Testvar <configs.Testvar>` list
         :return: :class:`configs.Testvar <configs.Testvar>` list
         """

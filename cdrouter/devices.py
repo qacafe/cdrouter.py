@@ -15,14 +15,14 @@ from .filters import Field as field
 class Device(object):
     """Model for CDRouter Devices.
 
-    :param id: (optional) Device ID as a string.
+    :param id: (optional) Device ID as an int.
     :param name: (optional) Name as string.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
-    :param user_id: (optional) User ID as string.
-    :param result_id: (optional) Result ID as string (if a device snapshot).
+    :param user_id: (optional) User ID as an int.
+    :param result_id: (optional) Result ID as an int (if a device snapshot).
     :param attachments_dir: (optional) Filepath for attachments as string.
-    :param picture_id: (optional) Attachment ID for used for device picture as string.
+    :param picture_id: (optional) Attachment ID for used for device picture as an int.
     :param tags: (optional) Tags as string list.
     :param default_ip: Default IP as a string (optional)
     :param default_login: Default login as a string (optional)
@@ -72,14 +72,14 @@ class Device(object):
         self.note = kwargs.get('note', None)
 
 class DeviceSchema(Schema):
-    id = fields.Str()
+    id = fields.Int(as_string=True)
     name = fields.Str()
     created = DateTime()
     updated = DateTime()
-    user_id = fields.Str()
-    result_id = fields.Str(missing=None)
+    user_id = fields.Int(as_string=True)
+    result_id = fields.Int(as_string=True, missing=None)
     attachments_dir = fields.Str(missing=None)
-    picture_id = fields.Str()
+    picture_id = fields.Int(as_string=True)
     tags = fields.List(fields.Str())
 
     default_ip = fields.Str()
@@ -156,7 +156,7 @@ class DevicesService(object):
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a device.
 
-        :param id: Device ID as string.
+        :param id: Device ID as an int.
         :return: :class:`devices.Device <devices.Device>` object
         :rtype: devices.Device
         """
@@ -207,14 +207,14 @@ class DevicesService(object):
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a device.
 
-        :param id: Device ID as string.
+        :param id: Device ID as an int.
         """
         return self.service.delete_id(self.base, id)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a device.
 
-        :param id: Device ID as string.
+        :param id: Device ID as an int.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
         return self.service.get_shares(self.base, id)
@@ -222,7 +222,7 @@ class DevicesService(object):
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         """Edit shares for a device.
 
-        :param id: Device ID as string.
+        :param id: Device ID as an int.
         :param user_ids: User IDs as int list.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
@@ -231,7 +231,7 @@ class DevicesService(object):
     def export(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Export a device.
 
-        :param id: Device ID as string.
+        :param id: Device ID as an int.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.export(self.base, id)

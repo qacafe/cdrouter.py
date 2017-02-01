@@ -16,7 +16,7 @@ class TestCount(object):
     """Model for CDRouter Test Counts.
 
     :param name: (optional) Name as a string.
-    :param count: (optional) Count as a string.
+    :param count: (optional) Count as an int.
     """
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', None)
@@ -24,7 +24,7 @@ class TestCount(object):
 
 class TestCountSchema(Schema):
     name = fields.Str()
-    count = fields.Str()
+    count = fields.Int(as_string=True)
 
     @post_load
     def post_load(self, data):
@@ -34,7 +34,7 @@ class TestDuration(object):
     """Model for CDRouter Test Durations.
 
     :param name: (optional) Name as a string.
-    :param duration: (optional) Duration as a string.
+    :param duration: (optional) Duration as an int.
     """
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', None)
@@ -42,7 +42,7 @@ class TestDuration(object):
 
 class TestDurationSchema(Schema):
     name = fields.Str()
-    duration = fields.Str()
+    duration = fields.Int(as_string=True)
 
     @post_load
     def post_load(self, data):
@@ -51,9 +51,9 @@ class TestDurationSchema(Schema):
 class ResultBreakdown(object):
     """Model for CDRouter Result Breakdowns.
 
-    :param passed: (optional) Pass count as a string.
-    :param failed: (optional) Fail count as a string.
-    :param skipped: (optional) Skipped count as a string.
+    :param passed: (optional) Pass count as an int.
+    :param failed: (optional) Fail count as an int.
+    :param skipped: (optional) Skipped count as an int.
     """
     def __init__(self, **kwargs):
         self.passed = kwargs.get('passed', None)
@@ -61,9 +61,9 @@ class ResultBreakdown(object):
         self.skipped = kwargs.get('skipped', None)
 
 class ResultBreakdownSchema(Schema):
-    passed = fields.Str()
-    failed = fields.Str()
-    skipped = fields.Str()
+    passed = fields.Int(as_string=True)
+    failed = fields.Int(as_string=True)
+    skipped = fields.Int(as_string=True)
 
     @post_load
     def post_load(self, data):
@@ -72,16 +72,16 @@ class ResultBreakdownSchema(Schema):
 class TimeBreakdown(object):
     """Model for CDRouter Time Breakdowns.
 
-    :param passed: (optional) Pass duration as a string.
-    :param failed: (optional) Fail duration as a string.
+    :param passed: (optional) Pass duration as an int.
+    :param failed: (optional) Fail duration as an int.
     """
     def __init__(self, **kwargs):
         self.passed = kwargs.get('passed', None)
         self.failed = kwargs.get('failed', None)
 
 class TimeBreakdownSchema(Schema):
-    passed = fields.Str()
-    failed = fields.Str()
+    passed = fields.Int(as_string=True)
+    failed = fields.Int(as_string=True)
 
     @post_load
     def post_load(self, data):
@@ -175,7 +175,7 @@ class PackageCount(object):
     """Model for CDRouter Package Counts.
 
     :param package_name: (optional) Package name as a string.
-    :param count: (optional) Count as a string.
+    :param count: (optional) Count as an int.
     """
     def __init__(self, **kwargs):
         self.package_name = kwargs.get('package_name', None)
@@ -183,7 +183,7 @@ class PackageCount(object):
 
 class PackageCountSchema(Schema):
     package_name = fields.Str()
-    count = fields.Str(missing=None)
+    count = fields.Int(as_string=True, missing=None)
 
     @post_load
     def post_load(self, data):
@@ -193,7 +193,7 @@ class DeviceCount(object):
     """Model for CDRouter Device Counts.
 
     :param device_name: (optional) Device name as a string.
-    :param count: (optional) Count as a string.
+    :param count: (optional) Count as an int.
     """
     def __init__(self, **kwargs):
         self.device_name = kwargs.get('device_name', None)
@@ -201,7 +201,7 @@ class DeviceCount(object):
 
 class DeviceCountSchema(Schema):
     device_name = fields.Str()
-    count = fields.Str(missing=None)
+    count = fields.Int(as_string=True, missing=None)
 
     @post_load
     def post_load(self, data):
@@ -237,12 +237,12 @@ class Metric(object):
     :param log_file: (optional) Filepath to logfile as a string.
     :param timestamp: (optional) Timestamp for metric as a `DateTime`.
     :param metric: (optional) Metric name as a string.
-    :param value: (optional) Metric value as a string.
+    :param value: (optional) Metric value as a float.
     :param units: (optional) Metric units as a string.
     :param result: (optional) Metric result as a string.
     :param interface_1: (optional) First interface as a string.
     :param interface_2: (optional) Second interface as a string.
-    :param streams: (optional) Stream count as a string.
+    :param streams: (optional) Stream count as an int.
     """
     def __init__(self, **kwargs):
         self.log_file = kwargs.get('log_file', None)
@@ -259,12 +259,12 @@ class MetricSchema(Schema):
     log_file = fields.Str()
     timestamp = DateTime()
     metric = fields.Str()
-    value = fields.Str()
+    value = fields.Float(as_string=True)
     units = fields.Str()
     result = fields.Str()
     interface_1 = fields.Str()
     interface_2 = fields.Str()
-    streams = fields.Str()
+    streams = fields.Int(as_string=True)
 
     @post_load
     def post_load(self, data):
@@ -321,7 +321,7 @@ class OptionsSchema(Schema):
 class Result(object):
     """Model for CDRouter Results.
 
-    :param id: (optional) Result ID as a string.
+    :param id: (optional) Result ID as an int.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
     :param result: (optional) Result as a string.
@@ -339,10 +339,10 @@ class Result(object):
     :param package_name: (optional) Package name as a string.
     :param device_name: (optional) Device name as a string.
     :param config_name: (optional) Config name as a string.
-    :param package_id: (optional) Package ID as a string.
-    :param device_id: (optional) Device ID as a string.
-    :param config_id: (optional) Config ID as a string.
-    :param user_id: (optional) User ID as a string.
+    :param package_id: (optional) Package ID as an int.
+    :param device_id: (optional) Device ID as an int.
+    :param config_id: (optional) Config ID as an int.
+    :param user_id: (optional) User ID as an int.
     :param note: (optional) Note as a string.
     :param pause_message: (optional) Pause message as a string (if currently paused).
     :param build_info: (optional) Build info as a string.
@@ -381,7 +381,7 @@ class Result(object):
         self.options = kwargs.get('options', None)
 
 class ResultSchema(Schema):
-    id = fields.Str()
+    id = fields.Int(as_string=True)
     created = DateTime()
     updated = DateTime()
     result = fields.Str()
@@ -399,10 +399,10 @@ class ResultSchema(Schema):
     package_name = fields.Str()
     device_name = fields.Str()
     config_name = fields.Str()
-    package_id = fields.Str()
-    device_id = fields.Str()
-    config_id = fields.Str()
-    user_id = fields.Str()
+    package_id = fields.Int(as_string=True)
+    device_id = fields.Int(as_string=True)
+    config_id = fields.Int(as_string=True)
+    user_id = fields.Int(as_string=True)
     note = fields.Str()
     pause_message = fields.Str(missing=None)
     build_info = fields.Str(missing=None)
@@ -474,7 +474,7 @@ class ResultsService(object):
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :return: :class:`results.Result <results.Result>` object
         :rtype: results.Result
         """
@@ -485,7 +485,7 @@ class ResultsService(object):
     def stop(self, id, when=None): # pylint: disable=invalid-name,redefined-builtin
         """Stop a running result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param when: Must be string `end-of-test` or `end-of-loop`.
         """
         return self.service.post(self.base+str(id)+'/stop/', params={'when': when})
@@ -493,21 +493,21 @@ class ResultsService(object):
     def stop_end_of_test(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Stop a running result at the end of the current test.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         """
         return self.stop(id, 'end-of-test')
 
     def stop_end_of_loop(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Stop a running result at the end of the current loop.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         """
         return self.stop(id, 'end-of-loop')
 
     def pause(self, id, when=None): # pylint: disable=invalid-name,redefined-builtin
         """Pause a running result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param when: Must be string `end-of-test` or `end-of-loop`.
         """
         return self.service.post(self.base+str(id)+'/pause/', params={'when': when})
@@ -515,21 +515,21 @@ class ResultsService(object):
     def pause_end_of_test(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Pause a running result at the end of the current test.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         """
         return self.pause(id, 'end-of-test')
 
     def pause_end_of_loop(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Pause a running result at the end of the current loop.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         """
         return self.pause(id, 'end-of-loop')
 
     def unpause(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Unpause a running result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         """
         return self.service.post(self.base+str(id)+'/unpause/')
 
@@ -550,14 +550,14 @@ class ResultsService(object):
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         """
         return self.service.delete_id(self.base, id)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
         return self.service.get_shares(self.base, id)
@@ -565,7 +565,7 @@ class ResultsService(object):
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         """Edit shares for a result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param user_ids: User IDs as int list.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
@@ -574,7 +574,7 @@ class ResultsService(object):
     def export(self, id, exclude_captures=False): # pylint: disable=invalid-name,redefined-builtin
         """Export a result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param exclude_captures: If bool `True`, don't export capture files
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
@@ -631,7 +631,7 @@ class ResultsService(object):
     def set_stats(self, ids):
         """Compute stats for a set of results.
 
-        :param id: Result IDs as string list.
+        :param id: Result IDs as int list.
         :return: :class:`results.SetStats <results.SetStats>` object
         :rtype: results.SetStats
         """
@@ -642,7 +642,7 @@ class ResultsService(object):
     def single_stats(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Compute stats for a result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :return: :class:`results.SingleStats <results.SingleStats>` object
         :rtype: results.SingleStats
         """
@@ -653,7 +653,7 @@ class ResultsService(object):
     def list_logdir(self, id, filter=None, sort=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of logdir files.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param filter: Filter to apply as string.
         :param sort: Sort field to apply as string.
         :return: :class:`results.LogDirFile <results.LogDirFile>` list
@@ -665,7 +665,7 @@ class ResultsService(object):
     def get_logdir_file(self, id, filename): # pylint: disable=invalid-name,redefined-builtin
         """Download a logdir file.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param filename: Logdir filename as string.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
@@ -679,7 +679,7 @@ class ResultsService(object):
     def download_logdir_archive(self, id, format='zip', exclude_captures=False): # pylint: disable=invalid-name,redefined-builtin
         """Download logdir archive in tgz or zip format.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param format: (optional) Format to download, must be string `zip` or `tgz`.
         :param exclude_captures: If bool `True`, don't include capture files
         :rtype: tuple `(io.BytesIO, 'filename')`
@@ -694,7 +694,7 @@ class ResultsService(object):
     def get_test_metric(self, id, name, metric): # pylint: disable=invalid-name,redefined-builtin
         """Get a test metric.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param name: Test name as string.
         :param metric: Metric name as string.
         :return: :class:`results.Metric <results.Metric>` object
@@ -708,7 +708,7 @@ class ResultsService(object):
     def get_test_metric_csv(self, id, name, metric): # pylint: disable=invalid-name,redefined-builtin
         """Get a test metric as CSV.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param name: Test name as string.
         :param id: Metric name as string.
         :rtype: string

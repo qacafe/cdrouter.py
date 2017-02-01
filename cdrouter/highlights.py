@@ -10,9 +10,9 @@ from marshmallow import Schema, fields, post_load
 class Highlight(object):
     """Model for CDRouter Highlights.
 
-    :param id: (optional) Result ID as string.
-    :param seq: (optional) TestResult sequence ID as string.
-    :param line: (optional) Line number in TestResult's logfile as string.
+    :param id: (optional) Result ID as an int.
+    :param seq: (optional) TestResult sequence ID as an int.
+    :param line: (optional) Line number in TestResult's logfile as an int.
     :param color: (optional) Highlight color as string.
     """
     def __init__(self, **kwargs):
@@ -22,9 +22,9 @@ class Highlight(object):
         self.color = kwargs.get('color', None)
 
 class HighlightSchema(Schema):
-    id = fields.Str()
-    seq = fields.Str()
-    line = fields.Str()
+    id = fields.Int(as_string=True)
+    seq = fields.Int(as_string=True)
+    line = fields.Int(as_string=True)
     color = fields.Str()
 
     @post_load
@@ -46,8 +46,8 @@ class HighlightsService(object):
     def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of highlights.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :return: :class:`highlights.Highlight <highlights.Highlight>` list
         """
         schema = HighlightSchema(exclude=('id', 'seq'))
@@ -57,9 +57,9 @@ class HighlightsService(object):
     def get(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
         """Get a highlight.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
-        :param line: Line number in TestResult's logfile as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
+        :param line: Line number in TestResult's logfile as an int.
         :return: :class:`highlights.Highlight <highlights.Highlight>` object
         """
         schema = HighlightSchema()
@@ -69,8 +69,8 @@ class HighlightsService(object):
     def create_or_edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
         """Create or edit a highlight.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param resource: :class:`highlights.Highlight <highlights.Highlight>` object
         :return: :class:`highlights.Highlight <highlights.Highlight>` object
         :rtype: highlights.Highlight
@@ -85,8 +85,8 @@ class HighlightsService(object):
     def create(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
         """Create a highlight.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param resource: :class:`highlights.Highlight <highlights.Highlight>` object
         :return: :class:`highlights.Highlight <highlights.Highlight>` object
         :rtype: highlights.Highlight
@@ -96,8 +96,8 @@ class HighlightsService(object):
     def edit(self, id, seq, resource): # pylint: disable=invalid-name,redefined-builtin
         """Edit a highlight.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param resource: :class:`highlights.Highlight <highlights.Highlight>` object
         :return: :class:`highlights.Highlight <highlights.Highlight>` object
         :rtype: highlights.Highlight
@@ -107,8 +107,8 @@ class HighlightsService(object):
     def delete(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
         """Delete a highlight.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
-        :param line: Line number in TestResult's logfile as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
+        :param line: Line number in TestResult's logfile as an int.
         """
         return self.service.delete_id(self._base(id, seq), line)

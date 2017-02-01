@@ -10,7 +10,7 @@ from marshmallow import Schema, fields, post_load
 class ResourceTags(object):
     """Model for CDRouter Resource Tags.
 
-    :param id: (optional) Resource ID as string.
+    :param id: (optional) Resource ID as an int.
     :param name: (optional) Resource name as string.
     :param tags: (optional) Resource tags as a string list.
     """
@@ -32,7 +32,7 @@ class Tag(object):
     """Model for CDRouter Tags.
 
     :param resource: (optional) Resource type as string.
-    :param id: (optional) Resource ID as string.
+    :param id: (optional) Resource ID as an int.
     :param name: (optional) Resource name as string.
     :param count: (optional) Resource tag count as an int.
     :param tags: (optional) Resource tags as a string list.
@@ -55,7 +55,7 @@ class Tag(object):
 
 class TagSchema(Schema):
     resource = fields.Str()
-    id = fields.Str()
+    id = fields.Int(as_string=True)
     name = fields.Str()
     count = fields.Int()
     tags = fields.List(fields.Str())

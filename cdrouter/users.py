@@ -15,7 +15,7 @@ from .filters import Field as field
 class User(object):
     """Model for CDRouter Users.
 
-    :param id: (optional) User ID as string.
+    :param id: (optional) User ID as an int.
     :param admin: (optional) Bool `True` if user is an administrator.
     :param disabled: (optional) Bool `True` if user is disabled.
     :param name: (optional) User name as string.
@@ -39,7 +39,7 @@ class User(object):
         self.password_confirm = kwargs.get('password_confirm', None)
 
 class UserSchema(Schema):
-    id = fields.Str()
+    id = fields.Int(as_string=True)
     admin = fields.Bool()
     disabled = fields.Bool()
     name = fields.Str()
@@ -103,7 +103,7 @@ class UsersService(object):
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a user.
 
-        :param id: User ID as string.
+        :param id: User ID as an int.
         :return: :class:`users.User <users.User>` object
         :rtype: users.User
         """
@@ -154,7 +154,7 @@ class UsersService(object):
     def change_password(self, id, new, old=None, change_token=True): # pylint: disable=invalid-name,redefined-builtin
         """Change a user's password.
 
-        :param id: User ID as string.
+        :param id: User ID as an int.
         :param new: New password as string.
         :param old: (optional) Old password as string (required if performing action as non-admin).
         :param change_token: (optional) If bool `True`, also generate a new API token for user.
@@ -170,7 +170,7 @@ class UsersService(object):
     def change_token(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Change a user's token.
 
-        :param id: User ID as string.
+        :param id: User ID as an int.
         :return: :class:`users.User <users.User>` object
         :rtype: users.User
         """
@@ -181,7 +181,7 @@ class UsersService(object):
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a user.
 
-        :param id: User ID as string.
+        :param id: User ID as an int.
         """
         return self.service.delete_id(self.base, id)
 

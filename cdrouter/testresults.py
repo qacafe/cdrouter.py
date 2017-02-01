@@ -47,7 +47,7 @@ class Line(object):
     :param timestamp: (optional) Log timestamp as string.
     :param message: (optional) Log message as string.
     :param interface: (optional) Log interface as string (if packet log).
-    :param packet: (optional) Log frame number as string (if packet log).
+    :param packet: (optional) Log frame number as an int (if packet log).
     :param src: (optional) Log source address as string (if packet log).
     :param dst: (optional) Log destination address as string (if packet log).
     :param proto: (optional) Log protocol name as string (if packet log).
@@ -87,7 +87,7 @@ class LineSchema(Schema):
     message = fields.Str()
 
     interface = fields.Str(missing=None)
-    packet = fields.Str(missing=None)
+    packet = fields.Int(as_string=True, missing=None)
 
     src = fields.Str(missing=None)
     dst = fields.Str(missing=None)
@@ -127,9 +127,9 @@ class LogSchema(Schema):
 class TestResult(object):
     """Model for CDRouter TestResults.
 
-    :param id: (optional) Result ID as string.
-    :param seq: (optional) TestResult sequence ID as string.
-    :param loop: (optional) Loop number as string.
+    :param id: (optional) Result ID as an int.
+    :param seq: (optional) TestResult sequence ID as an int.
+    :param loop: (optional) Loop number as an int.
     :param result: (optional) Test result as string.
     :param retries: (optional) Retry count as int.
     :param started: (optional) Test start time as `DateTime`.
@@ -159,9 +159,9 @@ class TestResult(object):
         self.note = kwargs.get('note', None)
 
 class TestResultSchema(Schema):
-    id = fields.Str()
-    seq = fields.Str()
-    loop = fields.Str()
+    id = fields.Int(as_string=True)
+    seq = fields.Int(as_string=True)
+    loop = fields.Int(as_string=True)
     result = fields.Str()
     retries = fields.Int()
     started = DateTime()
@@ -200,7 +200,7 @@ class TestResultsService(object):
     def list(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of test results.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
@@ -219,7 +219,7 @@ class TestResultsService(object):
         arguments, ``iter_list`` returns all test results by
         internally making successive calls to ``list``.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param args: Arguments that ``list`` takes.
         :param kwargs: Optional arguments that ``list`` takes.
         :return: :class:`testresults.TestResult <testresults.TestResult>` list
@@ -231,7 +231,7 @@ class TestResultsService(object):
     def list_csv(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of test results as CSV.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
@@ -244,8 +244,8 @@ class TestResultsService(object):
     def get(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a test result.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :return: :class:`testresults.TestResult <testresults.TestResult>` object
         :rtype: testresults.TestResult
         """
@@ -256,7 +256,7 @@ class TestResultsService(object):
     def edit(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
         """Edit a test result.
 
-        :param id: Result ID as string.
+        :param id: Result ID as an int.
         :param resource: :class:`testresults.TestResult <testresults.TestResult>` object
         :return: :class:`testresults.TestResult <testresults.TestResult>` object
         :rtype: testresults.TestResult
@@ -271,8 +271,8 @@ class TestResultsService(object):
     def get_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, timestamp_format=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a test result's log.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param offset: (optional) Offset within logfile to get.
         :param limit: (optional) Limit returned list length.
         :param filter: (optional) Filters to apply as a string list.
@@ -290,8 +290,8 @@ class TestResultsService(object):
     def get_log_plaintext(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a test result's log as plaintext.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :rtype: string
         """
         return self.service.get(self._base(id)+str(seq)+'/log/',

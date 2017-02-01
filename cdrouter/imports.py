@@ -13,8 +13,8 @@ from .cdr_dictfield import DictField
 class Import(object):
     """Model for CDRouter Staged Imports.
 
-    :param id: (optional) Staged import ID as string.
-    :param user_id: (optional) User ID as string.
+    :param id: (optional) Staged import ID as an int.
+    :param user_id: (optional) User ID as an int.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
     :param archive: (optional) Path to archive as string.
@@ -35,8 +35,8 @@ class Import(object):
         self.size = kwargs.get('size', None)
 
 class ImportSchema(Schema):
-    id = fields.Str()
-    user_id = fields.Str()
+    id = fields.Int(as_string=True)
+    user_id = fields.Int(as_string=True)
     created = DateTime()
     updated = DateTime()
     archive = fields.Str()
@@ -53,7 +53,7 @@ class Response(object):
     """Model for CDRouter Import Responses.
 
     :param imported: (optional) Bool `True` if resource imported successfully.
-    :param id: (optional) Resource ID as string.
+    :param id: (optional) Resource ID as an int.
     :param name: (optional) Resource name as string.
     :param message: (optional) Response message as string.
     """
@@ -65,7 +65,7 @@ class Response(object):
 
 class ResponseSchema(Schema):
     imported = fields.Bool()
-    id = fields.Str(missing=None)
+    id = fields.Int(as_string=True, missing=None)
     name = fields.Str(missing=None)
     message = fields.Str(missing=None)
 
@@ -78,7 +78,7 @@ class Resource(object):
 
     :param name: (optional) Set to string to rename resource, leave empty to keep original
     :param should_import: (optional) Bool `True` if resource should be imported.
-    :param existing_id: (optional) Contains ID of existing resource which will be overwritten if `should_import` is `True`.
+    :param existing_id: (optional) Contains ID as an int of existing resource which will be overwritten if `should_import` is `True`.
     :param response: (optional) :class:`imports.Response <imports.Response>` object
     """
     def __init__(self, **kwargs):
@@ -90,7 +90,7 @@ class Resource(object):
 class ResourceSchema(Schema):
     name = fields.Str(missing=None)
     should_import = fields.Bool(attribute='should_import', load_from='import', dump_to='import')
-    existing_id = fields.Str(missing=None)
+    existing_id = fields.Int(as_string=True, missing=None)
     response = fields.Nested(ResponseSchema, missing=None)
 
     @post_load
@@ -188,7 +188,7 @@ class ImportsService(object):
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a staged import.
 
-        :param id: Staged import ID as string.
+        :param id: Staged import ID as an int.
         :return: :class:`imports.Import <imports.Import>` object
         :rtype: imports.Import
         """
@@ -199,7 +199,7 @@ class ImportsService(object):
     def get_commit_request(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a commit request for a staged import.
 
-        :param id: Staged import ID as string.
+        :param id: Staged import ID as an int.
         :return: :class:`imports.Request <imports.Request>` object
         :rtype: imports.Request
         """
@@ -210,7 +210,7 @@ class ImportsService(object):
     def commit(self, id, impreq): # pylint: disable=invalid-name,redefined-builtin
         """Commit a staged import.
 
-        :param id: Staged import ID as string.
+        :param id: Staged import ID as an int.
         :param impreq: :class:`imports.Request <imports.Request>` object
         :return: :class:`imports.Request <imports.Request>` object
         :rtype: imports.Request
@@ -225,6 +225,6 @@ class ImportsService(object):
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a staged import.
 
-        :param id: Staged import ID as string.
+        :param id: Staged import ID as an int.
         """
         return self.service.delete_id(self.base, id)

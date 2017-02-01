@@ -174,8 +174,8 @@ class InterfaceAddrSchema(Schema):
 class Interface(object):
     """Model for CDRouter Interfaces.
 
-    :param index: (optional) Interface index as a string.
-    :param mtu: (optional) Interface MTU as a string.
+    :param index: (optional) Interface index as an int.
+    :param mtu: (optional) Interface MTU as an int.
     :param name: (optional) Interface name as a string.
     :param hardware_addr: (optional) Interface hardware address as a string.
     :param flags: (optional) :class:`system.InterfaceFlags <system.InterfaceFlags>` object
@@ -192,8 +192,8 @@ class Interface(object):
         self.multicast_addresses = kwargs.get('multicast_addresses', None)
 
 class InterfaceSchema(Schema):
-    index = fields.Str()
-    mtu = fields.Str()
+    index = fields.Int(as_string=True)
+    mtu = fields.Int(as_string=True)
     name = fields.Str()
     hardware_addr = fields.Str()
     flags = fields.Nested(InterfaceFlagsSchema)

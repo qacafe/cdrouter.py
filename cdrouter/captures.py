@@ -257,8 +257,8 @@ class ASCIISchema(Schema):
 class Capture(object):
     """Model for CDRouter Captures.
 
-    :param id: (optional) Result ID as string.
-    :param seq: (optional) TestResult sequence ID as string.
+    :param id: (optional) Result ID as an int.
+    :param seq: (optional) TestResult sequence ID as an int.
     :param interface: (optional) Interface name as string.
     :param filename: (optional) Path to capture file as string.
     """
@@ -269,8 +269,8 @@ class Capture(object):
         self.filename = kwargs.get('filename', None)
 
 class CaptureSchema(Schema):
-    id = mfields.Str()
-    seq = mfields.Str()
+    id = mfields.Int(as_string=True)
+    seq = mfields.Int(as_string=True)
     interface = mfields.Str()
     filename = mfields.Str()
 
@@ -308,8 +308,8 @@ class CapturesService(object):
     def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of captures.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :return: :class:`captures.Capture <captures.Capture>` list
         """
         schema = CaptureSchema(exclude=('id', 'seq'))
@@ -319,8 +319,8 @@ class CapturesService(object):
     def get(self, id, seq, intf): # pylint: disable=invalid-name,redefined-builtin
         """Get a capture.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param intf: Interface name as string.
         :return: :class:`captures.Capture <captures.Capture>` object
         :rtype: captures.Capture
@@ -332,8 +332,8 @@ class CapturesService(object):
     def download(self, id, seq, intf, inline=False): # pylint: disable=invalid-name,redefined-builtin
         """Download a capture as a PCAP file.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param intf: Interface name as string.
         :param inline: (optional) Use inline version of capture file.
         :rtype: tuple `(io.BytesIO, 'filename')`
@@ -348,8 +348,8 @@ class CapturesService(object):
     def summary(self, id, seq, intf, filter=None, inline=False): # pylint: disable=invalid-name,redefined-builtin
         """Get a capture's summary.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param intf: Interface name as string.
         :param filter: (optional) PCAP filter to apply as string.
         :param inline: (optional) Use inline version of capture file.
@@ -364,8 +364,8 @@ class CapturesService(object):
     def decode(self, id, seq, intf, filter=None, frame=None, inline=False): # pylint: disable=invalid-name,redefined-builtin
         """Get a capture's decode.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param intf: Interface name as string.
         :param filter: (optional) PCAP filter to apply as string.
         :param frame: (optional) Frame number to decode.
@@ -381,8 +381,8 @@ class CapturesService(object):
     def ascii(self, id, seq, intf, filter=None, frame=None, inline=False): # pylint: disable=invalid-name,redefined-builtin
         """Get a capture's ASCII (hex dump).
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param intf: Interface name as string.
         :param filter: (optional) PCAP filter to apply as string.
         :param frame: (optional) Frame number to decode.
@@ -400,8 +400,8 @@ class CapturesService(object):
         cloudshark_appliance_url and cloudshark_appliance_token must
         be properly configured via system preferences.
 
-        :param id: Result ID as string.
-        :param seq: TestResult sequence ID as string.
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
         :param intf: Interface name as string.
         :param inline: (optional) Use inline version of capture file.
         :return: :class:`captures.CloudShark <captures.CloudShark>` object

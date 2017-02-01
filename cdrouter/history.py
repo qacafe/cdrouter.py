@@ -13,10 +13,10 @@ from .cdr_datetime import DateTime
 class History(object):
     """Model for CDRouter History entries.
 
-    :param user_id: (optional) User ID as string.
+    :param user_id: (optional) User ID as an int.
     :param created: (optional) Entry creation time as `DateTime`.
     :param resource: (optional) Resource type as string.
-    :param id: (optional) Resource ID as string.
+    :param id: (optional) Resource ID as an int.
     :param name: (optional) Resource name as string.
     :param action: (optional) Action name as string.
     :param description: (optional) Resource description as string.
@@ -31,10 +31,10 @@ class History(object):
         self.description = kwargs.get('description', None)
 
 class HistorySchema(Schema):
-    user_id = fields.Str()
+    user_id = fields.Int(as_string=True)
     created = DateTime()
     resource = fields.Str()
-    id = fields.Str()
+    id = fields.Int(as_string=True)
     name = fields.Str()
     action = fields.Str()
     description = fields.Str()

@@ -40,15 +40,15 @@ class OptionsSchema(Schema):
 class Job(object):
     """Model for CDRouter Jobs.
 
-    :param id: (optional) Job ID as string.
+    :param id: (optional) Job ID as an int.
     :param status: (optional) Bool `True` if user is an administrator.
     :param options: (optional) :class:`jobs.Options <jobs.Options>` object
-    :param package_id: (optional) Package ID as string.
+    :param package_id: (optional) Package ID as an int.
     :param package_name: (optional) Package name as string.
-    :param device_id: (optional) Device ID as string.
+    :param device_id: (optional) Device ID as an int.
     :param device_name: (optional) Device name as string.
-    :param result_id: (optional) Result ID as string.
-    :param user_id: (optional) User ID as string.
+    :param result_id: (optional) Result ID as an int.
+    :param user_id: (optional) User ID as an int.
     :param created: (optional) Job creation time as `DateTime`.
     :param updated: (optional) Job last-updated time as `DateTime`.
     """
@@ -66,15 +66,15 @@ class Job(object):
         self.updated = kwargs.get('updated', None)
 
 class JobSchema(Schema):
-    id = fields.Str()
+    id = fields.Int(as_string=True)
     status = fields.Str()
     options = fields.Nested(OptionsSchema)
-    package_id = fields.Str()
+    package_id = fields.Int(as_string=True)
     package_name = fields.Str()
-    device_id = fields.Str()
+    device_id = fields.Int(as_string=True)
     device_name = fields.Str()
-    result_id = fields.Str(missing=None)
-    user_id = fields.Str()
+    result_id = fields.Int(as_string=True, missing=None)
+    user_id = fields.Int(as_string=True)
     created = DateTime()
     updated = DateTime()
 
@@ -130,7 +130,7 @@ class JobsService(object):
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a job.
 
-        :param id: Job ID as string.
+        :param id: Job ID as an int.
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
@@ -169,7 +169,7 @@ class JobsService(object):
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a job.
 
-        :param id: Job ID as string.
+        :param id: Job ID as an int.
         """
         return self.service.delete_id(self.base, id)
 

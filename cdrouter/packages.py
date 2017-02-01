@@ -41,16 +41,16 @@ class Options(object):
     """Model for CDRouter Package Options.
 
     :param forever: (optional) Bool `True` if package looped forver.
-    :param loop: (optional) Loop count as a string.
-    :param repeat: (optional) Repeat count as a string.
-    :param maxfail: (optional) Max fail count as a string.
-    :param duration: (optional) Max testing time duration as a string.
-    :param wait: (optional) Wait between tests duration as a string.
+    :param loop: (optional) Loop count as an int.
+    :param repeat: (optional) Repeat count as an int.
+    :param maxfail: (optional) Max fail count as an int.
+    :param duration: (optional) Max testing time duration as an int.
+    :param wait: (optional) Wait between tests duration as an int.
     :param pause: (optional) Bool `True` is pausing between tests.
     :param shuffle: (optional) Bool `True` if testlist is shuffled.
-    :param seed: (optional) Shuffle seed as a string.
-    :param retry: (optional) Retry count as a string.
-    :param rdelay: (optional) Retry delay as a string.
+    :param seed: (optional) Shuffle seed as an int.
+    :param retry: (optional) Retry count as an int.
+    :param rdelay: (optional) Retry delay as an int.
     """
     def __init__(self, **kwargs):
         self.forever = kwargs.get('forever', None)
@@ -67,16 +67,16 @@ class Options(object):
 
 class OptionsSchema(Schema):
     forever = fields.Bool()
-    loop = fields.Str()
-    repeat = fields.Str()
-    maxfail = fields.Str()
-    duration = fields.Str()
-    wait = fields.Str()
+    loop = fields.Int(as_string=True)
+    repeat = fields.Int(as_string=True)
+    maxfail = fields.Int(as_string=True)
+    duration = fields.Int(as_string=True)
+    wait = fields.Int(as_string=True)
     pause = fields.Bool()
     shuffle = fields.Bool()
-    seed = fields.Str()
-    retry = fields.Str()
-    rdelay = fields.Str()
+    seed = fields.Int(as_string=True)
+    retry = fields.Int(as_string=True)
+    rdelay = fields.Int(as_string=True)
 
     @post_load
     def post_load(self, data):
@@ -85,19 +85,19 @@ class OptionsSchema(Schema):
 class Package(object):
     """Model for CDRouter Packages.
 
-    :param id: (optional) Package ID as a string.
+    :param id: (optional) Package ID as an int.
     :param name: (optional) Name as a string.
     :param description: (optional) Description as a string.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
-    :param test_count: (optional) Test count as a string.
+    :param test_count: (optional) Test count as an int.
     :param testlist: (optional) Testlist as a string list.
     :param extra_cli_args: (optional) Extra CLI args as a string.
-    :param user_id: (optional) User ID as a string.
-    :param agent_id: (optional) Agent ID as a string.
-    :param config_id: (optional) Config ID as a string.
-    :param result_id: (optional) Result ID as a string (if a package snapshot).
-    :param device_id: (optional) Device ID as a string.
+    :param user_id: (optional) User ID as an int.
+    :param agent_id: (optional) Agent ID as an int.
+    :param config_id: (optional) Config ID as an int.
+    :param result_id: (optional) Result ID as an int (if a package snapshot).
+    :param device_id: (optional) Device ID as an int.
     :param options: (optional) :class:`packages.Options <packages.Options>` object
     :param tags: (optional) Tags as a string list.
     :param use_as_testlist: (optional) Bool `True` if package is used as a testlist.
@@ -123,19 +123,19 @@ class Package(object):
         self.note = kwargs.get('note', None)
 
 class PackageSchema(Schema):
-    id = fields.Str()
+    id = fields.Int(as_string=True)
     name = fields.Str()
     description = fields.Str()
     created = DateTime()
     updated = DateTime()
-    test_count = fields.Str()
+    test_count = fields.Int(as_string=True)
     testlist = fields.List(fields.Str())
     extra_cli_args = fields.Str()
-    user_id = fields.Str()
-    agent_id = fields.Str()
-    config_id = fields.Str()
-    result_id = fields.Str(missing=None)
-    device_id = fields.Str()
+    user_id = fields.Int(as_string=True)
+    agent_id = fields.Int(as_string=True)
+    config_id = fields.Int(as_string=True)
+    result_id = fields.Int(as_string=True, missing=None)
+    device_id = fields.Int(as_string=True)
     options = fields.Nested(OptionsSchema)
     tags = fields.List(fields.Str())
     use_as_testlist = fields.Bool()
@@ -193,7 +193,7 @@ class PackagesService(object):
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a package.
 
-        :param id: Package ID as string.
+        :param id: Package ID as an int.
         :return: :class:`packages.Package <packages.Package>` object
         :rtype: packages.Package
         """
@@ -244,14 +244,14 @@ class PackagesService(object):
     def delete(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Delete a package.
 
-        :param id: Package ID as string.
+        :param id: Package ID as an int.
         """
         return self.service.delete_id(self.base, id)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a package.
 
-        :param id: Package ID as string.
+        :param id: Package ID as an int.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
         return self.service.get_shares(self.base, id)
@@ -259,7 +259,7 @@ class PackagesService(object):
     def edit_shares(self, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         """Edit shares for a package.
 
-        :param id: Package ID as string.
+        :param id: Package ID as an int.
         :param user_ids: User IDs as int list.
         :return: :class:`cdrouter.Share <cdrouter.Share>` list
         """
@@ -268,7 +268,7 @@ class PackagesService(object):
     def export(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Export a package.
 
-        :param id: Package ID as string.
+        :param id: Package ID as an int.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.export(self.base, id)
@@ -276,7 +276,7 @@ class PackagesService(object):
     def analyze(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of tests that will be skipped for a package.
 
-        :param id: Package ID as string.
+        :param id: Package ID as an int.
         :return: :class:`packages.Analysis <packages.Analysis>` object
         :rtype: packages.Analysis
         """
