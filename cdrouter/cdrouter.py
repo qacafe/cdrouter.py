@@ -120,13 +120,27 @@ class ShareSchema(Schema):
 class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
     """Class for authorizing CDRouter Web API requests."""
 
-    def __init__(self, token=None):
-        self.token = token
+    def __init__(self, c):
+        self.c = c
 
     def __call__(self, r):
-        if self.token is not None:
-            r.headers['authorization'] = 'Bearer ' + self.token
+        if r.method == 'POST' and r.path_url.startswith('/authenticate'):
+            return r
+        if self.c.token is None:
+            # if API request with no token returns a 401, automatic
+            # login is disabled and user needs to authenticate
+            resp = requests.get(self.c.base + self.c.BASE + 'system/hostname/', verify=(not self.c.insecure))
+            if resp.status_code == 401:
+                self.c.authenticate()
+        if self.c.token is not None:
+            r.headers['authorization'] = 'Bearer ' + self.c.token
         return r
+
+def _getuser_default(base):
+    return raw_input('username on {}: '.format(base))
+
+def _getpass_default(base, username):
+    return getpass.getpass('{}\'s password on {}: '.format(username, base))
 
 class CDRouter(object):
     """Service for accessing the CDRouter Web API.
@@ -140,6 +154,21 @@ class CDRouter(object):
         required if Automatic Login is enabled.  If omitted, value
         will be taken from CDROUTER_API_TOKEN environment variable.
 
+    :param username: (optional) Username as string.
+
+    :param password: (optional) Password as string.
+
+    :param _getuser: (optional) If username is `None`, function to be
+        called as ``_getuser(base)`` which returns a username as a
+        string.  If ``_getuser`` is `None`, ``authenticate`` will
+        print a prompt to stdout and read the username from stdin.
+
+    :param _getpass: (optional) If password is `None`, a function to
+        be called as ``_getpass(base, username)`` which returns user's
+        password as a string.  If ``_getpass`` is `None`,
+        ``authenticate`` will print a password prompt to stdout and
+        read the password from stdin.
+
     :param insecure: (optional) If bool `True` and `base` is an HTTPS
         URL, skip certificate verification and allow insecure
         connections to the CDRouter system.
@@ -147,11 +176,13 @@ class CDRouter(object):
     """
     BASE = '/api/v1/'
 
-    def __init__(self, base, token=None, insecure=False):
+    def __init__(self, base, token=None, username=None, password=None, _getuser=_getuser_default, _getpass=_getpass_default, insecure=False):
         self.base = base.rstrip('/')
-        self.token = token
-        if self.token is None:
-            self.token = os.environ.get('CDROUTER_API_TOKEN')
+        self.token = token or os.environ.get('CDROUTER_API_TOKEN')
+        self.username = username
+        self.password = password
+        self._getuser = _getuser
+        self._getpass = _getpass
         self.insecure = insecure
 
         if insecure:
@@ -205,7 +236,7 @@ class CDRouter(object):
             files = {}
             headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
         resp = self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
-                                    json=json, data=data, verify=(not self.insecure), auth=Auth(token=self.token))
+                                    json=json, data=data, verify=(not self.insecure), auth=Auth(c=self))
         self.raise_for_status(resp)
         return resp
 
@@ -356,37 +387,20 @@ class CDRouter(object):
         result = schema.dump(resource, many=many)
         return result.data
 
-    @staticmethod
-    def _getuser_default(base):
-        return raw_input('username on {}: '.format(base))
-
-    @staticmethod
-    def _getpass_default(base, username):
-        return getpass.getpass('{}\'s password on {}: '.format(username, base))
-
-    def authenticate(self, username=None, password=None, _getuser=None, _getpass=None, retries=3):
+    def authenticate(self, retries=3):
         """Set API token by authenticating via username/password.
 
-        :param username: Username as string.
-        :param password: Password as string.
-        :param _getuser: If username is `None`, function to call as ``_getuser(base)`` which returns a username as a string.  If ``_getuser`` is `None`, ``authenticate`` will print a prompt to stdout and read the username from stdin.
-        :param _getpass: If password is `None`, a function to call as ``_getpass(base, username)`` which returns user's password as a string.  If ``_getpass`` is `None`, ``authenticate`` will print a password prompt to stdout and read the password from stdin.
         :param retries: Number of authentication attempts to make before giving up as an int.
         :return: Learned API token
         :rtype: string
         """
 
-        if _getuser is None:
-           _getuser = self._getuser_default
-        if _getpass is None:
-           _getpass = self._getpass_default
-
-        if username is None:
-            username = _getuser(self.base)
+        username = self.username or self._getuser(self.base)
+        password = self.password
 
         while retries > 0:
             if password is None:
-                password = _getpass(self.base, username)
+                password = self._getpass(self.base, username)
 
             try:
                 resp = self.post(self.base+'/authenticate', params={'username': username, 'password': password})
