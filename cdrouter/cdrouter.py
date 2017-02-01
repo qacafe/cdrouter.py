@@ -154,20 +154,26 @@ class CDRouter(object):
         required if Automatic Login is enabled.  If omitted, value
         will be taken from CDROUTER_API_TOKEN environment variable.
 
-    :param username: (optional) Username as string.
+    :param username: (optional) Username as string.  Can be omitted if
+        ``token`` is specified or Automatic Login is enabled.  If
+        omitted, ``_getuser`` will be called when a username is
+        required.
 
-    :param password: (optional) Password as string.
+    :param password: (optional) Password as string.  Can be omitted if
+        ``token`` is specified or Automatic Login is enabled.  If
+        omitted, ``_getpass`` will be called when a password is
+        required.
 
     :param _getuser: (optional) If username is `None`, function to be
         called as ``_getuser(base)`` which returns a username as a
-        string.  If ``_getuser`` is `None`, ``authenticate`` will
-        print a prompt to stdout and read the username from stdin.
+        string.  If ``_getuser`` is `None`, ``cdrouter`` will print a
+        prompt to stdout and read the username from stdin.
 
     :param _getpass: (optional) If password is `None`, a function to
         be called as ``_getpass(base, username)`` which returns user's
-        password as a string.  If ``_getpass`` is `None`,
-        ``authenticate`` will print a password prompt to stdout and
-        read the password from stdin.
+        password as a string.  If ``_getpass`` is `None`, ``cdrouter``
+        will print a password prompt to stdout and read the password
+        from stdin.
 
     :param insecure: (optional) If bool `True` and `base` is an HTTPS
         URL, skip certificate verification and allow insecure
