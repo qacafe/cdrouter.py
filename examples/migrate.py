@@ -109,7 +109,9 @@ def migrate(src, dst, resource, name_or_id, filter, should_import_rtypes):
                 rs = getattr(impreq, rtype)
                 for name in rs:
                     if args.overwrite or rs[name].existing_id is None:
-                        rs[name].should_import = should_import = True
+                        rs[name].should_import = True
+                        if rtype is plural:
+                            should_import = rs[name].should_import
 
             if not should_import:
                 print_verbose('Skipping {} {}'.format(resource, r.id))
