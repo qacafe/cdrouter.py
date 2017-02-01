@@ -364,15 +364,16 @@ class CDRouter(object):
     def _getpass_default(base, username):
         return getpass.getpass('{}\'s password on {}: '.format(username, base))
 
-    def authenticate(self, username=None, password=None, _getuser=None, _getpass=None):
+    def authenticate(self, username=None, password=None, _getuser=None, _getpass=None, retries=3):
         """Set API token by authenticating via username/password.
 
         :param username: Username as string.
         :param password: Password as string.
         :param _getuser: If username is `None`, function to call as ``_getuser(base)`` which returns a username as a string.  If ``_getuser`` is `None`, ``authenticate`` will print a prompt to stdout and read the username from stdin.
         :param _getpass: If password is `None`, a function to call as ``_getpass(base, username)`` which returns user's password as a string.  If ``_getpass`` is `None`, ``authenticate`` will print a password prompt to stdout and read the password from stdin.
-        :return: :class:`users.User <users.User>` object
-        :rtype: users.User
+        :param retries: Number of authentication attempts to make before giving up as an int.
+        :return: Learned API token
+        :rtype: string
         """
 
         if _getuser is None:
@@ -382,14 +383,24 @@ class CDRouter(object):
 
         if username is None:
             username = _getuser(self.base)
-        if password is None:
-            password = _getpass(self.base, username)
 
-        schema = UserSchema()
-        resp = self.post(self.base+'/authenticate', params={'username': username, 'password': password})
-        u = self.decode(schema, resp)
+        while retries > 0:
+            if password is None:
+                password = _getpass(self.base, username)
 
-        if u.token is not None:
-            self.token = u.token
+            try:
+                resp = self.post(self.base+'/authenticate', params={'username': username, 'password': password})
 
-        return u
+                schema = UserSchema()
+                u = self.decode(schema, resp)
+
+                if u.token is not None:
+                    self.token = u.token
+                    break
+            except CDRouterError as cde:
+                password = None
+                retries -= 1
+                if retries == 0:
+                    raise cde
+
+        return self.token
