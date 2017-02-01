@@ -8,7 +8,12 @@ Welcome to cdrouter.py's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting Started
 
    introduction
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
+
    reference
