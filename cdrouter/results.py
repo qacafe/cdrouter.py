@@ -524,7 +524,7 @@ class ResultsService(object):
         resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
 
-    def updates(self, id, update_id=-1): # pylint: disable=invalid-name,redefined-builtin
+    def updates(self, id, update_id=None): # pylint: disable=invalid-name,redefined-builtin
         """Get updates of a running result via long-polling.  If no updates
            are available, CDRouter waits up to 10 seconds before
            sending an empty response.
@@ -535,6 +535,8 @@ class ResultsService(object):
         :rtype: results.Update
 
         """
+        if update_id is None:
+            update_id = -1
         schema = UpdateSchema()
         resp = self.service.get_id(self.base, id, params={'updates': update_id})
         return self.service.decode(schema, resp)
