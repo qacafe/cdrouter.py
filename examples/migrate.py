@@ -139,14 +139,8 @@ try:
     if 'CDROUTER_API_TOKEN' in os.environ:
         del os.environ['CDROUTER_API_TOKEN']
 
-    src = CDRouter(args.src_base, token=args.src_token, insecure=args.insecure)
-    if args.src_token is None and args.src_user is not None:
-        src.authenticate(args.src_user, args.src_password)
-
-    dst = CDRouter(args.dst_base, token=args.dst_token, insecure=args.insecure)
-    if args.dst_token is None and args.dst_user is not None:
-        dst.authenticate(args.dst_user, args.dst_password)
-
+    src = CDRouter(args.src_base, token=args.src_token, username=args.src_user, password=args.src_password, insecure=args.insecure)
+    dst = CDRouter(args.dst_base, token=args.dst_token, username=args.dst_user, password=args.dst_password, insecure=args.insecure)
     resources = args.resources.split(',')
 
     # devices were added in CDRouter 10.1
