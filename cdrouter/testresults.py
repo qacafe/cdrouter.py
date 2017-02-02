@@ -268,7 +268,7 @@ class TestResultsService(object):
         resp = self.service.edit(self._base(id), resource.seq, json)
         return self.service.decode(schema, resp)
 
-    def get_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, timestamp_format=None): # pylint: disable=invalid-name,redefined-builtin
+    def list_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, timestamp_format=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a test result's log.
 
         :param id: Result ID as an int.
@@ -286,6 +286,37 @@ class TestResultsService(object):
                                 params={'offset': offset, 'limit': limit, 'filter': filter,
                                         'packets': packets, 'timestamp_format': timestamp_format, 'format': 'json'})
         return self.service.decode(schema, resp)
+
+    def iter_list_log(self, id, seq, *args, **kwargs): # pylint: disable=invalid-name,redefined-builtin
+        """Get a test result's log.  Whereas ``list_log`` fetches a single
+        range of log lines according to its ``limit`` and ``offset``
+        arguments, ``iter_list_log`` returns all log lines by
+        internally making successive calls to ``list_log``.
+
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
+        :param args: Arguments that ``list_log`` takes.
+        :param kwargs: Optional arguments that ``list_log`` takes.
+        :return: :class:`testresults.Line <testresults.Line>` list
+
+        """
+
+        def generate():
+            offset = int(kwargs.get('offset', 0))
+            if 'limit' not in kwargs:
+                kwargs['limit'] = 250
+
+            while True:
+                logs = self.list_log(id, seq, *args, **kwargs)
+                nlines = len(logs.lines)
+                if nlines == 0:
+                    break
+                for l in logs.lines:
+                    yield l
+                offset += nlines
+                kwargs.update({'offset': offset})
+
+        return generate()
 
     def get_log_plaintext(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         """Get a test result's log as plaintext.

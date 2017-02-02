@@ -17,7 +17,7 @@ c = CDRouter(base, token=token)
 for r in c.results.iter_list(sort=['-id']):
     for tr in c.tests.iter_list(r.id):
         try:
-            logs = c.tests.get_log(tr.id, tr.seq, filter=['proto=DHCP', 'info~*offer'], limit='100000')
+            logs = c.tests.list_log(tr.id, tr.seq, filter=['proto=DHCP', 'info~*offer'], limit='100000')
         except:
             continue
 

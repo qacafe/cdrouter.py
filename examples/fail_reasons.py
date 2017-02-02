@@ -15,6 +15,6 @@ c = CDRouter(base, token=token)
 
 for r in c.results.iter_list(filter=['fail>0'], sort=['-id']):
     for tr in c.tests.iter_list(r.id, filter=['result=fail']):
-        logs = c.tests.get_log(tr.id, tr.seq, filter=['prefix=FAIL'], limit='100000')
+        logs = c.tests.list_log(tr.id, tr.seq, filter=['prefix=FAIL'], limit='100000')
         msg = ' '.join([log.message for log in logs.lines])
         print('Result {}: Test {}: Name {}: {}'.format(r.id, tr.seq, tr.name, msg))
