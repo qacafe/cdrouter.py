@@ -10,7 +10,9 @@ import io
 
 from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
+from marshmallow.exceptions import ValidationError
 from .cdr_datetime import DateTime
+from .testresults import TestResultSchema
 
 class TestCount(object):
     """Model for CDRouter Test Counts.
@@ -318,6 +320,46 @@ class OptionsSchema(Schema):
     def post_load(self, data):
         return Options(**data)
 
+class UpdateField(fields.Field):
+    def _deserialize(self, value, attr, data):
+        if 'result' in value and 'status' in value:
+            data, errors = ResultSchema().load(value)
+            if errors:
+                raise ValidationError(errors, data=data)
+            return data
+        if 'result' in value and 'status' not in value:
+            data, errors = TestResultSchema().load(value)
+            if errors:
+                raise ValidationError(errors, data=data)
+            return data
+        self.fail('invalid')
+
+class Update(object):
+    """Model for CDRouter Result Update.
+
+    :param id: (optional) Update ID as an int.
+    :param timestamp: (optional) System time as `DateTime`.
+    :param progress: (optional) :class:`results.Progress <results.Progress>` object
+    :param running: (optional) :class:`testresults.TestResult <testresults.TestResult>` object
+    :param updates: (optional) :class:`results.Result <results.Result>` and :class:`testresults.TestResult <testresults.TestResult>` list
+    """
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id', None)
+        self.timestamp = kwargs.get('timestamp', None)
+        self.progress = kwargs.get('progress', None)
+        self.running = kwargs.get('running', None)
+        self.updates = kwargs.get('updates', None)
+
+class UpdateSchema(Schema):
+    id = fields.Int(as_string=True)
+    timestamp = DateTime()
+    progress = fields.Nested(ProgressSchema, missing=None)
+    updates = fields.List(UpdateField, missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return Update(**data)
+
 class Result(object):
     """Model for CDRouter Results.
 
@@ -480,6 +522,21 @@ class ResultsService(object):
         """
         schema = ResultSchema()
         resp = self.service.get_id(self.base, id)
+        return self.service.decode(schema, resp)
+
+    def updates(self, id, update_id=-1): # pylint: disable=invalid-name,redefined-builtin
+        """Get updates of a running result via long-polling.  If no updates
+           are available, CDRouter waits up to 10 seconds before
+           sending an empty response.
+
+        :param id: Result ID as an int.
+        :param update_id: (optional) Update ID as an int.
+        :return: :class:`results.Update <results.Update>` object
+        :rtype: results.Update
+
+        """
+        schema = UpdateSchema()
+        resp = self.service.get_id(self.base, id, params={'updates': update_id})
         return self.service.decode(schema, resp)
 
     def stop(self, id, when=None): # pylint: disable=invalid-name,redefined-builtin

@@ -299,6 +299,12 @@ Options
 .. autoclass:: cdrouter.results.Options
    :members:
 
+Update
+------
+
+.. autoclass:: cdrouter.results.Update
+   :members:
+
 Result
 ~~~~~~
 
