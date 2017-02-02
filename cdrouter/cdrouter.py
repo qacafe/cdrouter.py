@@ -3,11 +3,13 @@
 # All Rights Reserved.
 #
 
+from builtins import input
 import getpass
 import io
 import os
 import re
 import requests
+from threading import Lock
 from requests_toolbelt.downloadutils import stream
 from requests_toolbelt import sessions
 from requests_toolbelt.utils.user_agent import user_agent
@@ -126,18 +128,30 @@ class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
     def __call__(self, r):
         if r.method == 'POST' and r.path_url.startswith('/authenticate'):
             return r
-        if self.c.token is None:
+
+        self.c.lock.acquire()
+        token = self.c.token
+        self.c.lock.release()
+
+        if token is None:
             # if API request with no token returns a 401, automatic
             # login is disabled and user needs to authenticate
             resp = requests.get(self.c.base + self.c.BASE + 'system/hostname/', verify=(not self.c.insecure))
+
             if resp.status_code == 401:
                 self.c.authenticate()
-        if self.c.token is not None:
-            r.headers['authorization'] = 'Bearer ' + self.c.token
+
+                self.c.lock.acquire()
+                token = self.c.token
+                self.c.lock.release()
+
+        if token is not None:
+            r.headers['authorization'] = 'Bearer ' + token
+
         return r
 
 def _getuser_default(base):
-    return raw_input('username on {}: '.format(base))
+    return input('username on {}: '.format(base))
 
 def _getpass_default(base, username):
     return getpass.getpass('{}\'s password on {}: '.format(username, base))
@@ -183,6 +197,8 @@ class CDRouter(object):
     BASE = '/api/v1/'
 
     def __init__(self, base, token=None, username=None, password=None, _getuser=_getuser_default, _getpass=_getpass_default, insecure=False):
+        self.lock = Lock()
+
         self.base = base.rstrip('/')
         self.token = token or os.environ.get('CDROUTER_API_TOKEN')
         self.username = username
@@ -415,7 +431,9 @@ class CDRouter(object):
                 u = self.decode(schema, resp)
 
                 if u.token is not None:
+                    self.lock.acquire()
                     self.token = u.token
+                    self.lock.release()
                     break
             except CDRouterError as cde:
                 password = None
