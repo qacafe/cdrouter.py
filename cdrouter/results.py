@@ -173,6 +173,24 @@ class SingleStatsSchema(Schema):
     def post_load(self, data):
         return SingleStats(**data)
 
+class SummaryStats(object):
+    """Model for CDRouter Summary Results Stats.
+
+    :param result_breakdown: (optional) :class:`results.ResultBreakdown <results.ResultBreakdown>` object
+    :param test_summaries: (optional) :class:`testresults.TestResult <testresults.TestResult>` list
+    """
+    def __init__(self, **kwargs):
+        self.result_breakdown = kwargs.get('result_breakdown', None)
+        self.test_summaries = kwargs.get('test_summaries', None)
+
+class SummaryStatsSchema(Schema):
+    result_breakdown = fields.Nested(ResultBreakdownSchema)
+    test_summaries = fields.Nested(TestResultSchema, many=True, missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return SummaryStats(**data)
+
 class PackageCount(object):
     """Model for CDRouter Package Counts.
 
@@ -705,6 +723,28 @@ class ResultsService(object):
         """
         schema = SingleStatsSchema()
         resp = self.service.get(self.base+str(id)+'/', params={'stats': 'all'})
+        return self.service.decode(schema, resp)
+
+    def progress_stats(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Compute progress stats for a result.
+
+        :param id: Result ID as an int.
+        :return: :class:`results.Progress <results.Progress>` object
+        :rtype: results.Progress
+        """
+        schema = ProgressSchema()
+        resp = self.service.get(self.base+str(id)+'/', params={'stats': 'progress'})
+        return self.service.decode(schema, resp)
+
+    def summary_stats(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Compute summary stats for a result.
+
+        :param id: Result ID as an int.
+        :return: :class:`results.SummaryStats <results.SummaryStats>` object
+        :rtype: results.SummaryStats
+        """
+        schema = SummaryStatsSchema()
+        resp = self.service.get(self.base+str(id)+'/', params={'stats': 'summary'})
         return self.service.decode(schema, resp)
 
     def list_logdir(self, id, filter=None, sort=None): # pylint: disable=invalid-name,redefined-builtin

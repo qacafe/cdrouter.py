@@ -263,6 +263,12 @@ SingleStats
 .. autoclass:: cdrouter.results.SingleStats
    :members:
 
+SummaryStats
+~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.results.SummaryStats
+   :members:
+
 PackageCount
 ~~~~~~~~~~~~
 
