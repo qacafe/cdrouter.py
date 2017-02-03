@@ -50,7 +50,7 @@ class SummaryPacket(object):
         self.sections = kwargs.get('sections', None)
 
 class SummaryPacketSchema(Schema):
-    sections = mfields.Nested(SectionSchema, many=True)
+    sections = mfields.Nested(SectionSchema, many=True, missing=None)
 
     @post_load
     def post_load(self, data):
@@ -68,7 +68,7 @@ class Summary(object):
 
 class SummarySchema(Schema):
     structure = mfields.Nested(StructureSchema)
-    summaries = mfields.Nested(SummaryPacketSchema, many=True)
+    summaries = mfields.Nested(SummaryPacketSchema, many=True, missing=None)
 
     @post_load
     def post_load(self, data):
