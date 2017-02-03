@@ -253,10 +253,9 @@ class TestResultsService(object):
         resp = self.service.get_id(self._base(id), seq)
         return self.service.decode(schema, resp)
 
-    def edit(self, id, resource): # pylint: disable=invalid-name,redefined-builtin
+    def edit(self, resource): # pylint: disable=invalid-name,redefined-builtin
         """Edit a test result.
 
-        :param id: Result ID as an int.
         :param resource: :class:`testresults.TestResult <testresults.TestResult>` object
         :return: :class:`testresults.TestResult <testresults.TestResult>` object
         :rtype: testresults.TestResult
@@ -265,7 +264,7 @@ class TestResultsService(object):
         json = self.service.encode(schema, resource)
 
         schema = TestResultSchema()
-        resp = self.service.edit(self._base(id), resource.seq, json)
+        resp = self.service.edit(self._base(resource.id), resource.seq, json)
         return self.service.decode(schema, resp)
 
     def list_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, timestamp_format=None): # pylint: disable=invalid-name,redefined-builtin

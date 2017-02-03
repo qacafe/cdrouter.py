@@ -42,7 +42,7 @@ for tr in c.tests.iter_list(result_id):
 
     # clear the test's flag
     tr.flagged = False
-    c.tests.edit(tr.id, tr)
+    c.tests.edit(tr)
 
     # loop over the test's capture files
     for cap in c.captures.list(tr.id, tr.seq):
@@ -84,4 +84,4 @@ for tr in c.tests.iter_list(result_id):
     if r.starred:
         c.results.edit(r)
     if tr.flagged:
-        c.tests.edit(tr.id, tr)
+        c.tests.edit(tr)

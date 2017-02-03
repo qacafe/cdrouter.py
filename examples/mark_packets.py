@@ -30,7 +30,7 @@ for r in c.results.iter_list(sort=['-id']):
         print('{}: starred'.format(r.id))
 
         tr.flagged = True
-        tr = c.tests.edit(tr.id, tr)
+        tr = c.tests.edit(tr)
 
         print('{}: {}: flagged'.format(r.id, tr.name))
 
