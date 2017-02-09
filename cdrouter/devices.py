@@ -60,22 +60,30 @@ class Device(object):
     :param attachments_dir: (optional) Filepath for attachments as string.
     :param picture_id: (optional) Attachment ID for used for device picture as an int.
     :param tags: (optional) Tags as string list.
-    :param default_ip: Default IP as a string (optional)
-    :param default_login: Default login as a string (optional)
-    :param default_password: Default password as a string (optional)
-    :param location: Location as a string (optional)
-    :param device_category: Device category as a string (optional)
-    :param manufacturer: Manufacturer as a string (optional)
-    :param manufacturer_oui: Manufacturer OUI as a string (optional)
-    :param model_name: Model name as a string (optional)
-    :param model_number: Model number as a string (optional)
-    :param description: Description as a string (optional)
-    :param product_class: Product class as a string (optional)
-    :param serial_number: Serial number as a string (optional)
-    :param hardware_version: Hardware version as a string (optional)
-    :param software_version: Software version as a string (optional)
-    :param provisioning_code: Provisioning code as a string (optional)
-    :param note: Note as a string (optional)
+    :param default_ip: (optional) Default IP as a string
+    :param default_login: (optional) Default login as a string
+    :param default_password: (optional) Default password as a string
+    :param location: (optional) Location as a string
+    :param device_category: (optional) Device category as a string
+    :param manufacturer: (optional) Manufacturer as a string
+    :param manufacturer_oui: (optional) Manufacturer OUI as a string
+    :param model_name: (optional) Model name as a string
+    :param model_number: (optional) Model number as a string
+    :param description: (optional) Description as a string
+    :param product_class: (optional) Product class as a string
+    :param serial_number: (optional) Serial number as a string
+    :param hardware_version: (optional) Hardware version as a string
+    :param software_version: (optional) Software version as a string
+    :param provisioning_code: (optional) Provisioning code as a string
+    :param note: (optional) Note as a string
+    :param insecure_mgmt_url: (optional) `True` if insecure HTTPS management URLs are allowed
+    :param mgmt_url: (optional) Management URL as a string
+    :param add_mgmt_addr: (optional) `True` if address should be configured when opening proxy connection
+    :param mgmt_interface: (optional) Interface on which to configure address as string
+    :param mgmt_addr: (optional) Address to configure as string
+    :param power_on_cmd: (optional) Command to run to power on device as string
+    :param power_off_cmd: (optional) Command to run to power off device as string
+
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -107,6 +115,14 @@ class Device(object):
 
         self.note = kwargs.get('note', None)
 
+        self.insecure_mgmt_url = kwargs.get('insecure_mgmt_url', None)
+        self.mgmt_url = kwargs.get('mgmt_url', None)
+        self.add_mgmt_addr = kwargs.get('add_mgmt_addr', None)
+        self.mgmt_interface = kwargs.get('mgmt_interface', None)
+        self.mgmt_addr = kwargs.get('mgmt_addr', None)
+        self.power_on_cmd = kwargs.get('power_on_cmd', None)
+        self.power_off_cmd = kwargs.get('power_off_cmd', None)
+
 class DeviceSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
@@ -136,6 +152,14 @@ class DeviceSchema(Schema):
     provisioning_code = fields.Str()
 
     note = fields.Str()
+
+    insecure_mgmt_url = fields.Bool(missing=None)
+    mgmt_url = fields.Str(missing=None)
+    add_mgmt_addr = fields.Bool(missing=None)
+    mgmt_interface = fields.Str(missing=None)
+    mgmt_addr = fields.Str(missing=None)
+    power_on_cmd = fields.Str(missing=None)
+    power_off_cmd = fields.Str(missing=None)
 
     @post_load
     def post_load(self, data):
