@@ -161,7 +161,7 @@ class DevicesService(object):
         :rtype: devices.Device
         """
         schema = DeviceSchema()
-        resp = self.service.get(self.base, id)
+        resp = self.service.get_id(self.base, id)
         return self.service.decode(schema, resp)
 
     def get_by_name(self, name): # pylint: disable=invalid-name,redefined-builtin
