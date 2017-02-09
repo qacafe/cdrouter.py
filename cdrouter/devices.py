@@ -195,7 +195,9 @@ class DevicesService(object):
         schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password',
                                        'location', 'device_category', 'manufacturer', 'manufacturer_oui',
                                        'model_name', 'model_number', 'product_class', 'serial_number',
-                                       'hardware_version', 'software_version', 'provisioning_code', 'note'))
+                                       'hardware_version', 'software_version', 'provisioning_code', 'note',
+                                       'insecure_mgmt_url', 'mgmt_url', 'add_mgmt_addr', 'mgmt_interface',
+                                       'mgmt_addr', 'power_on_cmd', 'power_off_cmd'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
         ds, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ds, l)
