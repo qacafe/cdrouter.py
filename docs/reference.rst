@@ -113,6 +113,18 @@ Page
 .. autoclass:: cdrouter.devices.Page
    :members:
 
+PowerCmd
+--------
+
+.. autoclass:: cdrouter.devices.PowerCmd
+   :members:
+
+Connection
+----------
+
+.. autoclass:: cdrouter.devices.Connection
+   :members:
+
 Attachments
 -----------
 

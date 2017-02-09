@@ -12,6 +12,42 @@ from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
 from .filters import Field as field
 
+class PowerCmd(object):
+    """Model for CDRouter Device Power command result.
+
+    :param output: (optional) Output from power on/off command as string.
+    """
+
+    def __init__(self, **kwargs):
+        self.output = kwargs.get('output', None)
+
+class PowerCmdSchema(Schema):
+    output = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return PowerCmd(**data)
+
+class Connection(object):
+    """Model for CDRouter Device Connections.
+
+    :param proxy_port: (optional) HTTP proxy port as an int.
+    :param proxy_https: (optional) HTTPS proxy port as an int.
+    """
+
+    def __init__(self, **kwargs):
+        self.proxy_port = kwargs.get('proxy_port', None)
+        self.proxy_https = kwargs.get('proxy_https', None)
+
+
+class ConnectionSchema(Schema):
+    proxy_port = fields.Int()
+    proxy_https = fields.Int()
+
+    @post_load
+    def post_load(self, data):
+        return Connection(**data)
+
 class Device(object):
     """Model for CDRouter Devices.
 
@@ -235,6 +271,55 @@ class DevicesService(object):
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.export(self.base, id)
+
+    def get_connection(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Get information on proxy connection to a device's management interface.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.Connection <devices.Connection>` object
+        :rtype: devices.Connection
+        """
+        return self.service.get(self.base+str(id)+'/connect/')
+
+    def connect(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Open proxy connection to a device's management interface.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.Connection <devices.Connection>` object
+        :rtype: devices.Connection
+        """
+        schema = ConnectionSchema()
+        resp = self.service.post(self.base+str(id)+'/connect/')
+        return self.service.decode(schema, resp)
+
+    def disconnect(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Close proxy connection to a device's management interface.
+
+        :param id: Device ID as an int.
+        """
+        return self.service.post(self.base+str(id)+'/disconnect/')
+
+    def power_on(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Power on a device using it's power on command.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.PowerCmd <devices.PowerCmd>` object
+        :rtype: devices.PowerCmd
+        """
+        schema = PowerCmdSchema()
+        resp = self.service.post(self.base+str(id)+'/power/on/')
+        return self.service.decode(schema, resp)
+
+    def power_off(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Power off a device using it's power off command.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.PowerCmd <devices.PowerCmd>` object
+        :rtype: devices.PowerCmd
+        """
+        schema = PowerCmdSchema()
+        resp = self.service.post(self.base+str(id)+'/power/off/')
+        return self.service.decode(schema, resp)
 
     def bulk_export(self, ids):
         """Bulk export a set of devices.
