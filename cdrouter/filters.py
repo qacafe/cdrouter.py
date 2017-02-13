@@ -53,9 +53,11 @@ class Field(object):
     .. _this: https://support.qacafe.com/cdrouter-web-api/overview/#filtering
     """
 
-    def __init__(self, field):
+    def __init__(self, *args):
+        if len(args) == 0:
+            raise CDRouterFilterError('Filter must have at least one field')
         self.negate = False
-        self.field = field
+        self.field = '.'.join(args)
         self.op = None
         self.negate_op = None
         self.value = None
