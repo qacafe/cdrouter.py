@@ -287,7 +287,7 @@ class PackagesService(object):
     def bulk_export(self, ids):
         """Bulk export a set of packages.
 
-        :param ids: String list of package IDs.
+        :param ids: Int list of package IDs.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.bulk_export(self.base, ids)
@@ -295,7 +295,7 @@ class PackagesService(object):
     def bulk_copy(self, ids):
         """Bulk copy a set of packages.
 
-        :param ids: String list of package IDs.
+        :param ids: Int list of package IDs.
         :return: :class:`packages.Package <packages.Package>` list
         """
         schema = PackageSchema()
@@ -305,7 +305,7 @@ class PackagesService(object):
         """Bulk edit a set of packages.
 
         :param _fields: :class:`packages.Package <packages.Package>` object
-        :param ids: (optional) String list of package IDs.
+        :param ids: (optional) Int list of package IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
@@ -316,7 +316,7 @@ class PackagesService(object):
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of packages.
 
-        :param ids: (optional) String list of package IDs.
+        :param ids: (optional) Int list of package IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.

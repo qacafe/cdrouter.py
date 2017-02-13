@@ -349,7 +349,7 @@ class ConfigsService(object):
     def bulk_export(self, ids):
         """Bulk export a set of configs.
 
-        :param ids: String list of config IDs.
+        :param ids: Int list of config IDs.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.bulk_export(self.base, ids)
@@ -357,7 +357,7 @@ class ConfigsService(object):
     def bulk_copy(self, ids):
         """Bulk copy a set of configs.
 
-        :param ids: String list of config IDs.
+        :param ids: Int list of config IDs.
         :return: :class:`configs.Config <configs.Config>` list
         """
         schema = self.GET_SCHEMA
@@ -367,7 +367,7 @@ class ConfigsService(object):
         """Bulk edit a set of configs.
 
         :param _fields: :class:`configs.Config <configs.Config>` object
-        :param ids: (optional) String list of config IDs.
+        :param ids: (optional) Int list of config IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
@@ -379,7 +379,7 @@ class ConfigsService(object):
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of configs.
 
-        :param ids: (optional) String list of config IDs.
+        :param ids: (optional) Int list of config IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.

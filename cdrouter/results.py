@@ -658,7 +658,7 @@ class ResultsService(object):
     def bulk_export(self, ids, exclude_captures=False):
         """Bulk export a set of results.
 
-        :param ids: String list of result IDs.
+        :param ids: Int list of result IDs.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.bulk_export(self.base, ids, params={'exclude_captures': exclude_captures})
@@ -666,7 +666,7 @@ class ResultsService(object):
     def bulk_copy(self, ids):
         """Bulk copy a set of results.
 
-        :param ids: String list of result IDs.
+        :param ids: Int list of result IDs.
         :return: :class:`results.Result <results.Result>` list
         """
         schema = ResultSchema()
@@ -676,7 +676,7 @@ class ResultsService(object):
         """Bulk edit a set of results.
 
         :param _fields: :class:`results.Result <results.Result>` object
-        :param ids: (optional) String list of result IDs.
+        :param ids: (optional) Int list of result IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
@@ -686,7 +686,7 @@ class ResultsService(object):
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of results.
 
-        :param ids: (optional) String list of result IDs.
+        :param ids: (optional) Int list of result IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.

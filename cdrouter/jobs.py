@@ -194,7 +194,7 @@ class JobsService(object):
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of jobs.
 
-        :param ids: (optional) String list of job IDs.
+        :param ids: (optional) Int list of job IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.

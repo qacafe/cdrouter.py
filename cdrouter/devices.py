@@ -239,7 +239,7 @@ class DevicesService(object):
     def bulk_export(self, ids):
         """Bulk export a set of devices.
 
-        :param ids: String list of device IDs.
+        :param ids: Int list of device IDs.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.bulk_export(self.base, ids)
@@ -247,7 +247,7 @@ class DevicesService(object):
     def bulk_copy(self, ids):
         """Bulk copy a set of devices.
 
-        :param ids: String list of device IDs.
+        :param ids: Int list of device IDs.
         :return: :class:`devices.Device <devices.Device>` list
         """
         schema = DeviceSchema()
@@ -257,7 +257,7 @@ class DevicesService(object):
         """Bulk edit a set of devices.
 
         :param _fields: :class:`devices.Device <devices.Device>` object
-        :param ids: (optional) String list of device IDs.
+        :param ids: (optional) Int list of device IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
@@ -268,7 +268,7 @@ class DevicesService(object):
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of devices.
 
-        :param ids: (optional) String list of device IDs.
+        :param ids: (optional) Int list of device IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
