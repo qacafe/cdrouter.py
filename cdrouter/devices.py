@@ -305,7 +305,9 @@ class DevicesService(object):
         :return: :class:`devices.Connection <devices.Connection>` object
         :rtype: devices.Connection
         """
-        return self.service.get(self.base+str(id)+'/connect/')
+        schema = ConnectionSchema()
+        resp = self.service.get(self.base+str(id)+'/connect/')
+        return self.service.decode(schema, resp)
 
     def connect(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Open proxy connection to a device's management interface.
