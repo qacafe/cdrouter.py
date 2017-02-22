@@ -367,6 +367,10 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'search/', params={'q': query})
         return self.service.decode(schema, resp)
 
+    def update(self):
+        """Update testsuite info."""
+        return self.service.post(self.base)
+
     def list_groups(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
         """Get a list of groups.
 
