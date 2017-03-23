@@ -12,6 +12,42 @@ from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
 from .filters import Field as field
 
+class PowerCmd(object):
+    """Model for CDRouter Device Power command result.
+
+    :param output: (optional) Output from power on/off command as string.
+    """
+
+    def __init__(self, **kwargs):
+        self.output = kwargs.get('output', None)
+
+class PowerCmdSchema(Schema):
+    output = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return PowerCmd(**data)
+
+class Connection(object):
+    """Model for CDRouter Device Connections.
+
+    :param proxy_port: (optional) HTTP proxy port as an int.
+    :param proxy_https: (optional) HTTPS proxy port as an int.
+    """
+
+    def __init__(self, **kwargs):
+        self.proxy_port = kwargs.get('proxy_port', None)
+        self.proxy_https = kwargs.get('proxy_https', None)
+
+
+class ConnectionSchema(Schema):
+    proxy_port = fields.Int()
+    proxy_https = fields.Int()
+
+    @post_load
+    def post_load(self, data):
+        return Connection(**data)
+
 class Device(object):
     """Model for CDRouter Devices.
 
@@ -24,22 +60,30 @@ class Device(object):
     :param attachments_dir: (optional) Filepath for attachments as string.
     :param picture_id: (optional) Attachment ID for used for device picture as an int.
     :param tags: (optional) Tags as string list.
-    :param default_ip: Default IP as a string (optional)
-    :param default_login: Default login as a string (optional)
-    :param default_password: Default password as a string (optional)
-    :param location: Location as a string (optional)
-    :param device_category: Device category as a string (optional)
-    :param manufacturer: Manufacturer as a string (optional)
-    :param manufacturer_oui: Manufacturer OUI as a string (optional)
-    :param model_name: Model name as a string (optional)
-    :param model_number: Model number as a string (optional)
-    :param description: Description as a string (optional)
-    :param product_class: Product class as a string (optional)
-    :param serial_number: Serial number as a string (optional)
-    :param hardware_version: Hardware version as a string (optional)
-    :param software_version: Software version as a string (optional)
-    :param provisioning_code: Provisioning code as a string (optional)
-    :param note: Note as a string (optional)
+    :param default_ip: (optional) Default IP as a string
+    :param default_login: (optional) Default login as a string
+    :param default_password: (optional) Default password as a string
+    :param location: (optional) Location as a string
+    :param device_category: (optional) Device category as a string
+    :param manufacturer: (optional) Manufacturer as a string
+    :param manufacturer_oui: (optional) Manufacturer OUI as a string
+    :param model_name: (optional) Model name as a string
+    :param model_number: (optional) Model number as a string
+    :param description: (optional) Description as a string
+    :param product_class: (optional) Product class as a string
+    :param serial_number: (optional) Serial number as a string
+    :param hardware_version: (optional) Hardware version as a string
+    :param software_version: (optional) Software version as a string
+    :param provisioning_code: (optional) Provisioning code as a string
+    :param note: (optional) Note as a string
+    :param insecure_mgmt_url: (optional) `True` if insecure HTTPS management URLs are allowed
+    :param mgmt_url: (optional) Management URL as a string
+    :param add_mgmt_addr: (optional) `True` if address should be configured when opening proxy connection
+    :param mgmt_interface: (optional) Interface on which to configure address as string
+    :param mgmt_addr: (optional) Address to configure as string
+    :param power_on_cmd: (optional) Command to run to power on device as string
+    :param power_off_cmd: (optional) Command to run to power off device as string
+
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -71,6 +115,14 @@ class Device(object):
 
         self.note = kwargs.get('note', None)
 
+        self.insecure_mgmt_url = kwargs.get('insecure_mgmt_url', None)
+        self.mgmt_url = kwargs.get('mgmt_url', None)
+        self.add_mgmt_addr = kwargs.get('add_mgmt_addr', None)
+        self.mgmt_interface = kwargs.get('mgmt_interface', None)
+        self.mgmt_addr = kwargs.get('mgmt_addr', None)
+        self.power_on_cmd = kwargs.get('power_on_cmd', None)
+        self.power_off_cmd = kwargs.get('power_off_cmd', None)
+
 class DeviceSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
@@ -100,6 +152,14 @@ class DeviceSchema(Schema):
     provisioning_code = fields.Str()
 
     note = fields.Str()
+
+    insecure_mgmt_url = fields.Bool(missing=None)
+    mgmt_url = fields.Str(missing=None)
+    add_mgmt_addr = fields.Bool(missing=None)
+    mgmt_interface = fields.Str(missing=None)
+    mgmt_addr = fields.Str(missing=None)
+    power_on_cmd = fields.Str(missing=None)
+    power_off_cmd = fields.Str(missing=None)
 
     @post_load
     def post_load(self, data):
@@ -135,7 +195,9 @@ class DevicesService(object):
         schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password',
                                        'location', 'device_category', 'manufacturer', 'manufacturer_oui',
                                        'model_name', 'model_number', 'product_class', 'serial_number',
-                                       'hardware_version', 'software_version', 'provisioning_code', 'note'))
+                                       'hardware_version', 'software_version', 'provisioning_code', 'note',
+                                       'insecure_mgmt_url', 'mgmt_url', 'add_mgmt_addr', 'mgmt_interface',
+                                       'mgmt_addr', 'power_on_cmd', 'power_off_cmd'))
         resp = self.service.list(self.base, filter, type, sort, limit, page)
         ds, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ds, l)
@@ -235,6 +297,57 @@ class DevicesService(object):
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
         return self.service.export(self.base, id)
+
+    def get_connection(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Get information on proxy connection to a device's management interface.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.Connection <devices.Connection>` object
+        :rtype: devices.Connection
+        """
+        schema = ConnectionSchema()
+        resp = self.service.get(self.base+str(id)+'/connect/')
+        return self.service.decode(schema, resp)
+
+    def connect(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Open proxy connection to a device's management interface.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.Connection <devices.Connection>` object
+        :rtype: devices.Connection
+        """
+        schema = ConnectionSchema()
+        resp = self.service.post(self.base+str(id)+'/connect/')
+        return self.service.decode(schema, resp)
+
+    def disconnect(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Close proxy connection to a device's management interface.
+
+        :param id: Device ID as an int.
+        """
+        return self.service.post(self.base+str(id)+'/disconnect/')
+
+    def power_on(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Power on a device using it's power on command.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.PowerCmd <devices.PowerCmd>` object
+        :rtype: devices.PowerCmd
+        """
+        schema = PowerCmdSchema()
+        resp = self.service.post(self.base+str(id)+'/power/on/')
+        return self.service.decode(schema, resp)
+
+    def power_off(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Power off a device using it's power off command.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.PowerCmd <devices.PowerCmd>` object
+        :rtype: devices.PowerCmd
+        """
+        schema = PowerCmdSchema()
+        resp = self.service.post(self.base+str(id)+'/power/off/')
+        return self.service.decode(schema, resp)
 
     def bulk_export(self, ids):
         """Bulk export a set of devices.
