@@ -270,6 +270,37 @@ class PreferencesSchema(Schema):
     def post_load(self, data):
         return Preferences(**data)
 
+class Space(object):
+    """Model for CDRouter Disk Space Usage.
+
+    :param avail: (optional) Available disk space as an int.
+    :param path: (optional) Path to CDRouter's data directory as a string.
+e.
+    :param pcent: (optional) Percentage of disk space used as an int.
+    :param size: (optional) Total disk space as an int.
+    :param unit: (optional) Disk space units as a string, default is 'bytes'.
+    :param used: (optional) Used disk space as an int.
+    """
+    def __init__(self, **kwargs):
+        self.avail = kwargs.get('avail', None)
+        self.path = kwargs.get('path', None)
+        self.pcent = kwargs.get('pcent', None)
+        self.size = kwargs.get('size', None)
+        self.unit = kwargs.get('unit', None)
+        self.used = kwargs.get('used', None)
+
+class SpaceSchema(Schema):
+    avail = fields.Int()
+    path = fields.Str()
+    pcent = fields.Int()
+    size = fields.Int()
+    unit = fields.Str()
+    used = fields.Int()
+
+    @post_load
+    def post_load(self, data):
+        return Space(**data)
+
 class SystemService(object):
     """Service for accessing CDRouter System."""
 
@@ -391,6 +422,16 @@ class SystemService(object):
         :rtype: string
         """
         return self.service.get(self.base+'time/').json()['data']['time']
+
+    def space(self):
+        """Get system disk space usage.
+
+        :return: :class:`system.Space <system.Space>` object
+        :rtype: system.Space
+        """
+        schema = SpaceSchema()
+        resp = self.service.get(self.base+'space/')
+        return self.service.decode(schema, resp)
 
     def hostname(self):
         """Get system hostname.

@@ -617,6 +617,12 @@ Preferences
 .. autoclass:: cdrouter.system.Preferences
    :members:
 
+Space
+~~~~~~~~~~~
+
+.. autoclass:: cdrouter.system.Space
+   :members:
+
 Tags
 ----
 
