@@ -275,7 +275,6 @@ class Space(object):
 
     :param avail: (optional) Available disk space as an int.
     :param path: (optional) Path to CDRouter's data directory as a string.
-e.
     :param pcent: (optional) Percentage of disk space used as an int.
     :param size: (optional) Total disk space as an int.
     :param unit: (optional) Disk space units as a string, default is 'bytes'.
