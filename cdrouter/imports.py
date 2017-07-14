@@ -172,17 +172,19 @@ class ImportsService(object):
                                  params={'path': filepath})
         return self.service.decode(schema, resp)
 
-    def stage_import_from_url(self, url, token=None, insecure=False):
+    def stage_import_from_url(self, url, token=None, username=None, password=None, insecure=False):
         """Stage an import from a URL to another CDRouter system.
 
         :param url: URL to import as string.
         :param token: (optional) API token to use as string (may be required if importing from a CDRouter 10+ system).
+        :param username: (optional) API username to use as string (may be required if importing from a CDRouter 10+ system).
+        :param password: (optional) API password to use as string (may be required if importing from a CDRouter 10+ system).
         :param insecure: (optional) Allow insecure HTTPS connections if bool `True`.
         :return: :class:`imports.Import <imports.Import>` object
         """
         schema = ImportSchema()
         resp = self.service.post(self.base,
-                                 params={'url': url, 'token': token, 'insecure': insecure})
+                                 params={'url': url, 'token': token, 'username': username, 'password': password, 'insecure': insecure})
         return self.service.decode(schema, resp)
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
