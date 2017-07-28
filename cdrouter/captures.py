@@ -329,7 +329,7 @@ class CapturesService(object):
         resp = self.service.get_id(self._base(id, seq), intf)
         return self.service.decode(schema, resp)
 
-    def download(self, id, seq, intf, inline=False): # pylint: disable=invalid-name,redefined-builtin
+    def download(self, id, seq, intf, format='cap', inline=False): # pylint: disable=invalid-name,redefined-builtin
         """Download a capture as a PCAP file.
 
         :param id: Result ID as an int.
