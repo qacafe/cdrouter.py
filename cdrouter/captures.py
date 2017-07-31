@@ -338,7 +338,7 @@ class CapturesService(object):
         :param inline: (optional) Use inline version of capture file.
         :rtype: tuple `(io.BytesIO, 'filename')`
         """
-        resp = self.service.get_id(self._base(id, seq), intf, params={'format': format, 'inline': inline}, stream=True)
+        resp = self.service.get_id(self._base(id, seq), intf, params={'format': 'cap', 'inline': inline}, stream=True)
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
         resp.close()
