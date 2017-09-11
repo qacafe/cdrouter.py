@@ -113,6 +113,23 @@ class SetStatsSchema(Schema):
     def post_load(self, data):
         return SetStats(**data)
 
+class DiffStats(object):
+    """Model for CDRouter Result Diff Stats.
+
+    :param tests: (optional) :class:`results.TestResultDiff <results.TestResultDiff>` list
+    """
+    def __init__(self, **kwargs):
+        self.tests = kwargs.get('tests', None)
+
+# type Diff struct {
+# 	Tests []*TestResultDiff `json:"tests"`
+# }
+
+# type TestResultDiff struct {
+# 	Name      string               `json:"name"`
+# 	Summaries []*TestResultSummary `json:"summaries"`
+# }
+
 class TestResultBreakdown(object):
     """Model for CDRouter TestResult Breakdowns.
 
@@ -705,6 +722,17 @@ class ResultsService(object):
 
     def set_stats(self, ids):
         """Compute stats for a set of results.
+
+        :param id: Result IDs as int list.
+        :return: :class:`results.SetStats <results.SetStats>` object
+        :rtype: results.SetStats
+        """
+        schema = SetStatsSchema()
+        resp = self.service.post(self.base, params={'stats': 'set'}, json=[{'id': str(x)} for x in ids])
+        return self.service.decode(schema, resp)
+
+    def diff_stats(self, ids):
+        """Compute diff stats for a set of results.
 
         :param id: Result IDs as int list.
         :return: :class:`results.SetStats <results.SetStats>` object
