@@ -105,6 +105,7 @@ class Request(object):
     :param devices: (optional) Dict of strings to :class:`imports.Resource <imports.Resource>` objects.
     :param packages: (optional) Dict of strings to :class:`imports.Resource <imports.Resource>` objects.
     :param results: (optional) Dict of strings to :class:`imports.Resource <imports.Resource>` objects.
+    :param tags: (optional) Tags to add to imported resources as string list.
     """
     def __init__(self, **kwargs):
         self.replace_existing = kwargs.get('replace_existing', None)
