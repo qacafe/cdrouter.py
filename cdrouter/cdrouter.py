@@ -405,9 +405,12 @@ class CDRouter(object):
 
         return data
 
-    def encode(self, schema, resource, many=None):
+    def encode(self, schema, resource, many=None, skip_none=False):
         result = schema.dump(resource, many=many)
-        return result.data
+        data = result.data
+        if skip_none:
+            data = {k: v for k, v in data.items() if v is not None}
+        return data
 
     def authenticate(self, retries=3):
         """Set API token by authenticating via username/password.

@@ -373,6 +373,8 @@ class ConfigsService(object):
         :param all: (optional) Apply to all if bool `True`.
         :param testvars: (optional) :class:`configs.ConfigTestvars <configs.ConfigTestvars>` list
         """
+        schema = self.EDIT_SCHEMA
+        _fields = self.service.encode(schema, _fields, skip_none=True)
         return self.service.bulk_edit(self.base, self.RESOURCE,
                                       _fields, ids=ids, filter=filter, type=type, all=all, testvars=testvars)
 

@@ -375,6 +375,8 @@ class DevicesService(object):
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
         """
+        schema = DeviceSchema(exclude=('id', 'created', 'updated', 'result_id', 'attachments_dir'))
+        _fields = self.service.encode(schema, _fields, skip_none=True)
         return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids,
                                       filter=filter, type=type, all=all)
 
