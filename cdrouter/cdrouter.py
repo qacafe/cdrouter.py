@@ -335,7 +335,7 @@ class CDRouter(object):
     def bulk_export(self, base, ids, params=None):
         if params is None:
             params = {}
-        params.update({'bulk': 'export', 'ids': map(str, ids)})
+        params.update({'bulk': 'export', 'ids': ','.join(map(str, ids))})
         resp = self.get(base, params=params, stream=True)
         b = io.BytesIO()
         stream.stream_response_to_file(resp, path=b)
