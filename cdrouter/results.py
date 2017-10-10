@@ -291,6 +291,12 @@ class Metric(object):
         self.interface_1 = kwargs.get('interface_1', None)
         self.interface_2 = kwargs.get('interface_2', None)
         self.streams = kwargs.get('streams', None)
+        self.protocol = kwargs.get('protocol', None)
+        self.direction = kwargs.get('direction', None)
+        self.value_2 = kwargs.get('value_2', None)
+        self.units_2 = kwargs.get('units_2', None)
+        self.device_1 = kwargs.get('device_1', None)
+        self.device_2 = kwargs.get('device_2', None)
 
 class MetricSchema(Schema):
     log_file = fields.Str()
@@ -302,6 +308,12 @@ class MetricSchema(Schema):
     interface_1 = fields.Str()
     interface_2 = fields.Str()
     streams = fields.Int(as_string=True)
+    protocol = fields.Str()
+    direction = fields.Str()
+    value_2 = fields.Float(as_string=True)
+    units_2 = fields.Str()
+    device_1 = fields.Str()
+    device_2 = fields.Str()
 
     @post_load
     def post_load(self, data):
