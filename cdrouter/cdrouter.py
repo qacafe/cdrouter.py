@@ -139,7 +139,7 @@ class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
             resp = requests.get(self.c.base + self.c.BASE + 'system/hostname/', verify=(not self.c.insecure))
 
             if resp.status_code == 401:
-                self.c.authenticate()
+                self.c.authenticate(self.c.retries)
 
                 self.c.lock.acquire()
                 token = self.c.token
@@ -189,6 +189,9 @@ class CDRouter(object):
         will print a password prompt to stdout and read the password
         from stdin.
 
+    :param retries: (optional) The number of times to authenticate
+        with the CDRouter system before giving up as an int.
+
     :param insecure: (optional) If bool `True` and `base` is an HTTPS
         URL, skip certificate verification and allow insecure
         connections to the CDRouter system.
@@ -196,7 +199,7 @@ class CDRouter(object):
     """
     BASE = '/api/v1/'
 
-    def __init__(self, base, token=None, username=None, password=None, _getuser=_getuser_default, _getpass=_getpass_default, insecure=False):
+    def __init__(self, base, token=None, username=None, password=None, _getuser=_getuser_default, _getpass=_getpass_default, retries=3, insecure=False):
         self.lock = Lock()
 
         self.base = base.rstrip('/')
@@ -205,6 +208,7 @@ class CDRouter(object):
         self.password = password
         self._getuser = _getuser
         self._getpass = _getpass
+        self.retries = retries
         self.insecure = insecure
 
         if insecure:
