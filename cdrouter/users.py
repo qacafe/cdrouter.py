@@ -163,7 +163,7 @@ class UsersService(object):
         """
         schema = UserSchema(exclude=('password', 'password_confirm'))
         resp = self.service.post(self.base+str(id)+'/password/',
-                                  params={'change_token', change_token},
+                                  params={'change_token': change_token},
                                   json={'old': old, 'new': new, 'new_confirm': new})
         return self.service.decode(schema, resp)
 
