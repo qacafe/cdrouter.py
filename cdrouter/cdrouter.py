@@ -413,7 +413,7 @@ class CDRouter(object):
         result = schema.dump(resource, many=many)
         data = result.data
         if skip_none:
-            data = {k: v for k, v in data.items() if v is not None}
+            data = dict((k, v) for k, v in data.items() if v is not None)
         return data
 
     def authenticate(self, retries=3):
