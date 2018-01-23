@@ -44,6 +44,7 @@ token is not provided.
     from cdrouter.cdrouter import CDRouterError
     from cdrouter.filters import Field as field
     from cdrouter.jobs import Job
+    from cdrouter.jobs import Options
 
     c = CDRouter('http://localhost:8015', token='deadbeef')
 
@@ -51,7 +52,7 @@ token is not provided.
         print('Launching package ' + p.name)
 
         try:
-            j = c.jobs.launch(Job(package_id=p.id, extra_cli_args='-testvar myvar=example'))
+            j = c.jobs.launch(Job(package_id=p.id, Options(extra_cli_args='-testvar myvar=example')))
         except CDRouterError as ce:
             print('Error launching job: {}'.format(ce))
 
