@@ -179,15 +179,6 @@ class DiffStatsSchema(Schema):
     def post_load(self, data):
         return DiffStats(**data)
 
-# type Diff struct {
-# 	Tests []*TestResultDiff `json:"tests"`
-# }
-
-# type TestResultDiff struct {
-# 	Name      string               `json:"name"`
-# 	Summaries []*TestResultSummary `json:"summaries"`
-# }
-
 class TestResultBreakdown(object):
     """Model for CDRouter TestResult Breakdowns.
 

@@ -257,6 +257,24 @@ SetStats
 .. autoclass:: cdrouter.results.SetStats
    :members:
 
+TestResultSummary
+~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.results.TestResultSummary
+   :members:
+
+TestResultDiff
+~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.results.TestResultDiff
+   :members:
+
+DiffStats
+~~~~~~~~~
+
+.. autoclass:: cdrouter.results.DiffStats
+   :members:
+
 TestResultBreakdown
 ~~~~~~~~~~~~~~~~~~~
 
