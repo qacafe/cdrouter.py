@@ -113,6 +113,57 @@ class SetStatsSchema(Schema):
     def post_load(self, data):
         return SetStats(**data)
 
+class TestResultSummary(object):
+    """Model for CDRouter TestResult summaries.
+
+    :param id: (optional) Result ID as an int.
+    :param seq: (optional) TestResult sequence ID as an int.
+    :param result: (optional) Test result as string.
+    :param duration: (optional) Test duration as int.
+    :param flagged: (optional) `True` if test is flagged.
+    :param name: (optional) Test name as string.
+    :param description: (optional) Test description as string.
+    """
+    def __init__(self, **kwargs):
+        self.id = kwargs.get('id', None)
+        self.seq = kwargs.get('seq', None)
+        self.result = kwargs.get('result', None)
+        self.duration = kwargs.get('duration', None)
+        self.flagged = kwargs.get('flagged', None)
+        self.name = kwargs.get('name', None)
+        self.description = kwargs.get('description', None)
+
+class TestResultSummarySchema(Schema):
+    id = fields.Int(as_string=True)
+    seq = fields.Int(as_string=True)
+    result = fields.Str()
+    duration = fields.Int()
+    flagged = fields.Bool()
+    name = fields.Str()
+    description = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return TestResultSummary(**data)
+
+class TestResultDiff(object):
+    """Model for CDRouter TestResult diffs.
+
+    :param name: (optional) Test name as a string.
+    :param summaries: (optional) :class:`results.TestResultSummary <results.TestResultSummary>` list
+    """
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.summaries = kwargs.get('summaries', None)
+
+class TestResultDiffSchema(Schema):
+    name = fields.Str()
+    summaries = fields.Nested(TestResultSummarySchema, many=True)
+
+    @post_load
+    def post_load(self, data):
+        return TestResultDiff(**data)
+
 class DiffStats(object):
     """Model for CDRouter Result Diff Stats.
 
@@ -120,6 +171,13 @@ class DiffStats(object):
     """
     def __init__(self, **kwargs):
         self.tests = kwargs.get('tests', None)
+
+class DiffStatsSchema(Schema):
+    tests = fields.Nested(TestResultDiffSchema, many=True)
+
+    @post_load
+    def post_load(self, data):
+        return DiffStats(**data)
 
 # type Diff struct {
 # 	Tests []*TestResultDiff `json:"tests"`
@@ -749,11 +807,11 @@ class ResultsService(object):
         """Compute diff stats for a set of results.
 
         :param id: Result IDs as int list.
-        :return: :class:`results.SetStats <results.SetStats>` object
-        :rtype: results.SetStats
+        :return: :class:`results.DiffStats <results.DiffStats>` object
+        :rtype: results.DiffStats
         """
-        schema = SetStatsSchema()
-        resp = self.service.post(self.base, params={'stats': 'set'}, json=[{'id': str(x)} for x in ids])
+        schema = DiffStatsSchema()
+        resp = self.service.post(self.base, params={'stats': 'diff'}, json=[{'id': str(x)} for x in ids])
         return self.service.decode(schema, resp)
 
     def single_stats(self, id): # pylint: disable=invalid-name,redefined-builtin
