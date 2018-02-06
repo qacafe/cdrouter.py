@@ -312,7 +312,7 @@ class TestResultsService(object):
                     break
                 for l in logs.lines:
                     yield l
-                offset += nlines
+                offset = logs.lines[nlines-1].line
                 kwargs.update({'offset': offset})
 
         return generate()
