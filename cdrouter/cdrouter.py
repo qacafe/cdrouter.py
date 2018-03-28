@@ -315,7 +315,7 @@ class CDRouter(object):
 
     def edit_shares(self, base, id, user_ids): # pylint: disable=invalid-name,redefined-builtin
         schema = ShareSchema()
-        resp = self.patch(base+str(id)+'/shares/', json={'user_ids': map(int, user_ids)})
+        resp = self.patch(base+str(id)+'/shares/', json={'user_ids': list(map(int, user_ids))})
         return self.decode(schema, resp, many=True)
 
     def filename(self, resp, filename=None):
