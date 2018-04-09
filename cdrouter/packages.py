@@ -82,6 +82,24 @@ class OptionsSchema(Schema):
     def post_load(self, data):
         return Options(**data)
 
+class Schedule(object):
+    """Model for CDRouter Package Schedule.
+
+    :param enabled: (optional) Bool `True` if schedule is enabled.
+    :param spec: (optional) Cron spec schedule as a string.
+    """
+    def __init__(self, **kwargs):
+        self.enabled = kwargs.get('enabled', None)
+        self.spec = kwargs.get('spec', None)
+
+class ScheduleSchema(Schema):
+    enabled = fields.Bool()
+    spec = fields.Str()
+
+    @post_load
+    def post_load(self, data):
+        return Schedule(**data)
+
 class Package(object):
     """Model for CDRouter Packages.
 
@@ -121,6 +139,7 @@ class Package(object):
         self.tags = kwargs.get('tags', None)
         self.use_as_testlist = kwargs.get('use_as_testlist', None)
         self.note = kwargs.get('note', None)
+        self.schedule = kwargs.get('schedule', None)
 
 class PackageSchema(Schema):
     id = fields.Int(as_string=True)
@@ -140,6 +159,7 @@ class PackageSchema(Schema):
     tags = fields.List(fields.Str())
     use_as_testlist = fields.Bool()
     note = fields.Str(missing=None)
+    schedule = fields.Nested(ScheduleSchema)
 
     @post_load
     def post_load(self, data):

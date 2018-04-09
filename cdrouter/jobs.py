@@ -51,6 +51,8 @@ class Job(object):
     :param user_id: (optional) User ID as an int.
     :param created: (optional) Job creation time as `DateTime`.
     :param updated: (optional) Job last-updated time as `DateTime`.
+    :param automatic: (optional) Bool `True` if job scheduled automatically `DateTime`.
+    :param run_at: (optional) Job scheduled run-time `DateTime`.
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -64,6 +66,8 @@ class Job(object):
         self.user_id = kwargs.get('user_id', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
+        self.automatic = kwargs.get('automatic', None)
+        self.run_at = kwargs.get('run_at', None)
 
 class JobSchema(Schema):
     id = fields.Int(as_string=True)
@@ -77,6 +81,8 @@ class JobSchema(Schema):
     user_id = fields.Int(as_string=True)
     created = DateTime()
     updated = DateTime()
+    automatic = fields.Bool()
+    run_at = DateTime()
 
     @post_load
     def post_load(self, data):
@@ -145,7 +151,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
-        schema = JobSchema(exclude=('id', 'status', 'options', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated'))
+        schema = JobSchema(exclude=('id', 'status', 'options', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'run_at'))
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
@@ -159,7 +165,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
-        schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated'))
+        schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic'))
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
@@ -182,7 +188,7 @@ class JobsService(object):
         """
         json = None
         if jobs is not None:
-            schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated'))
+            schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic'))
             jobs_json = self.service.encode(schema, jobs, many=True)
             json = {self.RESOURCE: jobs_json}
 

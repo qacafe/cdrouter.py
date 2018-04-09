@@ -194,6 +194,12 @@ Options
 .. autoclass:: cdrouter.packages.Options
    :members:
 
+Schedule
+~~~~~~~~
+
+.. autoclass:: cdrouter.packages.Schedule
+   :members:
+
 Page
 ~~~~
 
