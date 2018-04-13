@@ -9,6 +9,7 @@ import collections
 
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
+from .results import OptionsSchema as ResultOptionsSchema
 from .testsuites import TestSchema
 from .cdr_datetime import DateTime
 from .filters import Field as field
@@ -87,14 +88,17 @@ class Schedule(object):
 
     :param enabled: (optional) Bool `True` if schedule is enabled.
     :param spec: (optional) Cron spec schedule as a string.
+    :param options: (optional) :class:`results.Options <results.Options>` object
     """
     def __init__(self, **kwargs):
         self.enabled = kwargs.get('enabled', None)
         self.spec = kwargs.get('spec', None)
+        self.options = kwargs.get('options', None)
 
 class ScheduleSchema(Schema):
     enabled = fields.Bool()
     spec = fields.Str()
+    options = fields.Nested(ResultOptionsSchema)
 
     @post_load
     def post_load(self, data):
