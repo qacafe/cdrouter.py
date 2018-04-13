@@ -120,6 +120,7 @@ class Package(object):
     :param tags: (optional) Tags as a string list.
     :param use_as_testlist: (optional) Bool `True` if package is used as a testlist.
     :param note: (optional) Note as a string.
+    :param schedule: (optional) :class:`packages.Schedule <packages.Schedule>` object
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
