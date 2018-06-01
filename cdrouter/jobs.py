@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2018 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -45,6 +45,8 @@ class Job(object):
     :param options: (optional) :class:`jobs.Options <jobs.Options>` object
     :param package_id: (optional) Package ID as an int.
     :param package_name: (optional) Package name as string.
+    :param config_id: (optional) Config ID as an int.
+    :param config_name: (optional) Config name as string.
     :param device_id: (optional) Device ID as an int.
     :param device_name: (optional) Device name as string.
     :param result_id: (optional) Result ID as an int.
@@ -60,6 +62,8 @@ class Job(object):
         self.options = kwargs.get('options', None)
         self.package_id = kwargs.get('package_id', None)
         self.package_name = kwargs.get('package_name', None)
+        self.config_id = kwargs.get('config_id', None)
+        self.config_name = kwargs.get('config_name', None)
         self.device_id = kwargs.get('device_id', None)
         self.device_name = kwargs.get('device_name', None)
         self.result_id = kwargs.get('result_id', None)
@@ -75,6 +79,8 @@ class JobSchema(Schema):
     options = fields.Nested(OptionsSchema)
     package_id = fields.Int(as_string=True)
     package_name = fields.Str()
+    config_id = fields.Int(as_string=True)
+    config_name = fields.Str()
     device_id = fields.Int(as_string=True)
     device_name = fields.Str()
     result_id = fields.Int(as_string=True, missing=None)
@@ -151,7 +157,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
-        schema = JobSchema(exclude=('id', 'status', 'options', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'run_at'))
+        schema = JobSchema(exclude=('id', 'status', 'options', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'run_at'))
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
@@ -165,7 +171,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
-        schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic'))
+        schema = JobSchema(exclude=('id', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic'))
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
@@ -188,7 +194,7 @@ class JobsService(object):
         """
         json = None
         if jobs is not None:
-            schema = JobSchema(exclude=('id', 'status', 'package_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic'))
+            schema = JobSchema(exclude=('id', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic'))
             jobs_json = self.service.encode(schema, jobs, many=True)
             json = {self.RESOURCE: jobs_json}
 
