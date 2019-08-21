@@ -78,25 +78,22 @@ class Release(object):
     :param build_date: (optional) Build date as string.
     :param filename: (optional) Installer filename as string.
     :param version: (optional) :class:`system.Version <system.Version>` object
-    :param id: (optional) Release ID as int.
-    :param article_id: (optional) Release article ID as int.
     :param testsuite: (optional) :class:`system.Testsuite <system.Testsuite>` object
+    :param nonce: (optional) Upgrade nonce as string.
     """
     def __init__(self, **kwargs):
         self.build_date = kwargs.get('build_date', None)
         self.filename = kwargs.get('filename', None)
         self.version = kwargs.get('version', None)
-        self.id = kwargs.get('id', None)
-        self.article_id = kwargs.get('article_id', None)
         self.testsuite = kwargs.get('testsuite', None)
+        self.nonce = kwargs.get('nonce', None)
 
 class ReleaseSchema(Schema):
     build_date = fields.Str()
     filename = fields.Str()
     version = fields.Nested(VersionSchema)
-    id = fields.Int()
-    article_id = fields.Int()
     testsuite = fields.Nested(TestsuiteSchema)
+    nonce = fields.Str(missing=None)
 
     @post_load
     def post_load(self, data):
@@ -320,34 +317,32 @@ class SystemService(object):
         resp = self.service.get(self.base+'lounge/latest/')
         return self.service.decode(schema, resp)
 
-    def check_for_lounge_upgrade(self, email, password):
+    def check_for_lounge_upgrade(self, email):
         """Check the CDRouter Support Lounge for eligible upgrades using your
-        Support Lounge email & password.
+        Support Lounge email.
 
         :param email: CDRouter Support Lounge email as a string.
-        :param password: CDRouter Support Lounge password as a string.
         :return: :class:`system.Release <system.Release>` object
         :rtype: system.Release
         """
         schema = ReleaseSchema()
         resp = self.service.post(self.base+'lounge/check/',
-                                 json={'email': email, 'password': password})
+                                 json={'email': email})
         return self.service.decode(schema, resp)
 
-    def lounge_upgrade(self, email, password, release_id):
+    def lounge_upgrade(self, email, nonce):
         """Download & install an upgrade from the CDRouter Support Lounge
-        using your Support Lounge email & password. Please note that any
-        running tests will be stopped.
+        using your Support Lounge email and upgrade nonce. Please note
+        that any running tests will be stopped.
 
         :param email: CDRouter Support Lounge email as a string.
-        :param password: CDRouter Support Lounge password as a string.
-        :param release_id: Release ID as an int.
+        :param nonce: Upgrade nonce from :class:`system.Release <system.Release>`.
         :return: :class:`system.Upgrade <system.Upgrade>` object
         :rtype: system.Upgrade
         """
         schema = UpgradeSchema()
         resp = self.service.post(self.base+'lounge/upgrade/',
-                                 json={'email': email, 'password': password, 'release': {'id': int(release_id)}})
+                                 json={'email': email, 'release': {'nonce': nonce}})
         return self.service.decode(schema, resp)
 
     def manual_upgrade(self, fd, filename='cdrouter.bin'):
