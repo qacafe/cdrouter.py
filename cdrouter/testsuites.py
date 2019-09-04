@@ -391,7 +391,7 @@ class TestsuitesService(object):
         :rtype: testsuites.Group
         """
         schema = GroupSchema()
-        resp = self.service.get(self.base+'tests/'+name+'/')
+        resp = self.service.get(self.base+'groups/'+name+'/')
         return self.service.decode(schema, resp)
 
     def list_modules(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
