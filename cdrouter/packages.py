@@ -309,6 +309,14 @@ class PackagesService(object):
         resp = self.service.post(self.base+str(id)+'/', params={'process': 'analyze'})
         return self.service.decode(schema, resp)
 
+    def testlist_expanded(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Get a list of all tests in a package, with any addons, modules or testlists expanded.
+
+        :param id: Package ID as an int.
+        :rtype: string list
+        """
+        return self.service.post(self.base+str(id)+'/', params={'process': 'testlist-expanded'}).json()['data']
+
     def bulk_export(self, ids):
         """Bulk export a set of packages.
 
