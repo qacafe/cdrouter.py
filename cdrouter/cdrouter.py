@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -20,6 +20,7 @@ from marshmallow import Schema, fields, post_load
 from . import __version__
 from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
+from .alerts import AlertsService
 from .configs import ConfigsService
 from .devices import DevicesService
 from .attachments import AttachmentsService
@@ -217,6 +218,8 @@ class CDRouter(object):
 
         self.session = sessions.BaseUrlSession(base_url=self.base+self.BASE)
 
+        #: :class:`alerts.AlertsService <alerts.AlertsService>` object
+        self.alerts = AlertsService(self)
         #: :class:`configs.ConfigsService <configs.ConfigsService>` object
         self.configs = ConfigsService(self)
         #: :class:`devices.DevicesService <devices.DevicesService>` object

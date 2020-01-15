@@ -353,6 +353,69 @@ Result
 .. autoclass:: cdrouter.results.Result
    :members:
 
+Alerts
+------
+
+AlertsService
+~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.alerts.AlertsService
+   :members:
+
+Alert
+~~~~~
+
+.. autoclass:: cdrouter.alerts.Alert
+   :members:
+
+Page
+~~~~
+
+.. autoclass:: cdrouter.alerts.Page
+   :members:
+
+SeverityCount
+~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.alerts.SeverityCount
+   :members:
+
+CategoryCount
+~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.alerts.CategoryCount
+   :members:
+
+RuleSetCount
+~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.alerts.RuleSetCount
+   :members:
+
+SignatureCount
+~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.alerts.SignatureCount
+   :members:
+
+TestCount
+~~~~~~~~~
+
+.. autoclass:: cdrouter.alerts.TestCount
+   :members:
+
+AddrCount
+~~~~~~~~~
+
+.. autoclass:: cdrouter.alerts.AddrCount
+   :members:
+
+AllStats
+~~~~~~~~
+
+.. autoclass:: cdrouter.alerts.AllStats
+   :members:
+
 TestResults
 -----------
 

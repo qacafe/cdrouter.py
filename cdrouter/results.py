@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -56,16 +56,19 @@ class ResultBreakdown(object):
     :param passed: (optional) Pass count as an int.
     :param failed: (optional) Fail count as an int.
     :param skipped: (optional) Skipped count as an int.
+    :param alerted: (optional) Alerted count as an int.
     """
     def __init__(self, **kwargs):
         self.passed = kwargs.get('passed', None)
         self.failed = kwargs.get('failed', None)
         self.skipped = kwargs.get('skipped', None)
+        self.alerted = kwargs.get('alerted', None)
 
 class ResultBreakdownSchema(Schema):
     passed = fields.Int(as_string=True)
     failed = fields.Int(as_string=True)
     skipped = fields.Int(as_string=True)
+    alerted = fields.Int(as_string=True)
 
     @post_load
     def post_load(self, data):
@@ -119,6 +122,7 @@ class TestResultSummary(object):
     :param id: (optional) Result ID as an int.
     :param seq: (optional) TestResult sequence ID as an int.
     :param result: (optional) Test result as string.
+    :param alerts: (optional) Alert count as an int.
     :param duration: (optional) Test duration as int.
     :param flagged: (optional) `True` if test is flagged.
     :param name: (optional) Test name as string.
@@ -128,6 +132,7 @@ class TestResultSummary(object):
         self.id = kwargs.get('id', None)
         self.seq = kwargs.get('seq', None)
         self.result = kwargs.get('result', None)
+        self.alerts = kwargs.get('alerts', None)
         self.duration = kwargs.get('duration', None)
         self.flagged = kwargs.get('flagged', None)
         self.name = kwargs.get('name', None)
@@ -137,6 +142,7 @@ class TestResultSummarySchema(Schema):
     id = fields.Int(as_string=True)
     seq = fields.Int(as_string=True)
     result = fields.Str()
+    alerts = fields.Int()
     duration = fields.Int()
     flagged = fields.Bool()
     name = fields.Str()
@@ -468,6 +474,7 @@ class Result(object):
     :param tests: (optional) Test count as an int.
     :param passed: (optional) Passed count as an int.
     :param fail: (optional) Failed count as an int.
+    :param alerts: (optional) Alert count as an int.
     :param duration: (optional) Duration in seconds as an int.
     :param size_on_disk: (optional) Size on disk in bytes as an int.
     :param starred: (optional) Bool `True` if result is starred.
@@ -498,6 +505,7 @@ class Result(object):
         self.tests = kwargs.get('tests', None)
         self.passed = kwargs.get('pass', None)
         self.fail = kwargs.get('fail', None)
+        self.alerts = kwargs.get('alerts', None)
         self.duration = kwargs.get('duration', None)
         self.size_on_disk = kwargs.get('size_on_disk', None)
         self.starred = kwargs.get('starred', None)
@@ -528,6 +536,7 @@ class ResultSchema(Schema):
     tests = fields.Int()
     passed = fields.Int(attribute='pass', load_from='pass', dump_to='pass')
     fail = fields.Int()
+    alerts = fields.Int()
     duration = fields.Int()
     size_on_disk = fields.Int()
     starred = fields.Bool()
@@ -693,7 +702,7 @@ class ResultsService(object):
         :return: :class:`results.Result <results.Result>` object
         :rtype: results.Result
         """
-        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options'))
+        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'alerts', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options'))
         json = self.service.encode(schema, resource)
 
         schema = ResultSchema()
