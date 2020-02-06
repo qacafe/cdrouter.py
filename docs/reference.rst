@@ -341,6 +341,12 @@ Options
 .. autoclass:: cdrouter.results.Options
    :members:
 
+Feature
+~~~~~~~
+
+.. autoclass:: cdrouter.results.Feature
+   :members:
+
 Update
 ------
 

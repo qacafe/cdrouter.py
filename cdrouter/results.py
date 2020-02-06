@@ -12,6 +12,7 @@ from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
 from marshmallow.exceptions import ValidationError
 from .cdr_datetime import DateTime
+from .cdr_dictfield import DictField
 from .testresults import TestResultSchema
 
 class TestCount(object):
@@ -422,6 +423,27 @@ class OptionsSchema(Schema):
     def post_load(self, data):
         return Options(**data)
 
+class Feature(object):
+    """Model for CDRouter Result Feature.
+
+    :param feature: (optional) Feature as a string.
+    :param enabled: (optional) `True` if feature is enabled.
+    :param reason: (optional) Reason as a string
+    """
+    def __init__(self, **kwargs):
+        self.feature = kwargs.get('feature', None)
+        self.enabled = kwargs.get('enabled', None)
+        self.reason = kwargs.get('reason', None)
+
+class FeatureSchema(Schema):
+    feature = fields.Str()
+    enabled = fields.Bool()
+    reason = fields.Str(missing=None)
+
+    @post_load
+    def post_load(self, data):
+        return Feature(**data)
+
 class UpdateField(fields.Field):
     def _deserialize(self, value, attr, data):
         if 'result' in value and 'status' in value:
@@ -494,6 +516,7 @@ class Result(object):
     :param tags: (optional) Tags as a string list.
     :param testcases: (optional) Testcases as a string list.
     :param options: (optional) :class:`results.Options <results.Options>` object
+    :param features: (optional) Dict of feature name strings to :class:`results.Feature <results.Feature>` objects.
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -525,6 +548,7 @@ class Result(object):
         self.tags = kwargs.get('tags', None)
         self.testcases = kwargs.get('testcases', None)
         self.options = kwargs.get('options', None)
+        self.features = kwargs.get('features', None)
 
 class ResultSchema(Schema):
     id = fields.Int(as_string=True)
@@ -556,6 +580,7 @@ class ResultSchema(Schema):
     tags = fields.List(fields.Str())
     testcases = fields.List(fields.Str(), missing=None)
     options = fields.Nested(OptionsSchema)
+    features = DictField(fields.Str(), FeatureSchema())
 
     @post_load
     def post_load(self, data):
@@ -702,7 +727,7 @@ class ResultsService(object):
         :return: :class:`results.Result <results.Result>` object
         :rtype: results.Result
         """
-        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'alerts', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options'))
+        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'alerts', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features'))
         json = self.service.encode(schema, resource)
 
         schema = ResultSchema()
@@ -768,7 +793,7 @@ class ResultsService(object):
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
         """
-        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options'))
+        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features'))
         _fields = self.service.encode(schema, _fields, skip_none=True)
         return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, type=type, all=all)
 
