@@ -478,6 +478,7 @@ class UpdateSchema(Schema):
     id = fields.Int(as_string=True)
     timestamp = DateTime()
     progress = fields.Nested(ProgressSchema, missing=None)
+    running = fields.Nested(TestResultSchema, missing=None)
     updates = fields.List(UpdateField, missing=None)
 
     @post_load
