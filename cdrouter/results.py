@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -450,6 +450,7 @@ class UpdateSchema(Schema):
     id = fields.Int(as_string=True)
     timestamp = DateTime()
     progress = fields.Nested(ProgressSchema, missing=None)
+    running = fields.Nested(TestResultSchema, missing=None)
     updates = fields.List(UpdateField, missing=None)
 
     @post_load
