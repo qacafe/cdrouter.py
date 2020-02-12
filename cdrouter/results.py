@@ -14,6 +14,7 @@ from marshmallow.exceptions import ValidationError
 from .cdr_datetime import DateTime
 from .cdr_dictfield import DictField
 from .testresults import TestResultSchema
+from .alerts import AlertSchema
 
 class TestCount(object):
     """Model for CDRouter Test Counts.
@@ -456,6 +457,11 @@ class UpdateField(fields.Field):
             if errors:
                 raise ValidationError(errors, data=data)
             return data
+        if 'sid' in value and 'rev' in value:
+            data, errors = AlertSchema().load(value)
+            if errors:
+                raise ValidationError(errors, data=data)
+            return data
         self.fail('invalid')
 
 class Update(object):
@@ -465,7 +471,7 @@ class Update(object):
     :param timestamp: (optional) System time as `DateTime`.
     :param progress: (optional) :class:`results.Progress <results.Progress>` object
     :param running: (optional) :class:`testresults.TestResult <testresults.TestResult>` object
-    :param updates: (optional) :class:`results.Result <results.Result>` and :class:`testresults.TestResult <testresults.TestResult>` list
+    :param updates: (optional) :class:`results.Result <results.Result>`, :class:`testresults.TestResult <testresults.TestResult>` and :class:`alerts.Alert <alerts.Alert>` list
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
