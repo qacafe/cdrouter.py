@@ -23,6 +23,7 @@ class Alert(object):
     :param test_name: (optional) Test name as string.
     :param test_description: (optional) Test description as string.
     :param category: (optional) Alert category as a string.
+    :param description: (optional) Alert description as a string.
     :param dest_ip: (optional) Alert destination IP as a string.
     :param dest_port: (optional) Alert destination port as an int.
     :param interface: (optional) Alert incoming interface as a string.
@@ -52,6 +53,7 @@ class Alert(object):
         self.test_description = kwargs.get('test_description', None)
 
         self.category = kwargs.get('category', None)
+        self.description = kwargs.get('description', None)
         self.dest_ip = kwargs.get('dest_ip', None)
         self.dest_port = kwargs.get('dest_port', None)
         self.interface = kwargs.get('interface', None)
@@ -81,6 +83,7 @@ class AlertSchema(Schema):
     test_description = fields.Str()
 
     category = fields.Str()
+    description = fields.Str(missing=None)
     dest_ip = fields.Str()
     dest_port = fields.Int(as_string=True)
     interface = fields.Str()
