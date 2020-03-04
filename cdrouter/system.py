@@ -330,19 +330,20 @@ class SystemService(object):
                                  json={'email': email})
         return self.service.decode(schema, resp)
 
-    def lounge_upgrade(self, email, nonce):
+    def lounge_upgrade(self, email, nonce, filename='cdrouter.bin'):
         """Download & install an upgrade from the CDRouter Support Lounge
         using your Support Lounge email and upgrade nonce. Please note
         that any running tests will be stopped.
 
         :param email: CDRouter Support Lounge email as a string.
         :param nonce: Upgrade nonce from :class:`system.Release <system.Release>`.
+        :param filename: Upgrade filename from :class:`system.Release <system.Release>`.
         :return: :class:`system.Upgrade <system.Upgrade>` object
         :rtype: system.Upgrade
         """
         schema = UpgradeSchema()
         resp = self.service.post(self.base+'lounge/upgrade/',
-                                 json={'email': email, 'release': {'nonce': nonce}})
+                                 json={'email': email, 'release': {'nonce': nonce, 'filename': filename}})
         return self.service.decode(schema, resp)
 
     def manual_upgrade(self, fd, filename='cdrouter.bin'):
