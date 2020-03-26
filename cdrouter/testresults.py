@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -17,19 +17,22 @@ class Summary(object):
     :param errors: (optional) Error log count as int.
     :param fails: (optional) Fail log count as int.
     :param passes: (optional) Pass log count as int.
-    :param warning: (optional) Warning log count as int.
+    :param warnings: (optional) Warning log count as int.
+    :param alerts: (optional) Alert log count as int.
     """
     def __init__(self, **kwargs):
         self.errors = kwargs.get('errors', None)
         self.fails = kwargs.get('fails', None)
         self.passes = kwargs.get('passes', None)
         self.warnings = kwargs.get('warnings', None)
+        self.alerts = kwargs.get('alerts', None)
 
 class SummarySchema(Schema):
     errors = fields.Int()
     fails = fields.Int()
     passes = fields.Int()
     warnings = fields.Int()
+    alerts = fields.Int()
 
     @post_load
     def post_load(self, data):
@@ -45,6 +48,7 @@ class Line(object):
     :param prefix: (optional) Log prefix as string.
     :param name: (optional) Log stack name as string.
     :param timestamp: (optional) Log timestamp as string.
+    :param timestamp_display: (optional) Log display timestamp as string.
     :param message: (optional) Log message as string.
     :param interface: (optional) Log interface as string (if packet log).
     :param packet: (optional) Log frame number as an int (if packet log).
@@ -52,6 +56,19 @@ class Line(object):
     :param dst: (optional) Log destination address as string (if packet log).
     :param proto: (optional) Log protocol name as string (if packet log).
     :param info: (optional) Log protocol summary as string (if packet log).
+    :param alert_interface: (optional) Log alert interface as string (if alert log).
+    :param alert_index: (optional) Log alert index as an int (if alert log).
+    :param alert_src: (optional) Log alert source address as string (if alert log).
+    :param alert_dst: (optional) Log alert destination address as string (if alert log).
+    :param alert_proto: (optional) Log alert protocol name as string (if alert log).
+    :param alert_src_port: (optional) Log alert source port as int (if alert log).
+    :param alert_dst_port: (optional) Log alert destination port as int (if alert log).
+    :param alert_signature: (optional) Log alert signature as string (if alert log).
+    :param alert_severity: (optional) Log alert severity as int (if alert log).
+    :param alert_severity_display: (optional) Log alert display severity as string (if alert log).
+    :param alert_sid: (optional) Log alert SID as int (if alert log).
+    :param alert_rev: (optional) Log alert revision as int (if alert log).
+
     :param summary: (optional) :class:`testresults.Summary <testresults.Summary>` object (if section log)
     """
     def __init__(self, **kwargs):
@@ -63,6 +80,7 @@ class Line(object):
         self.prefix = kwargs.get('prefix', None)
         self.name = kwargs.get('name', None)
         self.timestamp = kwargs.get('timestamp', None)
+        self.timestamp_display = kwargs.get('timestamp_display', None)
         self.message = kwargs.get('message', None)
 
         self.interface = kwargs.get('interface', None)
@@ -72,6 +90,20 @@ class Line(object):
         self.dst = kwargs.get('dst', None)
         self.proto = kwargs.get('proto', None)
         self.info = kwargs.get('info', None)
+
+        self.alert_interface = kwargs.get('alert_interface', None)
+        self.alert_index = kwargs.get('alert_index', None)
+
+        self.alert_src = kwargs.get('alert_src', None)
+        self.alert_dst = kwargs.get('alert_dst', None)
+        self.alert_proto = kwargs.get('alert_proto', None)
+        self.alert_src_port = kwargs.get('alert_src_port', None)
+        self.alert_dst_port = kwargs.get('alert_dst_port', None)
+        self.alert_signature = kwargs.get('alert_signature', None)
+        self.alert_severity = kwargs.get('alert_severity', None)
+        self.alert_severity_display = kwargs.get('alert_severity_display', None)
+        self.alert_sid = kwargs.get('alert_sid', None)
+        self.alert_rev = kwargs.get('alert_rev', None)
 
         self.summary = kwargs.get('summary', None)
 
@@ -84,6 +116,7 @@ class LineSchema(Schema):
     prefix = fields.Str(missing=None)
     name = fields.Str(missing=None)
     timestamp = fields.Str(missing=None)
+    timestamp_display = fields.Str(missing=None)
     message = fields.Str()
 
     interface = fields.Str(missing=None)
@@ -93,6 +126,20 @@ class LineSchema(Schema):
     dst = fields.Str(missing=None)
     proto = fields.Str(missing=None)
     info = fields.Str(missing=None)
+
+    alert_interface = fields.Str(missing=None)
+    alert_index = fields.Int(as_string=True, missing=None)
+
+    alert_src = fields.Str(missing=None)
+    alert_dst = fields.Str(missing=None)
+    alert_proto = fields.Str(missing=None)
+    alert_src_port = fields.Int(as_string=True, missing=None)
+    alert_dst_port = fields.Int(as_string=True, missing=None)
+    alert_signature = fields.Str(missing=None)
+    alert_severity = fields.Int(as_string=True, missing=None)
+    alert_severity_display = fields.Str(missing=None)
+    alert_sid = fields.Int(as_string=True, missing=None)
+    alert_rev = fields.Int(as_string=True, missing=None)
 
     summary = fields.Nested(SummarySchema)
 
@@ -131,6 +178,7 @@ class TestResult(object):
     :param seq: (optional) TestResult sequence ID as an int.
     :param loop: (optional) Loop number as an int.
     :param result: (optional) Test result as string.
+    :param alerts: (optional) Alerts count as int.
     :param retries: (optional) Retry count as int.
     :param started: (optional) Test start time as `DateTime`.
     :param duration: (optional) Test duration as int.
@@ -147,6 +195,7 @@ class TestResult(object):
         self.seq = kwargs.get('seq', None)
         self.loop = kwargs.get('loop', None)
         self.result = kwargs.get('result', None)
+        self.alerts = kwargs.get('alerts', None)
         self.retries = kwargs.get('retries', None)
         self.started = kwargs.get('started', None)
         self.duration = kwargs.get('duration', None)
@@ -163,6 +212,7 @@ class TestResultSchema(Schema):
     seq = fields.Int(as_string=True)
     loop = fields.Int(as_string=True)
     result = fields.Str()
+    alerts = fields.Int()
     retries = fields.Int()
     started = DateTime()
     duration = fields.Int()
@@ -260,7 +310,7 @@ class TestResultsService(object):
         :return: :class:`testresults.TestResult <testresults.TestResult>` object
         :rtype: testresults.TestResult
         """
-        schema = TestResultSchema(exclude=('id', 'seq', 'loop', 'result', 'retries', 'started', 'duration', 'name', 'description', 'skip_name', 'skip_reason', 'log'))
+        schema = TestResultSchema(exclude=('id', 'seq', 'loop', 'result', 'alerts', 'retries', 'started', 'duration', 'name', 'description', 'skip_name', 'skip_reason', 'log'))
         json = self.service.encode(schema, resource)
 
         schema = TestResultSchema()
