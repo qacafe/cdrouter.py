@@ -6,6 +6,7 @@
 """Module for accessing CDRouter Alerts."""
 
 import collections
+from functools import partial
 
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
