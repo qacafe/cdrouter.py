@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -65,7 +65,7 @@ class AttachmentsService(object):
     def _base(self, id): # pylint: disable=invalid-name,redefined-builtin
         return 'devices/'+str(id)+'/'+self.BASE
 
-    def list(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
+    def list(self, id, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of a device's attachments.
 
         :param id: Device ID as an int.
@@ -74,10 +74,13 @@ class AttachmentsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`attachments.Page <attachments.Page>` object
         """
-        schema = AttachmentSchema(exclude=('path'))
-        resp = self.service.list(self._base(id), filter, type, sort, limit, page)
+        schema = AttachmentSchema()
+        if not detailed:
+            schema = AttachmentSchema(exclude=('path'))
+        resp = self.service.list(self._base(id), filter, type, sort, limit, page, detailed=detailed)
         at, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(at, l)
 

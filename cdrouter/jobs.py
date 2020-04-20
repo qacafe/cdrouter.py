@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -111,7 +111,7 @@ class JobsService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of jobs.
 
         :param filter: (optional) Filters to apply as a string list.
@@ -119,10 +119,11 @@ class JobsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`jobs.Page <jobs.Page>` object
         """
         schema = JobSchema()
-        resp = self.service.list(self.base, filter, type, sort, limit, page)
+        resp = self.service.list(self.base, filter, type, sort, limit, page, detailed=detailed)
         js, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(js, l)
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -72,7 +72,7 @@ class UsersService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of users.
 
         :param filter: (optional) Filters to apply as a string list.
@@ -80,10 +80,13 @@ class UsersService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`users.Page <users.Page>` object
         """
-        schema = UserSchema(exclude=('created', 'updated', 'token', 'password', 'password_confirm'))
-        resp = self.service.list(self.base, filter, type, sort, limit, page)
+        schema = UserSchema()
+        if not detailed:
+            schema = UserSchema(exclude=('created', 'updated', 'token', 'password', 'password_confirm'))
+        resp = self.service.list(self.base, filter, type, sort, limit, page, detailed=detailed)
         us, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(us, l)
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -44,15 +44,18 @@ class AnnotationsService(object):
     def _base(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         return 'results/'+str(id)+'/tests/'+str(seq)+'/'+self.BASE
 
-    def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
+    def list(self, id, seq, detailed=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of annotations.
 
         :param id: Result ID as an int.
         :param seq: TestResult sequence ID as an int.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`annotations.Annotation <annotations.Annotation>` list
         """
-        schema = AnnotationSchema(exclude=('id', 'seq'))
-        resp = self.service.list(self._base(id, seq))
+        schema = AnnotationSchema()
+        if not detailed:
+            schema = AnnotationSchema(exclude=('id', 'seq'))
+        resp = self.service.list(self._base(id, seq), detailed=detailed)
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -182,7 +182,7 @@ class DevicesService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of devices.
 
         :param filter: (optional) Filters to apply as a string list.
@@ -190,15 +190,18 @@ class DevicesService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`devices.Page <devices.Page>` object
         """
-        schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password',
-                                       'location', 'device_category', 'manufacturer', 'manufacturer_oui',
-                                       'model_name', 'model_number', 'product_class', 'serial_number',
-                                       'hardware_version', 'software_version', 'provisioning_code', 'note',
-                                       'insecure_mgmt_url', 'mgmt_url', 'add_mgmt_addr', 'mgmt_interface',
-                                       'mgmt_addr', 'power_on_cmd', 'power_off_cmd'))
-        resp = self.service.list(self.base, filter, type, sort, limit, page)
+        schema = DeviceSchema()
+        if not detailed:
+            schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password',
+                                           'location', 'device_category', 'manufacturer', 'manufacturer_oui',
+                                           'model_name', 'model_number', 'product_class', 'serial_number',
+                                           'hardware_version', 'software_version', 'provisioning_code', 'note',
+                                           'insecure_mgmt_url', 'mgmt_url', 'add_mgmt_addr', 'mgmt_interface',
+                                           'mgmt_addr', 'power_on_cmd', 'power_off_cmd'))
+        resp = self.service.list(self.base, filter, type, sort, limit, page, detailed=detailed)
         ds, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ds, l)
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -184,7 +184,7 @@ class ConfigsService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of configs.
 
         :param filter: (optional) Filters to apply as a string list.
@@ -192,10 +192,13 @@ class ConfigsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`configs.Page <configs.Page>` object
         """
-        schema = self.LIST_SCHEMA
-        resp = self.service.list(self.base, filter, type, sort, limit, page)
+        schema = self.GET_SCHEMA
+        if not detailed:
+            schema = self.LIST_SCHEMA
+        resp = self.service.list(self.base, filter, type, sort, limit, page, detailed=detailed)
         cs, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(cs, l)
 

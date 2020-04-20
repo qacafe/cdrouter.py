@@ -275,7 +275,7 @@ class AlertsService(object):
     def _base(self, id): # pylint: disable=invalid-name,redefined-builtin
         return 'results/'+str(id)+self.BASE
 
-    def list(self, id, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=invalid-name,redefined-builtin
+    def list(self, id, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of alerts.
 
         :param id: Result ID as an int.
@@ -284,10 +284,13 @@ class AlertsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`alerts.Page <alerts.Page>` object
         """
-        schema = AlertSchema(exclude=('id', 'payload', 'payload_ascii', 'payload_hex', 'references'))
-        resp = self.service.list(self._base(id), filter, type, sort, limit, page)
+        schema = AlertSchema()
+        if not detailed:
+            schema = AlertSchema(exclude=('id', 'payload', 'payload_ascii', 'payload_hex', 'references'))
+        resp = self.service.list(self._base(id), filter, type, sort, limit, page, detailed=detailed)
         trs, l =self.service.decode(schema, resp, many=True, links=True)
         return Page(trs, l)
 

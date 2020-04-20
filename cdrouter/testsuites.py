@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -371,16 +371,17 @@ class TestsuitesService(object):
         """Update testsuite info."""
         return self.service.post(self.base)
 
-    def list_groups(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
+    def list_groups(self, filter=None, type=None, sort=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of groups.
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`testsuites.Group <testsuites.Group>` list
         """
         schema = GroupSchema()
-        resp = self.service.list(self.base+'groups/', filter, type, sort)
+        resp = self.service.list(self.base+'groups/', filter, type, sort, detailed=detailed)
         return self.service.decode(schema, resp, many=True)
 
     def get_group(self, name):
@@ -394,16 +395,19 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'groups/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_modules(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
+    def list_modules(self, filter=None, type=None, sort=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of modules.
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`testsuites.Module <testsuites.Module>` list
         """
-        schema = ModuleSchema(exclude=('index', 'labels'))
-        resp = self.service.list(self.base+'modules/', filter, type, sort)
+        schema = ModuleSchema()
+        if not detailed:
+            schema = ModuleSchema(exclude=('index', 'labels'))
+        resp = self.service.list(self.base+'modules/', filter, type, sort, detailed=detailed)
         return self.service.decode(schema, resp, many=True)
 
     def get_module(self, name):
@@ -417,16 +421,19 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'modules/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_tests(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
+    def list_tests(self, filter=None, type=None, sort=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of tests.
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`testsuites.Test <testsuites.Test>` list
         """
-        schema = TestSchema(exclude=('description', 'labels', 'testvars', 'skip_name', 'skip_reason'))
-        resp = self.service.list(self.base+'tests/', filter, type, sort)
+        schema = TestSchema()
+        if not detailed:
+            schema = TestSchema(exclude=('description', 'labels', 'testvars', 'skip_name', 'skip_reason'))
+        resp = self.service.list(self.base+'tests/', filter, type, sort, detailed=detailed)
         return self.service.decode(schema, resp, many=True)
 
     def get_test(self, name):
@@ -440,16 +447,19 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'tests/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_labels(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
+    def list_labels(self, filter=None, type=None, sort=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of labels.
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`testsuites.Label <testsuites.Label>` list
         """
-        schema = LabelSchema(exclude=('index', 'description', 'modules', 'tests'))
-        resp = self.service.list(self.base+'labels/', filter, type, sort)
+        schema = LabelSchema()
+        if not detailed:
+            schema = LabelSchema(exclude=('index', 'description', 'modules', 'tests'))
+        resp = self.service.list(self.base+'labels/', filter, type, sort, detailed=detailed)
         return self.service.decode(schema, resp, many=True)
 
     def get_label(self, name):
@@ -463,16 +473,19 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'labels/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_errors(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
+    def list_errors(self, filter=None, type=None, sort=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of errors.
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`testsuites.Error <testsuites.Error>` list
         """
-        schema = ErrorSchema(exclude=('index', 'description'))
-        resp = self.service.list(self.base+'errors/', filter, type, sort)
+        schema = ErrorSchema()
+        if not detailed:
+            schema = ErrorSchema(exclude=('index', 'description'))
+        resp = self.service.list(self.base+'errors/', filter, type, sort, detailed=detailed)
         return self.service.decode(schema, resp, many=True)
 
     def get_error(self, name):
@@ -486,18 +499,21 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'errors/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_testvars(self, filter=None, type=None, sort=None): # pylint: disable=redefined-builtin
+    def list_testvars(self, filter=None, type=None, sort=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of testvars.
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`testsuites.Testvar <testsuites.Testvar>` list
         """
-        schema = TestvarSchema(exclude=('index', 'humanname', 'addedin', 'deprecatedin', 'obsoletedin',
-                                        'min', 'max', 'length', 'dyndefault', 'keywords', 'alsoaccept',
-                                        'wildcard', 'instances', 'parent', 'children', 'tests'))
-        resp = self.service.list(self.base+'testvars/', filter, type, sort)
+        schema = TestvarSchema()
+        if not detailed:
+            schema = TestvarSchema(exclude=('index', 'humanname', 'addedin', 'deprecatedin', 'obsoletedin',
+                                            'min', 'max', 'length', 'dyndefault', 'keywords', 'alsoaccept',
+                                            'wildcard', 'instances', 'parent', 'children', 'tests'))
+        resp = self.service.list(self.base+'testvars/', filter, type, sort, detailed=detailed)
         return self.service.decode(schema, resp, many=True)
 
     def get_testvar(self, name):

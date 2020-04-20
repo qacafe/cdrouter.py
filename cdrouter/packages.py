@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -187,7 +187,7 @@ class PackagesService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of packages.
 
         :param filter: (optional) Filters to apply as a string list.
@@ -195,10 +195,13 @@ class PackagesService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`packages.Page <packages.Page>` object
         """
-        schema = PackageSchema(exclude=('testlist', 'extra_cli_args', 'agent_id', 'options', 'note'))
-        resp = self.service.list(self.base, filter, type, sort, limit, page)
+        schema = PackageSchema()
+        if not detailed:
+            schema = PackageSchema(exclude=('testlist', 'extra_cli_args', 'agent_id', 'options', 'note'))
+        resp = self.service.list(self.base, filter, type, sort, limit, page, detailed=detailed)
         ps, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ps, l)
 

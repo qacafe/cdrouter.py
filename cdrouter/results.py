@@ -610,7 +610,7 @@ class ResultsService(object):
         self.service = service
         self.base = self.BASE
 
-    def list(self, filter=None, type=None, sort=None, limit=None, page=None): # pylint: disable=redefined-builtin
+    def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
         """Get a list of results.
 
         :param filter: (optional) Filters to apply as a string list.
@@ -618,10 +618,13 @@ class ResultsService(object):
         :param sort: (optional) Sort fields to apply as string list.
         :param limit: (optional) Limit returned list length.
         :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`results.Page <results.Page>` object
         """
-        schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info'))
-        resp = self.service.list(self.base, filter, type, sort, limit, page)
+        schema = ResultSchema()
+        if not detailed:
+            schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info'))
+        resp = self.service.list(self.base, filter, type, sort, limit, page, detailed=detailed)
         rs, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(rs, l)
 

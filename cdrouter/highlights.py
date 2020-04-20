@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -43,15 +43,18 @@ class HighlightsService(object):
     def _base(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
         return 'results/'+str(id)+'/tests/'+str(seq)+'/'+self.BASE
 
-    def list(self, id, seq): # pylint: disable=invalid-name,redefined-builtin
+    def list(self, id, seq, detailed=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of highlights.
 
         :param id: Result ID as an int.
         :param seq: TestResult sequence ID as an int.
+        :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`highlights.Highlight <highlights.Highlight>` list
         """
-        schema = HighlightSchema(exclude=('id', 'seq'))
-        resp = self.service.list(self._base(id, seq))
+        schema = HighlightSchema()
+        if not detailed:
+            schema = HighlightSchema(exclude=('id', 'seq'))
+        resp = self.service.list(self._base(id, seq), detailed=detailed)
         return self.service.decode(schema, resp, many=True)
 
     def get(self, id, seq, line): # pylint: disable=invalid-name,redefined-builtin
