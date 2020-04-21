@@ -430,7 +430,7 @@ class TestsuitesService(object):
         :param detailed: (optional) Return all fields if Bool `True`.
         :return: :class:`testsuites.Test <testsuites.Test>` list
         """
-        schema = TestSchema()
+        schema = TestSchema(exclude=('skip_name', 'skip_reason'))
         if not detailed:
             schema = TestSchema(exclude=('description', 'labels', 'testvars', 'skip_name', 'skip_reason'))
         resp = self.service.list(self.base+'tests/', filter, type, sort, detailed=detailed)
