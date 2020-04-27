@@ -86,7 +86,7 @@ class AlertSchema(Schema):
     category = fields.Str()
     description = fields.Str(missing=None)
     dest_ip = fields.Str()
-    dest_port = fields.Int(as_string=True)
+    dest_port = fields.Int(as_string=True, missing=None)
     interface = fields.Str()
     payload = fields.Str(missing=None)
     payload_ascii = fields.Str(missing=None)
@@ -100,7 +100,7 @@ class AlertSchema(Schema):
     sid = fields.Int(as_string=True)
     signature = fields.Str()
     src_ip = fields.Str()
-    src_port = fields.Int(as_string=True)
+    src_port = fields.Int(as_string=True, missing=None)
 
     @post_load
     def post_load(self, data):
