@@ -49,18 +49,19 @@ token is not provided.
     c = CDRouter('http://localhost:8015', token='deadbeef')
 
     for p in c.packages.iter_list(filter=field('tags').contains('noretry')):
-        print('Launching package ' + p.name)
+        print('Launching package {}'.format(p.name))
 
         try:
-            j = c.jobs.launch(Job(package_id=p.id, Options(extra_cli_args='-testvar myvar=example')))
+            j = c.jobs.launch(Job(package_id=p.id, options=Options(extra_cli_args='-testvar myvar=example')))
         except CDRouterError as ce:
             print('Error launching job: {}'.format(ce))
+            continue
 
         while j.result_id == None:
             time.sleep(1)
             j = c.jobs.get(j.id)
 
-        print('    Result-ID: ' + j.result_id)
+        print('    Result-ID: {}'.format(j.result_id))
 
     print('done.')
 
