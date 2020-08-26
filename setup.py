@@ -8,18 +8,33 @@ from codecs import open
 from os import path
 import sys
 
+
+def read(rel_path):
+    here = path.abspath(path.dirname(__file__))
+    with open(path.join(here, rel_path), "r") as fp:
+        return fp.read()
+
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith("__version__"):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
+
 here = path.abspath(path.dirname(__file__))
 
 sys.path.insert(0, here)
 
-import cdrouter
 
 with open(path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
     name="cdrouter",
-    version=cdrouter.__version__,
+    version=get_version("cdrouter/__init__.py"),
     description="Python client for the CDRouter Web API",
     long_description=long_description,
     url="https://github.com/qacafe/cdrouter.py",
