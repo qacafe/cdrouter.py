@@ -249,7 +249,7 @@ class ConfigsService(object):
         :rtype: configs.Config
         """
         rs, _ = self.list(filter=field('name').eq(name), limit=1)
-        if len(rs) is 0:
+        if len(rs) == 0:
             raise CDRouterError('no such config')
         return rs[0]
 

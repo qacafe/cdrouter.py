@@ -24,7 +24,7 @@ for e in check.errors:
     print('    {}: {}'.format(e.lines, e.error))
 print('')
 
-if len(check.errors) is 0:
+if len(check.errors) == 0:
     analysis = c.packages.analyze(pkg.id)
 
     print('{} of {} tests will be skipped:'.format(analysis.skipped_count, analysis.total_count))

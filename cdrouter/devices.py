@@ -237,7 +237,7 @@ class DevicesService(object):
         :rtype: devices.Device
         """
         rs, _ = self.list(filter=field('name').eq(name), limit=1)
-        if len(rs) is 0:
+        if len(rs) == 0:
             raise CDRouterError('no such device')
         return rs[0]
 

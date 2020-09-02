@@ -122,7 +122,7 @@ class UsersService(object):
         :rtype: users.User
         """
         rs, _ = self.list(filter=field('name').eq(name), limit=1)
-        if len(rs) is 0:
+        if len(rs) == 0:
             raise CDRouterError('no such user')
         return rs[0]
 
