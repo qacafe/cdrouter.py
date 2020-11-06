@@ -45,7 +45,7 @@ class AttachmentSchema(Schema):
     device_id = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Attachment(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

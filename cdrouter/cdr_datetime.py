@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -20,7 +20,7 @@ class DateTime(fields.DateTime):
         except ValidationError:
             return datetime.min
 
-    def _deserialize(self, value, attr, data):
+    def _deserialize(self, value, attr, data, **kwargs):
         try:
             return super(DateTime, self)._deserialize(value, attr, data)
         except ValidationError:

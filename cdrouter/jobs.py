@@ -34,7 +34,7 @@ class OptionsSchema(Schema):
     extra_cli_args = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Options(**data)
 
 class Job(object):
@@ -91,7 +91,7 @@ class JobSchema(Schema):
     run_at = DateTime()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Job(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

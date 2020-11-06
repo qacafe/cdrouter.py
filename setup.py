@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -59,5 +59,5 @@ setup(
     ],
     keywords="cdrouter json rest api client",
     packages=["cdrouter"],
-    install_requires=["future", "marshmallow<3", "requests", "requests-toolbelt"],
+    install_requires=["future", "marshmallow<4", "requests", "requests-toolbelt"],
 )

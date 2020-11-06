@@ -27,7 +27,7 @@ class ConfigErrorSchema(Schema):
     error = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return ConfigError(**data)
 
 class CheckConfig(object):
@@ -39,10 +39,10 @@ class CheckConfig(object):
         self.errors = kwargs.get('errors', None)
 
 class CheckConfigSchema(Schema):
-    errors = fields.Nested(ConfigErrorSchema, many=True)
+    errors = fields.Nested(lambda: ConfigErrorSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return CheckConfig(**data)
 
 class UpgradeConfig(object):
@@ -60,7 +60,7 @@ class UpgradeConfigSchema(Schema):
     output = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return UpgradeConfig(**data)
 
 class Networks(object):
@@ -84,10 +84,10 @@ class NetworksSchema(Schema):
     type = fields.Str()
     side = fields.Str()
     title = fields.Str()
-    children = fields.Nested('self', many=True)
+    children = fields.Nested(lambda: NetworksSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Networks(**data)
 
 class Testvar(object):
@@ -117,7 +117,7 @@ class TestvarSchema(Schema):
     line = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Testvar(**data)
 
 class Config(object):
@@ -160,13 +160,13 @@ class ConfigSchema(Schema):
     created = DateTime()
     updated = DateTime()
     contents = fields.Str()
-    user_id = fields.Int(as_string=True, )
+    user_id = fields.Int(as_string=True)
     result_id = fields.Int(as_string=True, missing=None)
     tags = fields.List(fields.Str())
     note = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Config(**data)
 
 class ConfigsService(object):

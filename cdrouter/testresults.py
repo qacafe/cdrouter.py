@@ -35,7 +35,7 @@ class SummarySchema(Schema):
     alerts = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Summary(**data)
 
 class Line(object):
@@ -144,7 +144,7 @@ class LineSchema(Schema):
     summary = fields.Nested(SummarySchema)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Line(**data)
 
 class Log(object):
@@ -164,11 +164,11 @@ class Log(object):
 class LogSchema(Schema):
     offset = fields.Int()
     limit = fields.Int()
-    lines = fields.Nested(LineSchema, many=True)
+    lines = fields.Nested(lambda: LineSchema(many=True))
     total = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Log(**data)
 
 class TestResult(object):
@@ -225,7 +225,7 @@ class TestResultSchema(Schema):
     note = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return TestResult(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

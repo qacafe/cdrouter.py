@@ -103,7 +103,7 @@ class AlertSchema(Schema):
     src_port = fields.Int(as_string=True, missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Alert(**data)
 
 class SeverityCount(object):
@@ -124,7 +124,7 @@ class SeverityCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return SeverityCount(**data)
 
 class CategoryCount(object):
@@ -145,7 +145,7 @@ class CategoryCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return CategoryCount(**data)
 
 class RuleSetCount(object):
@@ -163,7 +163,7 @@ class RuleSetCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return RuleSetCount(**data)
 
 class SignatureCount(object):
@@ -184,7 +184,7 @@ class SignatureCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return SignatureCount(**data)
 
 class TestCount(object):
@@ -202,7 +202,7 @@ class TestCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return TestCount(**data)
 
 class AddrCount(object):
@@ -220,7 +220,7 @@ class AddrCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return AddrCount(**data)
 
 class AllStats(object):
@@ -245,15 +245,15 @@ class AllStats(object):
 
 class AllStatsSchema(Schema):
     severities = DictField(fields.Int(), SeverityCountSchema())
-    categories = fields.Nested(CategoryCountSchema, many=True)
-    rule_sets = fields.Nested(RuleSetCountSchema, many=True)
-    signatures = fields.Nested(SignatureCountSchema, many=True)
-    tests = fields.Nested(TestCountSchema, many=True)
-    frequent_sources = fields.Nested(AddrCountSchema, many=True)
-    frequent_destinations = fields.Nested(AddrCountSchema, many=True)
+    categories = fields.Nested(lambda: CategoryCountSchema(many=True))
+    rule_sets = fields.Nested(lambda: RuleSetCountSchema(many=True))
+    signatures = fields.Nested(lambda: SignatureCountSchema(many=True))
+    tests = fields.Nested(lambda: TestCountSchema(many=True))
+    frequent_sources = fields.Nested(lambda: AddrCountSchema(many=True))
+    frequent_destinations = fields.Nested(lambda: AddrCountSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return AllStats(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

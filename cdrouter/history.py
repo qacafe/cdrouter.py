@@ -40,7 +40,7 @@ class HistorySchema(Schema):
     description = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return History(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

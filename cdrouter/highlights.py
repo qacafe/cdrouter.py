@@ -28,7 +28,7 @@ class HighlightSchema(Schema):
     color = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Highlight(**data)
 
 class HighlightsService(object):

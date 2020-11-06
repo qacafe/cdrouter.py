@@ -23,7 +23,7 @@ class SectionSchema(Schema):
     value = mfields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Section(**data)
 
 class Structure(object):
@@ -35,10 +35,10 @@ class Structure(object):
         self.sections = kwargs.get('sections', None)
 
 class StructureSchema(Schema):
-    sections = mfields.Nested(SectionSchema, many=True)
+    sections = mfields.Nested(lambda: SectionSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Structure(**data)
 
 class SummaryPacket(object):
@@ -50,10 +50,10 @@ class SummaryPacket(object):
         self.sections = kwargs.get('sections', None)
 
 class SummaryPacketSchema(Schema):
-    sections = mfields.Nested(SectionSchema, many=True, missing=None)
+    sections = mfields.Nested(lambda: SectionSchema(many=True), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return SummaryPacket(**data)
 
 class Summary(object):
@@ -68,10 +68,10 @@ class Summary(object):
 
 class SummarySchema(Schema):
     structure = mfields.Nested(StructureSchema)
-    summaries = mfields.Nested(SummaryPacketSchema, many=True, missing=None)
+    summaries = mfields.Nested(lambda: SummaryPacketSchema(many=True), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Summary(**data)
 
 class Field(object):
@@ -103,11 +103,11 @@ class FieldSchema(Schema):
     size = mfields.Str()
     pos = mfields.Str()
     show = mfields.Str()
-    fields = mfields.Nested('self', many=True, missing=None)
-    protos = mfields.Nested('ProtoSchema', many=True, missing=None)
+    fields = mfields.Nested(lambda: FieldSchema(many=True), missing=None)
+    protos = mfields.Nested(lambda: ProtoSchema(many=True), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Field(**data)
 
 class Proto(object):
@@ -139,11 +139,11 @@ class ProtoSchema(Schema):
     show_name = mfields.Str()
     value = mfields.Str()
     size = mfields.Str()
-    fields = mfields.Nested('FieldSchema', many=True, missing=None)
-    protos = mfields.Nested('self', many=True, missing=None)
+    fields = mfields.Nested(lambda: FieldSchema(many=True), missing=None)
+    protos = mfields.Nested(lambda: ProtoSchema(many=True), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Proto(**data)
 
 class Packet(object):
@@ -155,10 +155,10 @@ class Packet(object):
         self.protos = kwargs.get('protos', None)
 
 class PacketSchema(Schema):
-    protos = mfields.Nested(ProtoSchema, many=True)
+    protos = mfields.Nested(lambda: ProtoSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Packet(**data)
 
 class Decode(object):
@@ -170,10 +170,10 @@ class Decode(object):
         self.packets = kwargs.get('packets', None)
 
 class DecodeSchema(Schema):
-    packets = mfields.Nested(PacketSchema, many=True)
+    packets = mfields.Nested(lambda: PacketSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Decode(**data)
 
 class ASCIIByte(object):
@@ -191,7 +191,7 @@ class ASCIIByteSchema(Schema):
     pos = mfields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return ASCIIByte(**data)
 
 class ASCIILine(object):
@@ -211,11 +211,11 @@ class ASCIILine(object):
 class ASCIILineSchema(Schema):
     raw = mfields.Str()
     offset = mfields.Str()
-    ascii = mfields.Nested(ASCIIByteSchema, many=True)
-    hex = mfields.Nested(ASCIIByteSchema, many=True)
+    ascii = mfields.Nested(lambda: ASCIIByteSchema(many=True))
+    hex = mfields.Nested(lambda: ASCIIByteSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return ASCIILine(**data)
 
 class ASCIIFrame(object):
@@ -230,10 +230,10 @@ class ASCIIFrame(object):
 
 class ASCIIFrameSchema(Schema):
     name = mfields.Str(missing=None)
-    lines = mfields.Nested(ASCIILineSchema, many=True)
+    lines = mfields.Nested(lambda: ASCIILineSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return ASCIIFrame(**data)
 
 class ASCII(object):
@@ -247,11 +247,11 @@ class ASCII(object):
         self.reassembled = kwargs.get('reassembled', None)
 
 class ASCIISchema(Schema):
-    frame = mfields.Nested(ASCIIFrameSchema, missing=None)
-    reassembled = mfields.Nested(ASCIIFrameSchema, missing=None)
+    frame = mfields.Nested(lambda: ASCIIFrameSchema(), missing=None)
+    reassembled = mfields.Nested(lambda: ASCIIFrameSchema(), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return ASCII(**data)
 
 class Capture(object):
@@ -275,7 +275,7 @@ class CaptureSchema(Schema):
     filename = mfields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Capture(**data)
 
 class CloudShark(object):
@@ -290,7 +290,7 @@ class CloudSharkSchema(Schema):
     url = mfields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return CloudShark(**data)
 
 class CapturesService(object):

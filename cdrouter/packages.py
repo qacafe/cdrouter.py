@@ -32,10 +32,10 @@ class AnalysisSchema(Schema):
     total_count = fields.Int()
     run_count = fields.Int()
     skipped_count = fields.Int()
-    skipped_tests = fields.Nested(TestSchema, many=True)
+    skipped_tests = fields.Nested(lambda: TestSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Analysis(**data)
 
 class Options(object):
@@ -47,7 +47,7 @@ class Options(object):
     :param maxfail: (optional) Max fail count as an int.
     :param duration: (optional) Max testing time duration as an int.
     :param wait: (optional) Wait between tests duration as an int.
-    :param pause: (optional) Bool `True` is pausing between tests.
+    :param pause: (optional) Bool `True` if pausing between tests.
     :param shuffle: (optional) Bool `True` if testlist is shuffled.
     :param seed: (optional) Shuffle seed as an int.
     :param retry: (optional) Retry count as an int.
@@ -65,6 +65,7 @@ class Options(object):
         self.seed = kwargs.get('seed', None)
         self.retry = kwargs.get('retry', None)
         self.rdelay = kwargs.get('rdelay', None)
+        self.sync = kwargs.get('sync', None)
 
 class OptionsSchema(Schema):
     forever = fields.Bool()
@@ -78,9 +79,10 @@ class OptionsSchema(Schema):
     seed = fields.Int(as_string=True)
     retry = fields.Int(as_string=True)
     rdelay = fields.Int(as_string=True)
+    sync = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Options(**data)
 
 class Schedule(object):
@@ -101,7 +103,7 @@ class ScheduleSchema(Schema):
     options = fields.Nested(ResultOptionsSchema)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Schedule(**data)
 
 class Package(object):
@@ -167,7 +169,7 @@ class PackageSchema(Schema):
     schedule = fields.Nested(ScheduleSchema)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Package(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

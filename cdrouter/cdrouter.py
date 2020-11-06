@@ -69,7 +69,7 @@ class LinksSchema(Schema):
     prev = fields.Int(missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Links(**data)
 
 class Response(object):
@@ -85,15 +85,15 @@ class ResponseSchema(Schema):
     data = fields.Dict(missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Response(**data)
 
 class ListResponseSchema(ResponseSchema):
     data = fields.List(fields.Dict(), missing=None)
-    links = fields.Nested(LinksSchema, missing=None)
+    links = fields.Nested(lambda: LinksSchema(), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Response(**data)
 
 class Share(object):
@@ -117,7 +117,7 @@ class ShareSchema(Schema):
     execute = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Share(**data)
 
 class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
@@ -386,7 +386,7 @@ class CDRouter(object):
             try:
                 json = resp.json()
                 resp_schema = ResponseSchema()
-                result = resp_schema.load(json).data
+                result = resp_schema.load(json)
                 if result.error is not None:
                     message = result.error
             except HTTPError as he:
@@ -402,12 +402,12 @@ class CDRouter(object):
         if many is True:
             resp_schema = ListResponseSchema()
 
-        result = resp_schema.load(json).data
+        result = resp_schema.load(json)
 
         if result.data is None:
             raise CDRouterError('no data field in JSON response!', response=resp)
 
-        data = schema.load(result.data, many=many).data
+        data = schema.load(result.data, many=many)
 
         if many is True and links is True and result.links is not None:
             return (data, result.links)
@@ -415,8 +415,7 @@ class CDRouter(object):
         return data
 
     def encode(self, schema, resource, many=None, skip_none=False):
-        result = schema.dump(resource, many=many)
-        data = result.data
+        data = schema.dump(resource, many=many)
         if skip_none:
             data = dict((k, v) for k, v in data.items() if v is not None)
         return data

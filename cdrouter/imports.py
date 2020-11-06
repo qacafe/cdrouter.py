@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -46,7 +46,7 @@ class ImportSchema(Schema):
     size = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Import(**data)
 
 class Response(object):
@@ -70,7 +70,7 @@ class ResponseSchema(Schema):
     message = fields.Str(missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Response(**data)
 
 class Resource(object):
@@ -89,12 +89,12 @@ class Resource(object):
 
 class ResourceSchema(Schema):
     name = fields.Str(missing=None)
-    should_import = fields.Bool(attribute='should_import', load_from='import', dump_to='import')
+    should_import = fields.Bool(attribute='should_import', data_key='import')
     existing_id = fields.Int(as_string=True, missing=None)
-    response = fields.Nested(ResponseSchema, missing=None)
+    response = fields.Nested(lambda: ResponseSchema(), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Resource(**data)
 
 class Request(object):
@@ -128,7 +128,7 @@ class RequestSchema(Schema):
     tags = fields.List(fields.Str(), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Request(**data)
 
 class ImportsService(object):

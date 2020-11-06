@@ -25,7 +25,7 @@ class PowerCmdSchema(Schema):
     output = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return PowerCmd(**data)
 
 class Connection(object):
@@ -45,7 +45,7 @@ class ConnectionSchema(Schema):
     proxy_https = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Connection(**data)
 
 class Device(object):
@@ -162,7 +162,7 @@ class DeviceSchema(Schema):
     power_off_cmd = fields.Str(missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Device(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

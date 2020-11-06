@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE=python:2
+IMAGE=python:3.5
 
 GIT_USER_NAME=$(git config user.name)
 GIT_USER_EMAIL=$(git config user.email)

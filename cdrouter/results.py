@@ -10,7 +10,6 @@ import io
 
 from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
-from marshmallow.exceptions import ValidationError
 from .cdr_datetime import DateTime
 from .cdr_dictfield import DictField
 from .testresults import TestResultSchema
@@ -31,7 +30,7 @@ class TestCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return TestCount(**data)
 
 class TestDuration(object):
@@ -49,7 +48,7 @@ class TestDurationSchema(Schema):
     duration = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return TestDuration(**data)
 
 class ResultBreakdown(object):
@@ -73,7 +72,7 @@ class ResultBreakdownSchema(Schema):
     alerted = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return ResultBreakdown(**data)
 
 class TimeBreakdown(object):
@@ -91,7 +90,7 @@ class TimeBreakdownSchema(Schema):
     failed = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return TimeBreakdown(**data)
 
 class SetStats(object):
@@ -109,13 +108,13 @@ class SetStats(object):
         self.time_breakdown = kwargs.get('time_breakdown', None)
 
 class SetStatsSchema(Schema):
-    frequent_failures = fields.Nested(TestCountSchema, many=True)
-    longest_tests = fields.Nested(TestDurationSchema, many=True)
+    frequent_failures = fields.Nested(lambda: TestCountSchema(many=True))
+    longest_tests = fields.Nested(lambda: TestDurationSchema(many=True))
     result_breakdown = fields.Nested(ResultBreakdownSchema)
     time_breakdown = fields.Nested(TimeBreakdownSchema)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return SetStats(**data)
 
 class TestResultSummary(object):
@@ -151,7 +150,7 @@ class TestResultSummarySchema(Schema):
     description = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return TestResultSummary(**data)
 
 class TestResultDiff(object):
@@ -166,10 +165,10 @@ class TestResultDiff(object):
 
 class TestResultDiffSchema(Schema):
     name = fields.Str()
-    summaries = fields.Nested(TestResultSummarySchema, many=True)
+    summaries = fields.Nested(lambda: TestResultSummarySchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return TestResultDiff(**data)
 
 class DiffStats(object):
@@ -181,10 +180,10 @@ class DiffStats(object):
         self.tests = kwargs.get('tests', None)
 
 class DiffStatsSchema(Schema):
-    tests = fields.Nested(TestResultDiffSchema, many=True)
+    tests = fields.Nested(lambda: TestResultDiffSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return DiffStats(**data)
 
 class TestResultBreakdown(object):
@@ -198,11 +197,11 @@ class TestResultBreakdown(object):
         self.passed_every_time = kwargs.get('passed_every_time', None)
 
 class TestResultBreakdownSchema(Schema):
-    failed_at_least_once = fields.Nested(TestCountSchema, many=True)
-    passed_every_time = fields.Nested(TestCountSchema, many=True)
+    failed_at_least_once = fields.Nested(lambda: TestCountSchema(many=True))
+    passed_every_time = fields.Nested(lambda: TestCountSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return TestResultBreakdown(**data)
 
 class Progress(object):
@@ -226,7 +225,7 @@ class ProgressSchema(Schema):
     unit = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Progress(**data)
 
 class SingleStats(object):
@@ -244,7 +243,7 @@ class SingleStatsSchema(Schema):
     progress = fields.Nested(ProgressSchema)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return SingleStats(**data)
 
 class SummaryStats(object):
@@ -259,10 +258,10 @@ class SummaryStats(object):
 
 class SummaryStatsSchema(Schema):
     result_breakdown = fields.Nested(ResultBreakdownSchema)
-    test_summaries = fields.Nested(TestResultSchema, many=True, missing=None)
+    test_summaries = fields.Nested(lambda: TestResultSchema(many=True), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return SummaryStats(**data)
 
 class PackageCount(object):
@@ -280,7 +279,7 @@ class PackageCountSchema(Schema):
     count = fields.Int(as_string=True, missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return PackageCount(**data)
 
 class DeviceCount(object):
@@ -298,7 +297,7 @@ class DeviceCountSchema(Schema):
     count = fields.Int(as_string=True, missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return DeviceCount(**data)
 
 class AllStats(object):
@@ -316,13 +315,13 @@ class AllStats(object):
         self.device_names = kwargs.get('device_names', None)
 
 class AllStatsSchema(Schema):
-    frequent_packages = fields.Nested(PackageCountSchema, many=True)
-    package_names = fields.Nested(PackageCountSchema, many=True)
-    frequent_devices = fields.Nested(DeviceCountSchema, many=True)
-    device_names = fields.Nested(DeviceCountSchema, many=True)
+    frequent_packages = fields.Nested(lambda: PackageCountSchema(many=True))
+    package_names = fields.Nested(lambda: PackageCountSchema(many=True))
+    frequent_devices = fields.Nested(lambda: DeviceCountSchema(many=True))
+    device_names = fields.Nested(lambda: DeviceCountSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return AllStats(**data)
 
 class Metric(object):
@@ -373,7 +372,7 @@ class MetricSchema(Schema):
     device_2 = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Metric(**data)
 
 class LogDirFile(object):
@@ -394,7 +393,7 @@ class LogDirFileSchema(Schema):
     modified = DateTime()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return LogDirFile(**data)
 
 class Options(object):
@@ -421,7 +420,7 @@ class OptionsSchema(Schema):
     extra_cli_args = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Options(**data)
 
 class Feature(object):
@@ -442,26 +441,17 @@ class FeatureSchema(Schema):
     reason = fields.Str(missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Feature(**data)
 
 class UpdateField(fields.Field):
-    def _deserialize(self, value, attr, data):
+    def _deserialize(self, value, attr, data, **kwargs):
         if 'result' in value and 'status' in value:
-            data, errors = ResultSchema().load(value)
-            if errors:
-                raise ValidationError(errors, data=data)
-            return data
+            return ResultSchema().load(value)
         if 'result' in value and 'status' not in value:
-            data, errors = TestResultSchema().load(value)
-            if errors:
-                raise ValidationError(errors, data=data)
-            return data
+            return TestResultSchema().load(value)
         if 'sid' in value and 'rev' in value:
-            data, errors = AlertSchema().load(value)
-            if errors:
-                raise ValidationError(errors, data=data)
-            return data
+            return AlertSchema().load(value)
         self.fail('invalid')
 
 class Update(object):
@@ -483,12 +473,12 @@ class Update(object):
 class UpdateSchema(Schema):
     id = fields.Int(as_string=True)
     timestamp = DateTime()
-    progress = fields.Nested(ProgressSchema, missing=None)
-    running = fields.Nested(TestResultSchema, missing=None)
+    progress = fields.Nested(lambda: ProgressSchema(), missing=None)
+    running = fields.Nested(lambda: TestResultSchema(), missing=None)
     updates = fields.List(UpdateField, missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Update(**data)
 
 class Result(object):
@@ -565,7 +555,7 @@ class ResultSchema(Schema):
     status = fields.Str()
     loops = fields.Int()
     tests = fields.Int()
-    passed = fields.Int(attribute='pass', load_from='pass', dump_to='pass')
+    passed = fields.Int(attribute='pass', data_key='pass')
     fail = fields.Int()
     alerts = fields.Int()
     duration = fields.Int()
@@ -590,7 +580,7 @@ class ResultSchema(Schema):
     features = DictField(fields.Str(), FeatureSchema())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Result(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

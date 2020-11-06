@@ -49,7 +49,7 @@ class InfoSchema(Schema):
     all_addons = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Info(**data)
 
 class Group(object):
@@ -76,7 +76,7 @@ class GroupSchema(Schema):
     modules = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Group(**data)
 
 class Module(object):
@@ -115,7 +115,7 @@ class ModuleSchema(Schema):
     aliases = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Module(**data)
 
 class Test(object):
@@ -157,15 +157,15 @@ class TestSchema(Schema):
     module = fields.Str()
     synopsis = fields.Str()
     description = fields.Str()
-    labels = fields.List(fields.Str())
-    aliases = fields.List(fields.Str())
-    testvars = fields.List(fields.Str())
+    labels = fields.List(fields.Str(), missing=None)
+    aliases = fields.List(fields.Str(), missing=None)
+    testvars = fields.List(fields.Str(), missing=None)
 
     skip_name = fields.Str(missing=None)
     skip_reason = fields.Str(missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Test(**data)
 
 class Label(object):
@@ -198,7 +198,7 @@ class LabelSchema(Schema):
     tests = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Label(**data)
 
 class Error(object):
@@ -222,7 +222,7 @@ class ErrorSchema(Schema):
     description = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Error(**data)
 
 class Testvar(object):
@@ -303,7 +303,7 @@ class TestvarSchema(Schema):
     tests = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Testvar(**data)
 
 class Search(object):
@@ -325,15 +325,15 @@ class Search(object):
         self.testvars = kwargs.get('testvars', None)
 
 class SearchSchema(Schema):
-    addons = fields.Nested(GroupSchema, many=True, missing=None)
-    modules = fields.Nested(ModuleSchema, many=True, missing=None)
-    tests = fields.Nested(TestSchema, many=True, missing=None)
-    reasons = fields.Nested(LabelSchema, many=True, missing=None)
-    errors = fields.Nested(ErrorSchema, many=True, missing=None)
-    testvars = fields.Nested(TestvarSchema, many=True, missing=None)
+    addons = fields.Nested(lambda: GroupSchema(many=True), missing=None)
+    modules = fields.Nested(lambda: ModuleSchema(many=True), missing=None)
+    tests = fields.Nested(lambda: TestSchema(many=True), missing=None)
+    reasons = fields.Nested(lambda: LabelSchema(many=True), missing=None)
+    errors = fields.Nested(lambda: ErrorSchema(many=True), missing=None)
+    testvars = fields.Nested(lambda: TestvarSchema(many=True), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Search(**data)
 
 class TestsuitesService(object):

@@ -52,7 +52,7 @@ class UserSchema(Schema):
     password_confirm = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return User(**data)
 
 class Page(collections.namedtuple('Page', ['data', 'links'])):

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2020 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -30,7 +30,7 @@ class VersionSchema(Schema):
     build = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Version(**data)
 
 class ReleaseLatest(object):
@@ -51,7 +51,7 @@ class ReleaseLatestSchema(Schema):
     newer = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return ReleaseLatest(**data)
 
 class Testsuite(object):
@@ -69,7 +69,7 @@ class TestsuiteSchema(Schema):
     name = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Testsuite(**data)
 
 class Release(object):
@@ -96,7 +96,7 @@ class ReleaseSchema(Schema):
     nonce = fields.Str(missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Release(**data)
 
 class Upgrade(object):
@@ -120,7 +120,7 @@ class UpgradeSchema(Schema):
     error = fields.Str(missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Upgrade(**data)
 
 class InterfaceFlags(object):
@@ -147,7 +147,7 @@ class InterfaceFlagsSchema(Schema):
     multicast = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return InterfaceFlags(**data)
 
 class InterfaceAddr(object):
@@ -165,7 +165,7 @@ class InterfaceAddrSchema(Schema):
     address = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return InterfaceAddr(**data)
 
 class Interface(object):
@@ -194,11 +194,11 @@ class InterfaceSchema(Schema):
     name = fields.Str()
     hardware_addr = fields.Str()
     flags = fields.Nested(InterfaceFlagsSchema)
-    addresses = fields.Nested(InterfaceAddrSchema, many=True, missing=None)
-    multicast_addresses = fields.Nested(InterfaceAddrSchema, many=True, missing=None)
+    addresses = fields.Nested(lambda: InterfaceAddrSchema(many=True), missing=None)
+    multicast_addresses = fields.Nested(lambda: InterfaceAddrSchema(many=True), missing=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Interface(**data)
 
 class Preferences(object):
@@ -264,7 +264,7 @@ class PreferencesSchema(Schema):
     lounge_insecure = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Preferences(**data)
 
 class Space(object):
@@ -294,7 +294,7 @@ class SpaceSchema(Schema):
     used = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs):
         return Space(**data)
 
 class SystemService(object):
