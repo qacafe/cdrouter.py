@@ -330,12 +330,18 @@ class Metric(object):
     :param log_file: (optional) Filepath to logfile as a string.
     :param timestamp: (optional) Timestamp for metric as a `DateTime`.
     :param metric: (optional) Metric name as a string.
-    :param value: (optional) Metric value as a float.
-    :param units: (optional) Metric units as a string.
+    :param value: (optional) First metric value as a float.
+    :param units: (optional) First metric units as a string.
     :param result: (optional) Metric result as a string.
     :param interface_1: (optional) First interface as a string.
     :param interface_2: (optional) Second interface as a string.
     :param streams: (optional) Stream count as an int.
+    :param protocol: (optional) Protocol as a string.
+    :param direction: (optional) Direction as a string.
+    :param value_2: (optional) Second metric value as a float.
+    :param units_2: (optional) Second metric units as a string.
+    :param device_1: (optional) First device as a string.
+    :param device_2: (optional) Second device as a string.
     """
     def __init__(self, **kwargs):
         self.log_file = kwargs.get('log_file', None)

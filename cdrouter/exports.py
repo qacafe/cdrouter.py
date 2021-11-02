@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2021 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -38,10 +38,10 @@ class ExportsService(object):
         if result_ids is None:
             result_ids = []
         json = {
-            'configs': map(int, config_ids),
-            'devices': map(int, device_ids),
-            'packages': map(int, package_ids),
-            'results': map(int, result_ids),
+            'configs': list(map(int, config_ids)),
+            'devices': list(map(int, device_ids)),
+            'packages': list(map(int, package_ids)),
+            'results': list(map(int, result_ids)),
             'options': {'exclude_captures': exclude_captures}
         }
         resp = self.service.post(self.base, json=json, stream=True)
