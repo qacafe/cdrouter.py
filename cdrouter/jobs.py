@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2021 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -162,7 +162,7 @@ class JobsService(object):
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
-        resp = self.service.edit(self.base, resource.name, json)
+        resp = self.service.edit(self.base, resource.id, json)
         return self.service.decode(schema, resp)
 
     def launch(self, resource):
