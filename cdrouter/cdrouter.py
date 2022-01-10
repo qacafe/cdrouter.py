@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -190,7 +190,7 @@ class CDRouter(object):
         will print a password prompt to stdout and read the password
         from stdin.
 
-    :param retries: (optional) The number of times to authenticate
+    :param retries: (optional) The number of times to retry authentication
         with the CDRouter system before giving up as an int.
 
     :param insecure: (optional) If bool `True` and `base` is an HTTPS
@@ -424,7 +424,7 @@ class CDRouter(object):
     def authenticate(self, retries=3):
         """Set API token by authenticating via username/password.
 
-        :param retries: Number of authentication attempts to make before giving up as an int.
+        :param retries: Number of authentication retries to make before giving up as an int.
         :return: Learned API token
         :rtype: string
         """
@@ -432,7 +432,9 @@ class CDRouter(object):
         username = self.username or self._getuser(self.base)
         password = self.password
 
-        while retries > 0:
+        attempts = 1 + retries
+
+        while attempts > 0:
             if password is None:
                 password = self._getpass(self.base, username)
 
@@ -449,8 +451,8 @@ class CDRouter(object):
                     break
             except CDRouterError as cde:
                 password = None
-                retries -= 1
-                if retries == 0:
+                attempts -= 1
+                if attempts == 0:
                     raise cde
 
         return self.token
