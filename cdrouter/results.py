@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -15,6 +15,7 @@ from .cdr_datetime import DateTime
 from .cdr_dictfield import DictField
 from .testresults import TestResultSchema
 from .alerts import AlertSchema
+from .configs import InterfacesSchema
 
 class TestCount(object):
     """Model for CDRouter Test Counts.
@@ -504,6 +505,7 @@ class Result(object):
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
     :param result: (optional) Result as a string.
+    :param active: (optional) Bool `True` if status is 'running' or 'paused'.
     :param status: (optional) Status as a string.
     :param loops: (optional) Loop count as an int.
     :param tests: (optional) Test count as an int.
@@ -530,12 +532,14 @@ class Result(object):
     :param testcases: (optional) Testcases as a string list.
     :param options: (optional) :class:`results.Options <results.Options>` object
     :param features: (optional) Dict of feature name strings to :class:`results.Feature <results.Feature>` objects.
+    :param interfaces: (optional) :class:`configs.Interfaces <configs.Interfaces>` list.
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
         self.result = kwargs.get('result', None)
+        self.active = kwargs.get('active', None)
         self.status = kwargs.get('status', None)
         self.loops = kwargs.get('loops', None)
         self.tests = kwargs.get('tests', None)
@@ -562,12 +566,14 @@ class Result(object):
         self.testcases = kwargs.get('testcases', None)
         self.options = kwargs.get('options', None)
         self.features = kwargs.get('features', None)
+        self.interfaces = kwargs.get('interfaces', None)
 
 class ResultSchema(Schema):
     id = fields.Int(as_string=True)
     created = DateTime()
     updated = DateTime()
     result = fields.Str()
+    active = fields.Bool()
     status = fields.Str()
     loops = fields.Int()
     tests = fields.Int()
@@ -594,6 +600,7 @@ class ResultSchema(Schema):
     testcases = fields.List(fields.Str(), missing=None)
     options = fields.Nested(OptionsSchema)
     features = DictField(fields.Str(), FeatureSchema())
+    interfaces = fields.Nested(InterfacesSchema, many=True)
 
     @post_load
     def post_load(self, data):
@@ -629,7 +636,7 @@ class ResultsService(object):
         """
         schema = ResultSchema()
         if not detailed:
-            schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info'))
+            schema = ResultSchema(exclude=('result', 'loops', 'tests', 'result_dir', 'agent_name', 'config_name', 'note', 'pause_message', 'testcases', 'options', 'build_info', 'interfaces'))
         resp = self.service.list(self.base, filter, type, sort, limit, page, detailed=detailed)
         rs, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(rs, l)
@@ -743,7 +750,7 @@ class ResultsService(object):
         :return: :class:`results.Result <results.Result>` object
         :rtype: results.Result
         """
-        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'alerts', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features'))
+        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'active', 'status', 'loops', 'tests', 'pass', 'fail', 'alerts', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features', 'interfaces'))
         json = self.service.encode(schema, resource)
 
         schema = ResultSchema()
@@ -809,7 +816,7 @@ class ResultsService(object):
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
         """
-        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'status', 'loops', 'tests', 'pass', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features'))
+        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'active', 'status', 'loops', 'tests', 'pass', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features', 'interfaces'))
         _fields = self.service.encode(schema, _fields, skip_none=True)
         return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, type=type, all=all)
 
