@@ -624,7 +624,8 @@ class ResultsService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
-        """Get a list of results.
+        """Get a list of results, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.

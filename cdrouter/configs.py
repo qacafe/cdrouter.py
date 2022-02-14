@@ -212,7 +212,8 @@ class ConfigsService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
-        """Get a list of configs.
+        """Get a list of configs, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
@@ -275,7 +276,7 @@ class ConfigsService(object):
         :return: :class:`configs.Config <configs.Config>` object
         :rtype: configs.Config
         """
-        rs, _ = self.list(filter=field('name').eq(name), limit=1)
+        rs, _ = self.list(filter=field('name').eq(name), limit=1, detailed=True)
         if len(rs) == 0:
             raise CDRouterError('no such config')
         return rs[0]

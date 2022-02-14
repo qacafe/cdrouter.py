@@ -192,7 +192,8 @@ class PackagesService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
-        """Get a list of packages.
+        """Get a list of packages, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
@@ -240,7 +241,7 @@ class PackagesService(object):
         :return: :class:`packages.Package <packages.Package>` object
         :rtype: packages.Package
         """
-        rs, _ = self.list(filter=field('name').eq(name), limit=1)
+        rs, _ = self.list(filter=field('name').eq(name), limit=1, detailed=True)
         if len(rs) == 0:
             raise CDRouterError('no such package')
         return rs[0]
