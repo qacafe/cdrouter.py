@@ -408,7 +408,8 @@ class SystemService(object):
         :rtype: system.Upgrade
         """
         schema = UpgradeSchema()
-        resp = self.service.post(self.base+'license/')
+        resp = self.service.post(self.base+'license/',
+                                 headers={'content-type': 'application/json'})
         return self.service.decode(schema, resp)
 
     def manual_update_license(self, fd, filename='cdrouter.lic'):

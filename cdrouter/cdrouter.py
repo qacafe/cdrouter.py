@@ -263,7 +263,7 @@ class CDRouter(object):
             headers = {}
         if files is None:
             files = {}
-            headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
+        headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
         resp = self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
                                     json=json, data=data, verify=(not self.insecure), auth=Auth(c=self))
         self.raise_for_status(resp)
@@ -272,8 +272,8 @@ class CDRouter(object):
     def get(self, path, params=None, stream=None):
         return self._req(path, method='GET', params=params, stream=stream)
 
-    def post(self, path, json=None, data=None, params=None, files=None, stream=None):
-        return self._req(path, method='POST', json=json, data=data, params=params, stream=stream, files=files)
+    def post(self, path, json=None, data=None, params=None, headers=None, files=None, stream=None):
+        return self._req(path, method='POST', json=json, data=data, params=params, headers=headers, stream=stream, files=files)
 
     def patch(self, path, json, params=None):
         return self._req(path, method='PATCH', json=json, params=params)
