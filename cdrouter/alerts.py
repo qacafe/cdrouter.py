@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020 by QA Cafe.
+# Copyright (c) 2020-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -276,7 +276,8 @@ class AlertsService(object):
         return 'results/'+str(id)+self.BASE
 
     def list(self, id, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a list of alerts.
+        """Get a list of alerts, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param id: Result ID as an int.
         :param filter: (optional) Filters to apply as a string list.

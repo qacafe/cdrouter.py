@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2021 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -9,6 +9,7 @@ import collections
 
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
+from .configs import InterfacesSchema
 
 class Options(object):
     """Model for CDRouter Job Options.
@@ -41,7 +42,8 @@ class Job(object):
     """Model for CDRouter Jobs.
 
     :param id: (optional) Job ID as an int.
-    :param status: (optional) Bool `True` if user is an administrator.
+    :param active: (optional) Bool `True` if status is 'running'.
+    :param status: (optional) Job status as a string.
     :param options: (optional) :class:`jobs.Options <jobs.Options>` object
     :param package_id: (optional) Package ID as an int.
     :param package_name: (optional) Package name as string.
@@ -55,9 +57,14 @@ class Job(object):
     :param updated: (optional) Job last-updated time as `DateTime`.
     :param automatic: (optional) Bool `True` if job scheduled automatically `DateTime`.
     :param run_at: (optional) Job scheduled run-time `DateTime`.
+    :param interfaces: (optional) :class:`configs.Interfaces <configs.Interfaces>` list
+    :param interface_names: (optional) Job interface names as string list.
+    :param uses_wireless: (optional) Bool `True` if job uses any wireless interfaces.
+    :param uses_ics: (optional) Bool `True` if job uses any ICS interfaces.
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
+        self.active = kwargs.get('active', None)
         self.status = kwargs.get('status', None)
         self.options = kwargs.get('options', None)
         self.package_id = kwargs.get('package_id', None)
@@ -72,9 +79,14 @@ class Job(object):
         self.updated = kwargs.get('updated', None)
         self.automatic = kwargs.get('automatic', None)
         self.run_at = kwargs.get('run_at', None)
+        self.interfaces = kwargs.get('interfaces', None)
+        self.interface_names = kwargs.get('interface_names', None)
+        self.uses_wireless = kwargs.get('uses_wireless', None)
+        self.uses_ics = kwargs.get('uses_ics', None)
 
 class JobSchema(Schema):
     id = fields.Int(as_string=True)
+    active = fields.Bool()
     status = fields.Str()
     options = fields.Nested(OptionsSchema)
     package_id = fields.Int(as_string=True)
@@ -89,6 +101,10 @@ class JobSchema(Schema):
     updated = DateTime()
     automatic = fields.Bool()
     run_at = DateTime()
+    interfaces = fields.Nested(InterfacesSchema, many=True)
+    interface_names = fields.List(fields.Str())
+    uses_wireless = fields.Bool()
+    uses_ics = fields.Bool()
 
     @post_load
     def post_load(self, data):
@@ -112,7 +128,8 @@ class JobsService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
-        """Get a list of jobs.
+        """Get a list of jobs, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
@@ -158,7 +175,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
-        schema = JobSchema(exclude=('id', 'status', 'options', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'run_at'))
+        schema = JobSchema(exclude=('id', 'active', 'status', 'options', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'run_at', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
@@ -172,7 +189,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
-        schema = JobSchema(exclude=('id', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic'))
+        schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
@@ -186,6 +203,20 @@ class JobsService(object):
         """
         return self.service.delete_id(self.base, id)
 
+    def get_interfaces(self, resource):
+        """Process job with cdrouter-cli -print-interfaces.
+
+        :param resource: :class:`jobs.Job <jobs.Job>` object
+        :return: :class:`configs.Interfaces <configs.Interfaces>` list
+        """
+        schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
+        json = self.service.encode(schema, resource)
+
+        schema = InterfacesSchema()
+        resp = self.service.post(self.base,
+                                 params={'process': 'interfaces'}, json=json)
+        return self.service.decode(schema, resp, many=True)
+
     def bulk_launch(self, jobs=None, filter=None, all=False): # pylint: disable=redefined-builtin
         """Bulk launch a set of jobs.
 
@@ -195,7 +226,7 @@ class JobsService(object):
         """
         json = None
         if jobs is not None:
-            schema = JobSchema(exclude=('id', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic'))
+            schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
             jobs_json = self.service.encode(schema, jobs, many=True)
             json = {self.RESOURCE: jobs_json}
 

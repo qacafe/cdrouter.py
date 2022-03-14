@@ -86,6 +86,12 @@ Networks
 .. autoclass:: cdrouter.configs.Networks
    :members:
 
+Interfaces
+~~~~~~~~~~
+
+.. autoclass:: cdrouter.configs.Interfaces
+   :members:
+
 Testvar
 ~~~~~~~
 
@@ -702,6 +708,18 @@ Interface
 ~~~~~~~~~
 
 .. autoclass:: cdrouter.system.Interface
+   :members:
+
+InUseInterfaceFlags
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.system.InUseInterfaceFlags
+   :members:
+
+InUseInterface
+~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.system.InUseInterface
    :members:
 
 Preferences

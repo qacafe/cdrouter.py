@@ -1,11 +1,12 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
 """Module for accessing CDRouter Testsuites."""
 
 from marshmallow import Schema, fields, post_load
+from .configs import InterfacesSchema
 
 class Info(object):
     """Model for CDRouter Testsuite Info.
@@ -21,6 +22,8 @@ class Info(object):
     :param release: (optional) CDRouter release as string.
     :param addons: (optional) Enabled CDRouter addons as string list.
     :param all_addons: (optional) All CDRouter addons as string list.
+    :param interfaces: (optional) :class:`configs.Interfaces <configs.Interfaces>` list
+    :param execute_instances: (optional) Execute instances as an int.
     """
     def __init__(self, **kwargs):
         self.build_info = kwargs.get('build_info', None)
@@ -34,6 +37,8 @@ class Info(object):
         self.release = kwargs.get('release', None)
         self.addons = kwargs.get('addons', None)
         self.all_addons = kwargs.get('all_addons', None)
+        self.interfaces = kwargs.get('interfaces', None)
+        self.execute_instances = kwargs.get('execute_instances', None)
 
 class InfoSchema(Schema):
     build_info = fields.Str()
@@ -47,6 +52,8 @@ class InfoSchema(Schema):
     release = fields.Str()
     addons = fields.List(fields.Str())
     all_addons = fields.List(fields.Str())
+    interfaces = fields.Nested(InterfacesSchema, many=True)
+    execute_instances = fields.Int()
 
     @post_load
     def post_load(self, data):

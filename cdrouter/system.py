@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -201,6 +201,45 @@ class InterfaceSchema(Schema):
     def post_load(self, data):
         return Interface(**data)
 
+class InUseInterfaceFlags(object):
+    """Model for CDRouter In Use Interface Flags.
+
+    :param in_use: (optional) Bool `True` if interface is in use by a running job.
+    :param is_wireless: (optional) Bool `True` if interface is a wireless interface.
+    :param is_ics: (optional) Bool `True` if interface is in use as the ICS interface of a running job.
+    """
+    def __init__(self, **kwargs):
+        self.in_use = kwargs.get('in_use', None)
+        self.is_wireless = kwargs.get('is_wireless', None)
+        self.is_ics = kwargs.get('is_ics', None)
+
+class InUseInterfaceFlagsSchema(Schema):
+    in_use = fields.Bool()
+    is_wireless = fields.Bool()
+    is_ics = fields.Bool()
+
+    @post_load
+    def post_load(self, data):
+        return InUseInterfaceFlags(**data)
+
+class InUseInterface(object):
+    """Model for CDRouter In Use Interfaces.
+
+    :param name: (optional) Interface name as a string.
+    :param flags: (optional) :class:`system.InUseInterfaceFlags <system.InUseInterfaceFlags>` object
+    """
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.flags = kwargs.get('flags', None)
+
+class InUseInterfaceSchema(Schema):
+    name = fields.Str()
+    flags = fields.Nested(InUseInterfaceFlagsSchema)
+
+    @post_load
+    def post_load(self, data):
+        return InUseInterface(**data)
+
 class Preferences(object):
     """Model for CDRouter Preferences.
 
@@ -369,7 +408,8 @@ class SystemService(object):
         :rtype: system.Upgrade
         """
         schema = UpgradeSchema()
-        resp = self.service.post(self.base+'license/')
+        resp = self.service.post(self.base+'license/',
+                                 headers={'content-type': 'application/json'})
         return self.service.decode(schema, resp)
 
     def manual_update_license(self, fd, filename='cdrouter.lic'):
@@ -443,6 +483,15 @@ class SystemService(object):
         """
         schema = InterfaceSchema()
         resp = self.service.get(self.base+'interfaces/', params={'addresses': addresses})
+        return self.service.decode(schema, resp, many=True)
+
+    def in_use_interfaces(self):
+        """Get system interfaces, with flags to determine which are in use.
+
+        :return: :class:`system.InUseInterface <system.InUseInterface>` list
+        """
+        schema = InUseInterfaceSchema()
+        resp = self.service.get(self.base+'interfaces/', params={'in_use': True})
         return self.service.decode(schema, resp, many=True)
 
     def get_preferences(self):
