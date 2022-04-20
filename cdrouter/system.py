@@ -369,7 +369,7 @@ class SystemService(object):
                                  json={'email': email})
         return self.service.decode(schema, resp)
 
-    def lounge_upgrade(self, email, nonce, filename='cdrouter.bin'):
+    def lounge_upgrade(self, email, nonce, filename='cdrouter.rpm'):
         """Download & install an upgrade from the CDRouter Support Lounge
         using your Support Lounge email and upgrade nonce. Please note
         that any running tests will be stopped.
@@ -385,8 +385,8 @@ class SystemService(object):
                                  json={'email': email, 'release': {'nonce': nonce, 'filename': filename}})
         return self.service.decode(schema, resp)
 
-    def manual_upgrade(self, fd, filename='cdrouter.bin'):
-        """Upgrade CDRouter manually by uploading a .bin installer from the
+    def manual_upgrade(self, fd, filename='cdrouter.rpm'):
+        """Upgrade CDRouter manually by uploading an .rpm installer from the
         CDRouter Support Lounge. Please note that any running tests will be
         stopped.
 
