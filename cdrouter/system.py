@@ -426,6 +426,10 @@ class SystemService(object):
                                  files={'file': (filename, fd)})
         return self.service.decode(schema, resp)
 
+    def shutdown(self):
+        """Shutdown CDRouter web interface. Please note that any running tests will be stopped."""
+        return self.service.post(self.base+'shutdown/')
+
     def restart(self):
         """Restart CDRouter web interface. Please note that any running tests will be stopped."""
         return self.service.post(self.base+'restart/')
