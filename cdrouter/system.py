@@ -427,12 +427,20 @@ class SystemService(object):
         return self.service.decode(schema, resp)
 
     def shutdown(self):
-        """Shutdown CDRouter web interface. Please note that any running tests will be stopped."""
+        """Shutdown the CDRouter Web UI. Please note that any running tests will be stopped."""
         return self.service.post(self.base+'shutdown/')
 
+    def poweroff(self):
+        """Poweroff the NTA1000. Please note that any running tests will be stopped."""
+        return self.service.post(self.base+'poweroff/')
+
     def restart(self):
-        """Restart CDRouter web interface. Please note that any running tests will be stopped."""
+        """Restart the CDRouter Web UI. Please note that any running tests will be stopped."""
         return self.service.post(self.base+'restart/')
+
+    def reboot(self):
+        """Reboot the NTA1000. Please note that any running tests will be stopped."""
+        return self.service.post(self.base+'reboot/')
 
     def live(self):
         """Get CDRouter Live info from cdrouter-cli -live output.
