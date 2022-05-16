@@ -459,9 +459,14 @@ class SystemService(object):
     def diagnostics(self):
         """Get system diagnostics from cdrouter-diag output.
 
-        :rtype: string
+        :rtype: tuple `(io.BytesIO, 'filename')`
         """
-        return self.service.get(self.base+'diag/').text
+        resp = self.service.get(self.base+'diag/', stream=True)
+        b = io.BytesIO()
+        stream.stream_response_to_file(resp, path=b)
+        resp.close()
+        b.seek(0)
+        return (b, self.service.filename(resp))
 
     def time(self):
         """Get system time.
