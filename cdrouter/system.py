@@ -9,6 +9,7 @@ import io
 import os.path
 
 from marshmallow import Schema, fields, post_load
+from requests_toolbelt.downloadutils import stream
 
 class Version(object):
     """Model for CDRouter Release Versions.
