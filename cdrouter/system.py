@@ -427,12 +427,20 @@ class SystemService(object):
         return self.service.decode(schema, resp)
 
     def shutdown(self):
-        """Shutdown CDRouter web interface. Please note that any running tests will be stopped."""
+        """Shutdown the CDRouter Web UI. Please note that any running tests will be stopped."""
         return self.service.post(self.base+'shutdown/')
 
+    def poweroff(self):
+        """Poweroff the NTA1000. Please note that any running tests will be stopped."""
+        return self.service.post(self.base+'poweroff/')
+
     def restart(self):
-        """Restart CDRouter web interface. Please note that any running tests will be stopped."""
+        """Restart the CDRouter Web UI. Please note that any running tests will be stopped."""
         return self.service.post(self.base+'restart/')
+
+    def reboot(self):
+        """Reboot the NTA1000. Please note that any running tests will be stopped."""
+        return self.service.post(self.base+'reboot/')
 
     def live(self):
         """Get CDRouter Live info from cdrouter-cli -live output.
@@ -451,9 +459,14 @@ class SystemService(object):
     def diagnostics(self):
         """Get system diagnostics from cdrouter-diag output.
 
-        :rtype: string
+        :rtype: tuple `(io.BytesIO, 'filename')`
         """
-        return self.service.get(self.base+'diag/').text
+        resp = self.service.get(self.base+'diag/', stream=True)
+        b = io.BytesIO()
+        stream.stream_response_to_file(resp, path=b)
+        resp.close()
+        b.seek(0)
+        return (b, self.service.filename(resp))
 
     def time(self):
         """Get system time.
