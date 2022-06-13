@@ -5,6 +5,7 @@
 
 """Module for accessing CDRouter System."""
 
+import io
 import os.path
 
 from marshmallow import Schema, fields, post_load
