@@ -248,7 +248,7 @@ class ConfigsService(object):
 
         :rtype: string
         """
-        return self.service.get(self.base, params={'template': 'default'}).text
+        return self.service.get(self.base, params={'template': 'default'}).json()['data']
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a config.
