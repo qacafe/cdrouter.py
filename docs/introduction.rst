@@ -46,7 +46,7 @@ token is not provided.
     from cdrouter.jobs import Job
     from cdrouter.jobs import Options
 
-    c = CDRouter('http://localhost:8015', token='deadbeef')
+    c = CDRouter('http://localhost', token='deadbeef')
 
     for p in c.packages.iter_list(filter=field('tags').contains('noretry')):
         print('Launching package {}'.format(p.name))
