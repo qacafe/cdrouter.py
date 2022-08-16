@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -12,7 +12,7 @@ from marshmallow.exceptions import ValidationError
 
 class DictField(fields.Field):
     def __init__(self, key_field, nested_field, *args, **kwargs):
-        super(DictField, self).__init__(self, *args, **kwargs)
+        super(DictField, self).__init__(self, *args, **kwargs) # pylint: disable=super-with-arguments
         self.key_field = key_field
         self.nested_field = nested_field
 
@@ -22,7 +22,7 @@ class DictField(fields.Field):
 
         ret = {}
         for key, val in value.items():
-            k = self.key_field._deserialize(key, attr, data)
+            k = self.key_field._deserialize(key, attr, data) # pylint: disable=protected-access
             data, errors = self.nested_field.load(val)
             if errors:
                 raise ValidationError(errors, data=data)
@@ -34,7 +34,7 @@ class DictField(fields.Field):
     def _serialize(self, value, attr, obj):
         ret = {}
         for key, val in value.items():
-            k = self.key_field._serialize(key, attr, obj)
+            k = self.key_field._serialize(key, attr, obj) # pylint: disable=protected-access
             data, errors = self.nested_field.dump(val)
             if errors:
                 raise ValidationError(errors, data=data)

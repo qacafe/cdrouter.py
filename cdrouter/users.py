@@ -34,7 +34,7 @@ class User(object):
         self.updated = kwargs.get('updated', None)
         self.token = kwargs.get('token', None)
 
-        # only needed for change_password
+        # only needed for create & change_password
         self.password = kwargs.get('password', None)
         self.password_confirm = kwargs.get('password_confirm', None)
 

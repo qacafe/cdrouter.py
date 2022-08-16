@@ -470,6 +470,7 @@ class UpdateField(fields.Field):
                 raise ValidationError(errors, data=data)
             return data
         self.fail('invalid')
+        return None
 
 class Update(object):
     """Model for CDRouter Result Update.

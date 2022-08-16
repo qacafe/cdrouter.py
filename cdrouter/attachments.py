@@ -6,7 +6,6 @@
 import collections
 from functools import partial
 import io
-import os.path
 
 from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
@@ -85,7 +84,7 @@ class AttachmentsService(object):
         at, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(at, l)
 
-    def iter_list(self, id, *args, **kwargs):
+    def iter_list(self, id, *args, **kwargs): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of attachments.  Whereas ``list`` fetches a single page
         of attachments according to its ``limit`` and ``page``
         arguments, ``iter_list`` returns all attachments by internally
