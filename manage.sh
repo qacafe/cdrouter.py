@@ -1,5 +1,12 @@
 #!/bin/bash
 
+function ssh-config {
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+    cp -p ${SSH_DIR}/* ~/.ssh
+    chown -R $(id -un):$(id -gn) ~/.ssh
+}
+
 function git-config {
     git config --global user.email "${GIT_USER_EMAIL}" > /dev/null 2>&1
     git config --global user.name "${GIT_USER_NAME}" > /dev/null 2>&1
