@@ -62,7 +62,7 @@ class TestAttachments:
         assert a2.device_id == a.device_id
 
         # TODO(niels): cdrouterd doesn't return 404 for non-existent
-        # attachments, uncomment this once this is fixed
+        # attachments, uncomment this once this is fixed, see sc-19680
         # with pytest.raises(CDRouterError, match='no such attachment'):
         #     c.attachments.get(d.id, 9999)
 
@@ -117,7 +117,7 @@ class TestAttachments:
 
         # TODO(niels): remove basename() call once cdrouterd return
         # basename and not full path to attachment in
-        # Content-Disposition header
+        # Content-Disposition header, see sc-19680
         filename = '{}/{}'.format(tmp_path, basename(filename))
         with open(filename, 'wb') as fd:
             shutil.copyfileobj (b, fd)
