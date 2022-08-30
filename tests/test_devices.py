@@ -253,6 +253,9 @@ class TestDevices:
 
         c.devices.delete(d.id)
 
+        with pytest.raises(CDRouterError, match='no such device'):
+            c.devices.get_by_name('Cisco E4200')
+
         import_all_from_file(c, filename)
 
         d = c.devices.get_by_name('Cisco E4200')
