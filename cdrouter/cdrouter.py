@@ -265,7 +265,7 @@ class CDRouter(object):
             files = {}
         headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
         resp = self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
-                                    json=json, data=data, verify=(not self.insecure), auth=Auth(c=self), timeout=10.0)
+                                    json=json, data=data, verify=(not self.insecure), auth=Auth(c=self), timeout=600.0)
         self.raise_for_status(resp)
         return resp
 
