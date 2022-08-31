@@ -49,6 +49,9 @@ class TestDevices:
         d2 = c.devices.get(d.id)
         assert d2.name == d.name
 
+        with pytest.raises(CDRouterError, match='no such device'):
+            c.devices.get(9999)
+
     def test_get_by_name(self, c):
         d = Device(
             name='My device',
