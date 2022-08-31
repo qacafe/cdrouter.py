@@ -158,7 +158,7 @@ class TestConfigs:
         u = c.users.create(u)
 
         cfg = Config(
-            name='My device',
+            name='My config',
         )
         cfg = c.configs.create(cfg)
 

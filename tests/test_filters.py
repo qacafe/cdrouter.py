@@ -7,7 +7,7 @@ import pytest
 
 from cdrouter.filters import CDRouterFilterError, Field as field
 
-class TestFields:
+class TestFilters:
     def test_field(self):
         assert str(field('id', 'bar', 'buz').eq('foo')) == 'id.bar.buz=foo'
 

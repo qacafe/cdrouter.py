@@ -137,7 +137,7 @@ class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
         if token is None:
             # if API request with no token returns a 401, automatic
             # login is disabled and user needs to authenticate
-            resp = requests.get(self.c.base + self.c.BASE + 'system/hostname/', verify=(not self.c.insecure))
+            resp = requests.get(self.c.base + self.c.BASE + 'system/hostname/', verify=(not self.c.insecure), timeout=10.0)
 
             if resp.status_code == 401:
                 self.c.authenticate(self.c.retries)
@@ -265,7 +265,7 @@ class CDRouter(object):
             files = {}
         headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
         resp = self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
-                                    json=json, data=data, verify=(not self.insecure), auth=Auth(c=self))
+                                    json=json, data=data, verify=(not self.insecure), auth=Auth(c=self), timeout=10.0)
         self.raise_for_status(resp)
         return resp
 
