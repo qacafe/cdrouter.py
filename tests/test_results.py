@@ -8,9 +8,11 @@ import time
 
 import pytest
 
+from cdrouter.alerts import Alert
 from cdrouter.cdrouter import CDRouterError
 from cdrouter.jobs import Job
 from cdrouter.results import Result
+from cdrouter.testresults import TestResult
 from cdrouter.users import User
 
 from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
@@ -109,22 +111,36 @@ class TestResults:
 
         r = c.results.get(j.result_id)
 
-        update = c.results.updates(r.id)
-        assert update.id == 0
-        assert update.progress.finished == 0
-        assert update.progress.total == 0
-        assert update.progress.progress == 0
-        assert update.progress.unit == 'percentage'
-        assert update.running is None
-        assert update.updates is None
+        count = 0
+        update_id = None
+        while count < 10:
+            update = c.results.updates(r.id, update_id)
+            assert update.id >= 0
+            update_id = update.id
 
-        time.sleep(5)
+            if update.progress is not None:
+                assert update.progress.finished >= 0
+                assert update.progress.total >= 0
+                assert update.progress.progress >= 0
+                assert update.progress.unit == 'percentage'
 
-        update = c.results.updates(r.id, update.id)
-        assert update.id == 0
-        assert len(update.updates) > 0
-        assert isinstance(update.updates[0], Result)
-        assert update.updates[0].status == 'error'
+            if update.running is not None:
+                assert isinstance(update.running.name, str)
+
+            if update.updates is not None and len(update.updates) > 0:
+                for u in update.updates:
+                    if isinstance(u, Result):
+                        assert isinstance(u.result, str)
+                        assert isinstance(u.status, str)
+                    elif isinstance(u, TestResult):
+                        assert isinstance(u.result, str)
+                    elif isinstance(u, Alert):
+                        assert isinstance(u.sid, int)
+                        assert isinstance(u.rev, int)
+                    else:
+                        pytest.fail('unknown update type')
+
+            count += 1
 
     def test_stop(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
