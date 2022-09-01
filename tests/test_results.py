@@ -146,6 +146,17 @@ class TestResults:
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
         package = c.packages.get_by_name('example')
+
+        cfg = c.configs.get(package.config_id)
+        cfg.contents += '''
+proc my_start_proc {} {
+        Event_wait_seconds 999
+        start_cdrouter_testsuite
+}
+buddy::start_proc my_start_proc
+'''
+        c.configs.edit(cfg)
+
         j = c.jobs.launch(Job(package_id=package.id))
 
         while j.result_id is None:
@@ -153,12 +164,24 @@ class TestResults:
             j = c.jobs.get(j.id)
 
         r = c.results.get(j.result_id)
+        time.sleep(5)
         c.results.stop(r.id)
 
     def test_stop_end_of_test(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
         package = c.packages.get_by_name('example')
+
+        cfg = c.configs.get(package.config_id)
+        cfg.contents += '''
+proc my_start_proc {} {
+        Event_wait_seconds 999
+        start_cdrouter_testsuite
+}
+buddy::start_proc my_start_proc
+'''
+        c.configs.edit(cfg)
+
         j = c.jobs.launch(Job(package_id=package.id))
 
         while j.result_id is None:
@@ -166,12 +189,24 @@ class TestResults:
             j = c.jobs.get(j.id)
 
         r = c.results.get(j.result_id)
+        time.sleep(5)
         c.results.stop_end_of_test(r.id)
 
     def test_stop_end_of_loop(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
         package = c.packages.get_by_name('example')
+
+        cfg = c.configs.get(package.config_id)
+        cfg.contents += '''
+proc my_start_proc {} {
+        Event_wait_seconds 999
+        start_cdrouter_testsuite
+}
+buddy::start_proc my_start_proc
+'''
+        c.configs.edit(cfg)
+
         j = c.jobs.launch(Job(package_id=package.id))
 
         while j.result_id is None:
@@ -179,12 +214,24 @@ class TestResults:
             j = c.jobs.get(j.id)
 
         r = c.results.get(j.result_id)
+        time.sleep(5)
         c.results.stop_end_of_loop(r.id)
 
     def test_pause(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
         package = c.packages.get_by_name('example')
+
+        cfg = c.configs.get(package.config_id)
+        cfg.contents += '''
+proc my_start_proc {} {
+        Event_wait_seconds 999
+        start_cdrouter_testsuite
+}
+buddy::start_proc my_start_proc
+'''
+        c.configs.edit(cfg)
+
         j = c.jobs.launch(Job(package_id=package.id))
 
         while j.result_id is None:
@@ -192,12 +239,24 @@ class TestResults:
             j = c.jobs.get(j.id)
 
         r = c.results.get(j.result_id)
+        time.sleep(5)
         c.results.pause(r.id)
 
     def test_pause_end_of_test(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
         package = c.packages.get_by_name('example')
+
+        cfg = c.configs.get(package.config_id)
+        cfg.contents += '''
+proc my_start_proc {} {
+        Event_wait_seconds 999
+        start_cdrouter_testsuite
+}
+buddy::start_proc my_start_proc
+'''
+        c.configs.edit(cfg)
+
         j = c.jobs.launch(Job(package_id=package.id))
 
         while j.result_id is None:
@@ -205,12 +264,24 @@ class TestResults:
             j = c.jobs.get(j.id)
 
         r = c.results.get(j.result_id)
+        time.sleep(5)
         c.results.pause_end_of_test(r.id)
 
     def test_pause_end_of_loop(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
         package = c.packages.get_by_name('example')
+
+        cfg = c.configs.get(package.config_id)
+        cfg.contents += '''
+proc my_start_proc {} {
+        Event_wait_seconds 999
+        start_cdrouter_testsuite
+}
+buddy::start_proc my_start_proc
+'''
+        c.configs.edit(cfg)
+
         j = c.jobs.launch(Job(package_id=package.id))
 
         while j.result_id is None:
@@ -218,12 +289,24 @@ class TestResults:
             j = c.jobs.get(j.id)
 
         r = c.results.get(j.result_id)
+        time.sleep(5)
         c.results.pause_end_of_loop(r.id)
 
     def test_unpause(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
         package = c.packages.get_by_name('example')
+
+        cfg = c.configs.get(package.config_id)
+        cfg.contents += '''
+proc my_start_proc {} {
+        Event_wait_seconds 999
+        start_cdrouter_testsuite
+}
+buddy::start_proc my_start_proc
+'''
+        c.configs.edit(cfg)
+
         j = c.jobs.launch(Job(package_id=package.id))
 
         while j.result_id is None:
@@ -231,6 +314,7 @@ class TestResults:
             j = c.jobs.get(j.id)
 
         r = c.results.get(j.result_id)
+        time.sleep(5)
         c.results.unpause(r.id)
 
     def test_edit(self, c):
