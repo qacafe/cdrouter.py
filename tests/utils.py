@@ -46,7 +46,7 @@ def my_cdrouter():
 
     ok = False
     exit_code = 3
-    timeout = time() + 10
+    timeout = time() + 30
     while ok is False and time() < timeout:
         (exit_code, _) = container.exec_run(['/usr/cdrouter/etc/cdrouter.sh', 'status'])
         if exit_code == 0:
@@ -57,7 +57,7 @@ def my_cdrouter():
         raise ValueError('unable to start cdrouter')
 
     ok = False
-    timeout = time() + 10
+    timeout = time() + 30
     while ok is False and time() < timeout:
         try:
             c.system.time()

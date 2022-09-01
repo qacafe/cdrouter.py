@@ -40,3 +40,8 @@ test:
   interruptible: true
   rules:
    - if: '$CI_PIPELINE_SOURCE != "schedule" && $CI_PIPELINE_SOURCE != "web"'
+  artifacts:
+    name: "cdrouter.py-coverage-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - .coverage
+      - htmlcov/*
