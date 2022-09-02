@@ -29,12 +29,12 @@ class TestJobs:
     def test_iter_list(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
-        assert len(list(c.jobs.iter_list())) == 0
+        assert len(list(c.jobs.iter_list(limit=1))) == 0
 
         package = c.packages.get_by_name('example')
         c.jobs.launch(Job(package_id=package.id))
 
-        assert len(list(c.jobs.iter_list())) == 1
+        assert len(list(c.jobs.iter_list(limit=1))) == 1
 
     def test_get(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')

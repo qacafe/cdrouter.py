@@ -20,7 +20,7 @@ class TestAlerts:
     def test_iter_list(self, c):
         import_all_from_file(c, 'tests/testdata/example4.gz')
 
-        assert len(list(c.alerts.iter_list(20220831203101))) == 608
+        assert len(list(c.alerts.iter_list(20220831203101, limit=1))) == 608
 
     def test_get(self, c):
         import_all_from_file(c, 'tests/testdata/example4.gz')

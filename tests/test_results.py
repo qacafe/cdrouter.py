@@ -30,11 +30,11 @@ class TestResults:
         assert len(results) == 1
 
     def test_iter_list(self, c):
-        assert len(list(c.results.iter_list())) == 0
+        assert len(list(c.results.iter_list(limit=1))) == 0
 
         import_all_from_file(c, 'tests/testdata/example.gz')
 
-        assert len(list(c.results.iter_list())) == 1
+        assert len(list(c.results.iter_list(limit=1))) == 1
 
     def test_list_csv(self, c):
         assert len(list(c.results.iter_list())) == 0

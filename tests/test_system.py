@@ -4,13 +4,84 @@
 #
 
 import datetime
+from distutils.util import strtobool
+from os import environ
 from os.path import basename
 import shutil
 import tarfile
 
+import pytest
+
+from cdrouter.cdrouter import CDRouterError
+
 from .utils import my_cdrouter, my_c, my_copy_file_from_container # pylint: disable=unused-import
 
 class TestSystem:
+    @pytest.mark.skipif('RUN_LOUNGE_TESTS' not in environ, reason="requires RUN_LOUNGE_TESTS env var")
+    def test_latest_lounge_release(self, c):
+        prefs = c.system.get_preferences()
+        if 'LOUNGE_URL' in environ:
+            prefs.lounge_url = environ.get('LOUNGE_URL')
+        if 'LOUNGE_INSECURE' in environ:
+            prefs.lounge_insecure = bool(strtobool(environ.get('LOUNGE_INSECURE')))
+        c.system.edit_preferences(prefs)
+
+        release = c.system.latest_lounge_release()
+        assert isinstance(release.latest.raw, str)
+        assert isinstance(release.latest.major, int)
+        assert isinstance(release.latest.minor, int)
+        assert isinstance(release.latest.build, int)
+        assert isinstance(release.current.raw, str)
+        assert isinstance(release.current.major, int)
+        assert isinstance(release.current.minor, int)
+        assert isinstance(release.current.build, int)
+        assert isinstance(release.newer, bool)
+
+    @pytest.mark.skipif('RUN_LOUNGE_TESTS' not in environ, reason="requires RUN_LOUNGE_TESTS env var")
+    @pytest.mark.skipif('LOUNGE_EMAIL' not in environ, reason="requires LOUNGE_EMAIL env var")
+    def test_check_for_lounge_upgrade(self, c):
+        prefs = c.system.get_preferences()
+        if 'LOUNGE_URL' in environ:
+            prefs.lounge_url = environ.get('LOUNGE_URL')
+        if 'LOUNGE_INSECURE' in environ:
+            prefs.lounge_insecure = bool(strtobool(environ.get('LOUNGE_INSECURE')))
+        c.system.edit_preferences(prefs)
+
+        release = c.system.check_for_lounge_upgrade(environ.get('LOUNGE_EMAIL'))
+        assert isinstance(release.build_date, str)
+        assert isinstance(release.filename, str)
+        assert isinstance(release.version.raw, str)
+        assert isinstance(release.version.major, int)
+        assert isinstance(release.version.minor, int)
+        assert isinstance(release.version.build, int)
+        assert isinstance(release.testsuite.shortname, str)
+        assert isinstance(release.testsuite.name, str)
+        assert isinstance(release.nonce, str)
+
+    @pytest.mark.skipif('RUN_LOUNGE_TESTS' not in environ, reason="requires RUN_LOUNGE_TESTS env var")
+    @pytest.mark.skipif('LOUNGE_EMAIL' not in environ, reason="requires LOUNGE_EMAIL env var")
+    def test_lounge_upgrade(self, c):
+        prefs = c.system.get_preferences()
+        if 'LOUNGE_URL' in environ:
+            prefs.lounge_url = environ.get('LOUNGE_URL')
+        if 'LOUNGE_INSECURE' in environ:
+            prefs.lounge_insecure = bool(strtobool(environ.get('LOUNGE_INSECURE')))
+        c.system.edit_preferences(prefs)
+
+        try:
+            release = c.system.check_for_lounge_upgrade(environ.get('LOUNGE_EMAIL'))
+        except CDRouterError:
+            pytest.skip('no lounge upgrade available')
+            return
+
+        upgrade = c.system.lounge_upgrade(environ.get('LOUNGE_EMAIL'), release.nonce, release.filename)
+        assert isinstance(upgrade.success, bool)
+        assert upgrade.installer_path is None or isinstance(upgrade.installer_path, str)
+        assert upgrade.output is None or isinstance(upgrade.output, str)
+        assert upgrade.error is None or isinstance(upgrade.error, str)
+
+        c.system.hostname()
+
     def test_manual_upgrade(self, cdrouter, copy_file_from_container):
         container = cdrouter['container']
         c = cdrouter['c']
@@ -22,6 +93,14 @@ class TestSystem:
         assert 'Complete!' in upgrade.output
 
         c.system.hostname()
+
+    @pytest.mark.skipif('RUN_LOUNGE_TESTS' not in environ, reason="requires RUN_LOUNGE_TESTS env var")
+    def test_lounge_update_license(self, c):
+        upgrade = c.system.lounge_update_license()
+        assert isinstance(upgrade.success, bool)
+        assert upgrade.installer_path is None or isinstance(upgrade.installer_path, str)
+        assert upgrade.output is None or isinstance(upgrade.output, str)
+        assert upgrade.error is None or isinstance(upgrade.error, str)
 
     def test_manual_update_license(self, cdrouter, copy_file_from_container):
         container = cdrouter['container']

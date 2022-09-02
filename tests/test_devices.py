@@ -30,7 +30,7 @@ class TestDevices:
         assert links.last == 5
 
     def test_iter_list(self, c):
-        assert len(list(c.devices.iter_list())) == 0
+        assert len(list(c.devices.iter_list(limit=1))) == 0
 
         for ii in range(1, 51):
             d = Device(
@@ -38,7 +38,7 @@ class TestDevices:
             )
             c.devices.create(d)
 
-        assert len(list(c.devices.iter_list())) == 50
+        assert len(list(c.devices.iter_list(limit=1))) == 50
 
     def test_get(self, c):
         d = Device(

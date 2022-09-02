@@ -33,7 +33,7 @@ class TestUsers:
         assert links.last == 5
 
     def test_iter_list(self, c):
-        assert len(list(c.users.iter_list())) == 1
+        assert len(list(c.users.iter_list(limit=1))) == 1
 
         for ii in range(2, 6):
             u = User(
@@ -44,7 +44,7 @@ class TestUsers:
             )
             c.users.create(u)
 
-        assert len(list(c.users.iter_list())) == 5
+        assert len(list(c.users.iter_list(limit=1))) == 5
 
     def test_get(self, c):
         u = c.users.get(1)

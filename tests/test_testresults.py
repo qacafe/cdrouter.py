@@ -20,7 +20,7 @@ class TestTestResults:
     def test_iter_list(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
-        assert len(list(c.tests.iter_list(20220821222306))) == 4
+        assert len(list(c.tests.iter_list(20220821222306, limit=1))) == 4
 
     def test_list_csv(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
@@ -112,7 +112,7 @@ class TestTestResults:
     def test_iter_list_log(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
-        lines = list(c.tests.iter_list_log(20220821222306, 1))
+        lines = list(c.tests.iter_list_log(20220821222306, 1, limit=1))
         assert len(lines) == 558
         assert 'Started cdrouter-cli' in lines[53].raw
         assert lines[53].line == 54

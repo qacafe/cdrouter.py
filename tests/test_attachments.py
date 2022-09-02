@@ -34,6 +34,10 @@ class TestAttachments:
 
         d = c.devices.get_by_name('Cisco E4200')
 
+        # TODO(niels): cdrouterd completely ignores the page and limit
+        # parameters and always returns all attachments with the list
+        # attachments endpoint.  Add limit=1 here once this is fixed,
+        # see sc-19680.
         assert len(list(c.attachments.iter_list(d.id))) == 0
 
         with open('tests/testdata/example.gz', 'rb') as fd:
@@ -43,6 +47,10 @@ class TestAttachments:
             c.attachments.create(d.id, fd, filename='example4.gz')
             c.attachments.create(d.id, fd, filename='example5.gz')
 
+        # TODO(niels): cdrouterd completely ignores the page and limit
+        # parameters and always returns all attachments with the list
+        # attachments endpoint.  Add limit=1 here once this is fixed,
+        # see sc-19680.
         assert len(list(c.attachments.iter_list(d.id))) == 5
 
     def test_get(self, c):

@@ -417,6 +417,10 @@ class ConfigsService(object):
         """
         schema = self.EDIT_SCHEMA
         _fields = self.service.encode(schema, _fields, skip_none=True)
+        if testvars is not None:
+            schema = TestvarSchema()
+            testvars = self.service.encode(schema, testvars, many=True)
+
         return self.service.bulk_edit(self.base, self.RESOURCE,
                                       _fields, ids=ids, filter=filter, type=type, all=all, testvars=testvars)
 

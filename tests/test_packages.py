@@ -30,7 +30,7 @@ class TestPackages:
         assert links.last == 13
 
     def test_iter_list(self, c):
-        assert len(list(c.packages.iter_list())) == 8
+        assert len(list(c.packages.iter_list(limit=1))) == 8
 
         for ii in range(1, 6):
             p = Package(
@@ -38,7 +38,7 @@ class TestPackages:
             )
             c.packages.create(p)
 
-        assert len(list(c.packages.iter_list())) == 13
+        assert len(list(c.packages.iter_list(limit=1))) == 13
 
     def test_get(self, c):
         u = c.users.get_by_name('admin')

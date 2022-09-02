@@ -30,7 +30,7 @@ class TestConfigs:
         assert links.last == 5
 
     def test_iter_list(self, c):
-        assert len(list(c.configs.iter_list())) == 0
+        assert len(list(c.configs.iter_list(limit=1))) == 0
 
         for ii in range(1, 6):
             cfg = Config(
@@ -38,7 +38,7 @@ class TestConfigs:
             )
             c.configs.create(cfg)
 
-        assert len(list(c.configs.iter_list())) == 5
+        assert len(list(c.configs.iter_list(limit=1))) == 5
 
     def test_get_new(self, c):
         contents = c.configs.get_new()
@@ -368,6 +368,14 @@ class TestConfigs:
 
         for cfg in configs:
             assert c.configs.get(cfg.id).contents == new
+
+        new_tags=['bar', 'buz', 'foo']
+        new_testvars=[Testvar(name='lanIp', value='3.3.3.3')]
+        c.configs.bulk_edit(Config(tags=new_tags), [cfg.id for cfg in configs], testvars=new_testvars)
+
+        for cfg in configs:
+            assert c.configs.get(cfg.id).tags == new_tags
+            assert c.configs.get_testvar(cfg.id, 'lanIp').value == '3.3.3.3'
 
     def test_bulk_delete(self, c):
         cfg = Config(
