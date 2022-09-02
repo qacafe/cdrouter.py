@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -177,6 +177,7 @@ class TestResult(object):
     :param id: (optional) Result ID as an int.
     :param seq: (optional) TestResult sequence ID as an int.
     :param loop: (optional) Loop number as an int.
+    :param active: (optional) Bool `True` if result is 'running' or 'waiting'.
     :param result: (optional) Test result as string.
     :param alerts: (optional) Alerts count as int.
     :param retries: (optional) Retry count as int.
@@ -194,6 +195,7 @@ class TestResult(object):
         self.id = kwargs.get('id', None)
         self.seq = kwargs.get('seq', None)
         self.loop = kwargs.get('loop', None)
+        self.active = kwargs.get('active', None)
         self.result = kwargs.get('result', None)
         self.alerts = kwargs.get('alerts', None)
         self.retries = kwargs.get('retries', None)
@@ -211,6 +213,7 @@ class TestResultSchema(Schema):
     id = fields.Int(as_string=True)
     seq = fields.Int(as_string=True)
     loop = fields.Int(as_string=True)
+    active = fields.Bool()
     result = fields.Str()
     alerts = fields.Int()
     retries = fields.Int()
@@ -248,7 +251,8 @@ class TestResultsService(object):
         return 'results/'+str(id)+self.BASE
 
     def list(self, id, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a list of test results.
+        """Get a list of test results, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param id: Result ID as an int.
         :param filter: (optional) Filters to apply as a string list.
@@ -311,7 +315,7 @@ class TestResultsService(object):
         :return: :class:`testresults.TestResult <testresults.TestResult>` object
         :rtype: testresults.TestResult
         """
-        schema = TestResultSchema(exclude=('id', 'seq', 'loop', 'result', 'alerts', 'retries', 'started', 'duration', 'name', 'description', 'skip_name', 'skip_reason', 'log'))
+        schema = TestResultSchema(exclude=('id', 'seq', 'loop', 'active', 'result', 'alerts', 'retries', 'started', 'duration', 'name', 'description', 'skip_name', 'skip_reason', 'log'))
         json = self.service.encode(schema, resource)
 
         schema = TestResultSchema()

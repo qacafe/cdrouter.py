@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -61,7 +61,8 @@ class HistoryService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
-        """Get a list of history entries.
+        """Get a list of history entries, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.

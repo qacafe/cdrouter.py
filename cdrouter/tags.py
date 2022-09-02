@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -101,10 +101,11 @@ class TagsService(object):
         resp = self.service.get_id(self.base, name)
         return self.service.decode(schema, resp)
 
-    def edit(self, resource):
-        """Edit a tag.
+    def edit(self, resource, old_name=None):
+        """Edit a tag.  When renaming a tag, old_name must be set to the old tag name.
 
         :param resource: :class:`tags.Tag <tags.Tag>` object
+        :param old_name: (optional) Old tag name as a string.  Only required when renaming a tag.
         :return: :class:`tags.Tag <tags.Tag>` object
         :rtype: tags.Tag
         """
@@ -112,7 +113,10 @@ class TagsService(object):
         json = self.service.encode(schema, resource)
 
         schema = TagSchema()
-        resp = self.service.edit(self.base, resource.name, json)
+        name = resource.name
+        if old_name is not None:
+            name = old_name
+        resp = self.service.edit(self.base, name, json)
         return self.service.decode(schema, resp)
 
     def delete(self, name):

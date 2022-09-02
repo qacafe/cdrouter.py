@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -90,6 +90,30 @@ class NetworksSchema(Schema):
     def post_load(self, data, **kwargs):
         return Networks(**data)
 
+class Interfaces(object):
+    """Model for CDRouter Config Interfaces.
+
+    :param name: (optional) Interface name (i.e. 'lan', 'wan', etc.) as string.
+    :param value: (optional) Interface value (i.e. 'eth0', 'eth1', etc.) as string.
+    :param is_wireless: (optional) Bool `True` if interface is a wireless interface.
+    :param is_ics: (optional) Bool `True` if interface is the ICS interface.
+    """
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.value = kwargs.get('value', None)
+        self.is_wireless = kwargs.get('is_wireless', None)
+        self.is_ics = kwargs.get('is_ics', None)
+
+class InterfacesSchema(Schema):
+    name = fields.Str(missing=None)
+    value = fields.Str()
+    is_wireless = fields.Bool()
+    is_ics = fields.Bool()
+
+    @post_load
+    def post_load(self, data):
+        return Interfaces(**data)
+
 class Testvar(object):
     """Model for CDRouter Config Testvars.
 
@@ -133,6 +157,7 @@ class Config(object):
     :param result_id: (optional) Result ID as an int (if a config snapshot).
     :param tags: (optional) Tags as string list.
     :param note: (optional) Note as string.
+    :param interfaces: (optional) :class:`configs.Interfaces <configs.Interfaces>` list (if a config snapshot).
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -145,13 +170,7 @@ class Config(object):
         self.result_id = kwargs.get('result_id', None)
         self.tags = kwargs.get('tags', None)
         self.note = kwargs.get('note', None)
-
-class Page(collections.namedtuple('Page', ['data', 'links'])):
-    """Named tuple for a page of list response data.
-
-    :param data: :class:`configs.Config <configs.Config>` list
-    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
-    """
+        self.interfaces = kwargs.get('interfaces', None)
 
 class ConfigSchema(Schema):
     id = fields.Int(as_string=True)
@@ -164,10 +183,18 @@ class ConfigSchema(Schema):
     result_id = fields.Int(as_string=True, missing=None)
     tags = fields.List(fields.Str())
     note = fields.Str()
+    interfaces = fields.Nested(InterfacesSchema, many=True)
 
     @post_load
     def post_load(self, data, **kwargs):
         return Config(**data)
+
+class Page(collections.namedtuple('Page', ['data', 'links'])):
+    """Named tuple for a page of list response data.
+
+    :param data: :class:`configs.Config <configs.Config>` list
+    :param links: :class:`cdrouter.Links <cdrouter.Links>` object
+    """
 
 class ConfigsService(object):
     """Service for accessing CDRouter Configs."""
@@ -176,8 +203,8 @@ class ConfigsService(object):
     BASE = RESOURCE + '/'
 
     GET_SCHEMA = ConfigSchema()
-    LIST_SCHEMA = ConfigSchema(exclude=('contents', 'note'))
-    CREATE_SCHEMA = ConfigSchema(exclude=('id', 'created', 'updated', 'result_id'))
+    LIST_SCHEMA = ConfigSchema(exclude=('contents', 'note', 'interfaces'))
+    CREATE_SCHEMA = ConfigSchema(exclude=('id', 'created', 'updated', 'result_id', 'interfaces'))
     EDIT_SCHEMA = CREATE_SCHEMA
 
     def __init__(self, service):
@@ -185,7 +212,8 @@ class ConfigsService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
-        """Get a list of configs.
+        """Get a list of configs, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
@@ -220,7 +248,7 @@ class ConfigsService(object):
 
         :rtype: string
         """
-        return self.service.get(self.base, params={'template': 'default'}).text
+        return self.service.get(self.base, params={'template': 'default'}).json()['data']
 
     def get(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get a config.
@@ -248,7 +276,7 @@ class ConfigsService(object):
         :return: :class:`configs.Config <configs.Config>` object
         :rtype: configs.Config
         """
-        rs, _ = self.list(filter=field('name').eq(name), limit=1)
+        rs, _ = self.list(filter=field('name').eq(name), limit=1, detailed=True)
         if len(rs) == 0:
             raise CDRouterError('no such config')
         return rs[0]
@@ -347,7 +375,18 @@ class ConfigsService(object):
         schema = NetworksSchema()
         resp = self.service.post(self.base,
                                  params={'process': 'networks'}, json={'contents': contents})
-        return self.service.decode(schema, resp)
+        return self.service.decode(schema, resp, many=True)
+
+    def get_interfaces(self, contents):
+        """Process config contents with cdrouter-cli -print-interfaces.
+
+        :param contents: Config contents as string.
+        :return: :class:`configs.Interfaces <configs.Interfaces>` list
+        """
+        schema = InterfacesSchema()
+        resp = self.service.post(self.base,
+                                 params={'process': 'interfaces'}, json={'contents': contents})
+        return self.service.decode(schema, resp, many=True)
 
     def bulk_export(self, ids):
         """Bulk export a set of configs.

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -66,7 +66,8 @@ class AttachmentsService(object):
         return 'devices/'+str(id)+'/'+self.BASE
 
     def list(self, id, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a list of a device's attachments.
+        """Get a list of a device's attachments, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param id: Device ID as an int.
         :param filter: (optional) Filters to apply as a string list.

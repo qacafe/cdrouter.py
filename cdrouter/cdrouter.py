@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -190,7 +190,7 @@ class CDRouter(object):
         will print a password prompt to stdout and read the password
         from stdin.
 
-    :param retries: (optional) The number of times to authenticate
+    :param retries: (optional) The number of times to retry authentication
         with the CDRouter system before giving up as an int.
 
     :param insecure: (optional) If bool `True` and `base` is an HTTPS
@@ -263,7 +263,7 @@ class CDRouter(object):
             headers = {}
         if files is None:
             files = {}
-            headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
+        headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
         resp = self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
                                     json=json, data=data, verify=(not self.insecure), auth=Auth(c=self))
         self.raise_for_status(resp)
@@ -272,8 +272,8 @@ class CDRouter(object):
     def get(self, path, params=None, stream=None):
         return self._req(path, method='GET', params=params, stream=stream)
 
-    def post(self, path, json=None, data=None, params=None, files=None, stream=None):
-        return self._req(path, method='POST', json=json, data=data, params=params, stream=stream, files=files)
+    def post(self, path, json=None, data=None, params=None, headers=None, files=None, stream=None):
+        return self._req(path, method='POST', json=json, data=data, params=params, headers=headers, stream=stream, files=files)
 
     def patch(self, path, json, params=None):
         return self._req(path, method='PATCH', json=json, params=params)
@@ -423,7 +423,7 @@ class CDRouter(object):
     def authenticate(self, retries=3):
         """Set API token by authenticating via username/password.
 
-        :param retries: Number of authentication attempts to make before giving up as an int.
+        :param retries: Number of authentication retries to make before giving up as an int.
         :return: Learned API token
         :rtype: string
         """
@@ -431,7 +431,9 @@ class CDRouter(object):
         username = self.username or self._getuser(self.base)
         password = self.password
 
-        while retries > 0:
+        attempts = 1 + retries
+
+        while attempts > 0:
             if password is None:
                 password = self._getpass(self.base, username)
 
@@ -448,8 +450,8 @@ class CDRouter(object):
                     break
             except CDRouterError as cde:
                 password = None
-                retries -= 1
-                if retries == 0:
+                attempts -= 1
+                if attempts == 0:
                     raise cde
 
         return self.token

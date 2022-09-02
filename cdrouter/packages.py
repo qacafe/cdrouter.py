@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -13,6 +13,7 @@ from .results import OptionsSchema as ResultOptionsSchema
 from .testsuites import TestSchema
 from .cdr_datetime import DateTime
 from .filters import Field as field
+from .configs import InterfacesSchema
 
 class Analysis(object):
     """Model for CDRouter Package Analysis.
@@ -127,6 +128,7 @@ class Package(object):
     :param use_as_testlist: (optional) Bool `True` if package is used as a testlist.
     :param note: (optional) Note as a string.
     :param schedule: (optional) :class:`packages.Schedule <packages.Schedule>` object
+    :param interfaces: (optional) :class:`configs.Interfaces <configs.Interfaces>` list (if a package snapshot).
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -147,6 +149,7 @@ class Package(object):
         self.use_as_testlist = kwargs.get('use_as_testlist', None)
         self.note = kwargs.get('note', None)
         self.schedule = kwargs.get('schedule', None)
+        self.interfaces = kwargs.get('interfaces', None)
 
 class PackageSchema(Schema):
     id = fields.Int(as_string=True)
@@ -167,6 +170,7 @@ class PackageSchema(Schema):
     use_as_testlist = fields.Bool()
     note = fields.Str(missing=None)
     schedule = fields.Nested(ScheduleSchema)
+    interfaces = fields.Nested(InterfacesSchema, many=True)
 
     @post_load
     def post_load(self, data, **kwargs):
@@ -190,7 +194,8 @@ class PackagesService(object):
         self.base = self.BASE
 
     def list(self, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
-        """Get a list of packages.
+        """Get a list of packages, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
@@ -202,7 +207,7 @@ class PackagesService(object):
         """
         schema = PackageSchema()
         if not detailed:
-            schema = PackageSchema(exclude=('testlist', 'extra_cli_args', 'agent_id', 'options', 'note'))
+            schema = PackageSchema(exclude=('testlist', 'extra_cli_args', 'agent_id', 'options', 'note', 'interfaces'))
         resp = self.service.list(self.base, filter, type, sort, limit, page, detailed=detailed)
         ps, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(ps, l)
@@ -238,7 +243,7 @@ class PackagesService(object):
         :return: :class:`packages.Package <packages.Package>` object
         :rtype: packages.Package
         """
-        rs, _ = self.list(filter=field('name').eq(name), limit=1)
+        rs, _ = self.list(filter=field('name').eq(name), limit=1, detailed=True)
         if len(rs) == 0:
             raise CDRouterError('no such package')
         return rs[0]
@@ -250,7 +255,7 @@ class PackagesService(object):
         :return: :class:`packages.Package <packages.Package>` object
         :rtype: packages.Package
         """
-        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id'))
+        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id', 'interfaces'))
         json = self.service.encode(schema, resource)
 
         schema = PackageSchema()
@@ -264,7 +269,7 @@ class PackagesService(object):
         :return: :class:`packages.Package <packages.Package>` object
         :rtype: packages.Package
         """
-        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id'))
+        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id', 'interfaces'))
         json = self.service.encode(schema, resource)
 
         schema = PackageSchema()
@@ -322,6 +327,20 @@ class PackagesService(object):
         """
         return self.service.post(self.base+str(id)+'/', params={'process': 'testlist-expanded'}).json()['data']
 
+    def get_interfaces(self, resource):
+        """Process package with cdrouter-cli -print-interfaces.
+
+        :param resource: :class:`packages.Package <packages.Package>` object
+        :return: :class:`configs.Interfaces <configs.Interfaces>` list
+        """
+        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id', 'interfaces'))
+        json = self.service.encode(schema, resource)
+
+        schema = InterfacesSchema()
+        resp = self.service.post(self.base,
+                                 params={'process': 'interfaces'}, json=json)
+        return self.service.decode(schema, resp, many=True)
+
     def bulk_export(self, ids):
         """Bulk export a set of packages.
 
@@ -348,7 +367,7 @@ class PackagesService(object):
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
         """
-        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id'))
+        schema = PackageSchema(exclude=('id', 'created', 'updated', 'test_count', 'agent_id', 'result_id', 'interfaces'))
         _fields = self.service.encode(schema, _fields, skip_none=True)
         return self.service.bulk_edit(self.base, self.RESOURCE,
                                       _fields, ids=ids, filter=filter, type=type, all=all)

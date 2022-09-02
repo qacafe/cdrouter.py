@@ -1,13 +1,15 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
 """Module for accessing CDRouter System."""
 
+import io
 import os.path
 
 from marshmallow import Schema, fields, post_load
+from requests_toolbelt.downloadutils import stream
 
 class Version(object):
     """Model for CDRouter Release Versions.
@@ -201,6 +203,45 @@ class InterfaceSchema(Schema):
     def post_load(self, data, **kwargs):
         return Interface(**data)
 
+class InUseInterfaceFlags(object):
+    """Model for CDRouter In Use Interface Flags.
+
+    :param in_use: (optional) Bool `True` if interface is in use by a running job.
+    :param is_wireless: (optional) Bool `True` if interface is a wireless interface.
+    :param is_ics: (optional) Bool `True` if interface is in use as the ICS interface of a running job.
+    """
+    def __init__(self, **kwargs):
+        self.in_use = kwargs.get('in_use', None)
+        self.is_wireless = kwargs.get('is_wireless', None)
+        self.is_ics = kwargs.get('is_ics', None)
+
+class InUseInterfaceFlagsSchema(Schema):
+    in_use = fields.Bool()
+    is_wireless = fields.Bool()
+    is_ics = fields.Bool()
+
+    @post_load
+    def post_load(self, data):
+        return InUseInterfaceFlags(**data)
+
+class InUseInterface(object):
+    """Model for CDRouter In Use Interfaces.
+
+    :param name: (optional) Interface name as a string.
+    :param flags: (optional) :class:`system.InUseInterfaceFlags <system.InUseInterfaceFlags>` object
+    """
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', None)
+        self.flags = kwargs.get('flags', None)
+
+class InUseInterfaceSchema(Schema):
+    name = fields.Str()
+    flags = fields.Nested(InUseInterfaceFlagsSchema)
+
+    @post_load
+    def post_load(self, data):
+        return InUseInterface(**data)
+
 class Preferences(object):
     """Model for CDRouter Preferences.
 
@@ -330,7 +371,7 @@ class SystemService(object):
                                  json={'email': email})
         return self.service.decode(schema, resp)
 
-    def lounge_upgrade(self, email, nonce, filename='cdrouter.bin'):
+    def lounge_upgrade(self, email, nonce, filename='cdrouter.rpm'):
         """Download & install an upgrade from the CDRouter Support Lounge
         using your Support Lounge email and upgrade nonce. Please note
         that any running tests will be stopped.
@@ -346,8 +387,8 @@ class SystemService(object):
                                  json={'email': email, 'release': {'nonce': nonce, 'filename': filename}})
         return self.service.decode(schema, resp)
 
-    def manual_upgrade(self, fd, filename='cdrouter.bin'):
-        """Upgrade CDRouter manually by uploading a .bin installer from the
+    def manual_upgrade(self, fd, filename='cdrouter.rpm'):
+        """Upgrade CDRouter manually by uploading an .rpm installer from the
         CDRouter Support Lounge. Please note that any running tests will be
         stopped.
 
@@ -369,7 +410,8 @@ class SystemService(object):
         :rtype: system.Upgrade
         """
         schema = UpgradeSchema()
-        resp = self.service.post(self.base+'license/')
+        resp = self.service.post(self.base+'license/',
+                                 headers={'content-type': 'application/json'})
         return self.service.decode(schema, resp)
 
     def manual_update_license(self, fd, filename='cdrouter.lic'):
@@ -386,9 +428,21 @@ class SystemService(object):
                                  files={'file': (filename, fd)})
         return self.service.decode(schema, resp)
 
+    def shutdown(self):
+        """Shutdown the CDRouter Web UI. Please note that any running tests will be stopped."""
+        return self.service.post(self.base+'shutdown/')
+
+    def poweroff(self):
+        """Poweroff the NTA1000. Please note that any running tests will be stopped."""
+        return self.service.post(self.base+'poweroff/')
+
     def restart(self):
-        """Restart CDRouter web interface. Please note that any running tests will be stopped."""
+        """Restart the CDRouter Web UI. Please note that any running tests will be stopped."""
         return self.service.post(self.base+'restart/')
+
+    def reboot(self):
+        """Reboot the NTA1000. Please note that any running tests will be stopped."""
+        return self.service.post(self.base+'reboot/')
 
     def live(self):
         """Get CDRouter Live info from cdrouter-cli -live output.
@@ -407,9 +461,14 @@ class SystemService(object):
     def diagnostics(self):
         """Get system diagnostics from cdrouter-diag output.
 
-        :rtype: string
+        :rtype: tuple `(io.BytesIO, 'filename')`
         """
-        return self.service.get(self.base+'diag/').text
+        resp = self.service.get(self.base+'diag/', stream=True)
+        b = io.BytesIO()
+        stream.stream_response_to_file(resp, path=b)
+        resp.close()
+        b.seek(0)
+        return (b, self.service.filename(resp))
 
     def time(self):
         """Get system time.
@@ -443,6 +502,15 @@ class SystemService(object):
         """
         schema = InterfaceSchema()
         resp = self.service.get(self.base+'interfaces/', params={'addresses': addresses})
+        return self.service.decode(schema, resp, many=True)
+
+    def in_use_interfaces(self):
+        """Get system interfaces, with flags to determine which are in use.
+
+        :return: :class:`system.InUseInterface <system.InUseInterface>` list
+        """
+        schema = InUseInterfaceSchema()
+        resp = self.service.get(self.base+'interfaces/', params={'in_use': True})
         return self.service.decode(schema, resp, many=True)
 
     def get_preferences(self):

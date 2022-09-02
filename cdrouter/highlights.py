@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -44,7 +44,8 @@ class HighlightsService(object):
         return 'results/'+str(id)+'/tests/'+str(seq)+'/'+self.BASE
 
     def list(self, id, seq, detailed=None): # pylint: disable=invalid-name,redefined-builtin
-        """Get a list of highlights.
+        """Get a list of highlights, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param id: Result ID as an int.
         :param seq: TestResult sequence ID as an int.
