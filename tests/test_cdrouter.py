@@ -35,8 +35,14 @@ class TestCDRouter:
         c2 = CDRouter(c.base, insecure=c.insecure, token=u.token)
         c2.system.hostname()
 
+        orig_cdrouter_api_token = None
+        if 'CDROUTER_API_TOKEN' in environ:
+            orig_cdrouter_api_token = environ.get('CDROUTER_API_TOKEN')
         environ['CDROUTER_API_TOKEN'] = u.token
         c2 = CDRouter(c.base, insecure=c.insecure)
+        del environ['CDROUTER_API_TOKEN']
+        if orig_cdrouter_api_token is not None:
+            environ['CDROUTER_API_TOKEN'] = orig_cdrouter_api_token
         c2.system.hostname()
 
         c2 = CDRouter(c.base, insecure=c.insecure, token='invalid')
