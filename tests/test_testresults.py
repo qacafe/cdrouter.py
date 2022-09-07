@@ -62,7 +62,7 @@ class TestTestResults:
         assert tr.note == ''
 
         new_flagged = True
-        new_note = 'i am a not'
+        new_note = 'i am a note'
         tr.flagged = new_flagged
         tr.note = new_note
 

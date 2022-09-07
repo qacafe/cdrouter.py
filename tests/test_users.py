@@ -53,12 +53,17 @@ class TestUsers:
         u = User(
             admin=True,
             name='admin2',
+            description='i am an admin too',
             password='mypassword',
             password_confirm='mypassword'
         )
         u = c.users.create(u)
         u2 = c.users.get(u.id)
+        assert u2.id == u.id
+        assert u2.admin is True
+        assert u2.disabled is False
         assert u2.name == u.name
+        assert u2.description == u.description
         assert u2.created is not None
         assert u2.updated is not None
         assert u2.token is not None

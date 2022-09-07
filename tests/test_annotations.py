@@ -44,7 +44,14 @@ class TestAnnotations:
             ))
 
         for line in range(1, 6):
-            assert c.annotations.get(idd, seq, line).comment == 'hello'
+            a = c.annotations.get(idd, seq, line)
+            assert a.id == idd
+            assert a.seq == seq
+            assert a.line == line
+            assert a.comment == 'hello'
+
+        with pytest.raises(CDRouterError, match='no such annotation'):
+            c.annotations.get(idd, seq, 9999)
 
     def test_create_or_edit(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')

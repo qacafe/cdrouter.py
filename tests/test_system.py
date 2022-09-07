@@ -47,7 +47,12 @@ class TestSystem:
             prefs.lounge_insecure = bool(strtobool(environ.get('LOUNGE_INSECURE')))
         c.system.edit_preferences(prefs)
 
-        release = c.system.check_for_lounge_upgrade(environ.get('LOUNGE_EMAIL'))
+        try:
+            release = c.system.check_for_lounge_upgrade(environ.get('LOUNGE_EMAIL'))
+        except CDRouterError:
+            pytest.skip('no lounge upgrade available')
+            return
+
         assert isinstance(release.build_date, str)
         assert isinstance(release.filename, str)
         assert isinstance(release.version.raw, str)
@@ -96,7 +101,12 @@ class TestSystem:
 
     @pytest.mark.skipif('RUN_LOUNGE_TESTS' not in environ, reason="requires RUN_LOUNGE_TESTS env var")
     def test_lounge_update_license(self, c):
-        upgrade = c.system.lounge_update_license()
+        try:
+            upgrade = c.system.lounge_update_license()
+        except CDRouterError:
+            pytest.skip('no lounge license available')
+            return
+
         assert isinstance(upgrade.success, bool)
         assert upgrade.installer_path is None or isinstance(upgrade.installer_path, str)
         assert upgrade.output is None or isinstance(upgrade.output, str)

@@ -61,11 +61,26 @@ class TestPackages:
         assert p.result_id is None
         assert p.device_id == device.id
         assert p.options.forever is False
+        assert p.options.loop == 0
+        assert p.options.repeat == 0
+        assert p.options.maxfail == 0
+        assert p.options.duration == 0
+        assert p.options.wait == 0
+        assert p.options.pause is False
+        assert p.options.shuffle is False
+        assert p.options.seed == 0
+        assert p.options.retry == 0
+        assert p.options.rdelay == 0
         assert p.tags == ['nofatal']
         assert p.use_as_testlist is False
         assert 'Moving the unstable' in p.note
         assert p.schedule.enabled is False
         assert p.schedule.spec == '0 0 * * *'
+        assert p.schedule.options.tags is None
+        assert p.schedule.options.skip_tests is None
+        assert p.schedule.options.begin_at == ''
+        assert p.schedule.options.end_at == ''
+        assert p.schedule.options.extra_cli_args == ''
 
         with pytest.raises(CDRouterError, match='no such package'):
             c.packages.get(99999)

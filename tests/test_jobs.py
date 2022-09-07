@@ -50,7 +50,7 @@ class TestJobs:
 
         jobs = list(c.jobs.iter_list())
         assert len(jobs) == 1
-        j = jobs[0]
+        j = c.jobs.get(jobs[0].id)
         assert j.id > 0
         assert j.package_id == package.id
         assert j.config_id == 0

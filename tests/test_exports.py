@@ -5,6 +5,10 @@
 
 import shutil
 
+import pytest
+
+from cdrouter.cdrouter import CDRouterError
+
 from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
 class TestExports:
@@ -33,6 +37,18 @@ class TestExports:
         c.devices.delete(device.id)
         c.packages.delete(package.id)
         c.results.delete(result.id)
+
+        with pytest.raises(CDRouterError, match='no such config'):
+            c.configs.get(config.id)
+
+        with pytest.raises(CDRouterError, match='no such device'):
+            c.devices.get(device.id)
+
+        with pytest.raises(CDRouterError, match='no such package'):
+            c.packages.get(package.id)
+
+        with pytest.raises(CDRouterError, match='no such result'):
+            c.results.get(result.id)
 
         import_all_from_file(c, filename)
 

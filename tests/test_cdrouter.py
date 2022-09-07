@@ -3,6 +3,7 @@
 # All Rights Reserved.
 #
 
+from os import environ
 import pytest
 from requests.exceptions import SSLError
 
@@ -20,6 +21,10 @@ class TestCDRouter:
         u = c_https.users.get_by_name('admin')
         assert u.name == 'admin'
 
+        c2 = CDRouter(c.base+'////', insecure=c.insecure, token=u.token)
+        u = c2.users.get_by_name('admin')
+        assert u.name == 'admin'
+
     def test_token(self, c):
         u = c.users.get_by_name('admin')
 
@@ -29,6 +34,14 @@ class TestCDRouter:
 
         c2 = CDRouter(c.base, insecure=c.insecure, token=u.token)
         c2.system.hostname()
+
+        environ['CDROUTER_API_TOKEN'] = u.token
+        c2 = CDRouter(c.base, insecure=c.insecure)
+        c2.system.hostname()
+
+        c2 = CDRouter(c.base, insecure=c.insecure, token='invalid')
+        with pytest.raises(CDRouterError, match='invalid token'):
+            c2.system.hostname()
 
     def test_username_password(self, c):
         u = c.users.get_by_name('admin')

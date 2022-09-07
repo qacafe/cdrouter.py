@@ -31,6 +31,9 @@ class TestTags:
         assert len(tag.packages) == 1
         assert len(tag.results) == 1
 
+        with pytest.raises(CDRouterError, match='no such tag'):
+            c.tags.get('invalid')
+
     def test_edit(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 

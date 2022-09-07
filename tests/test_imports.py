@@ -16,11 +16,12 @@ class TestImports:
 
     def test_stage_import_from_file(self, c):
         with open('tests/testdata/example.gz', 'rb') as fd: # pylint: disable=unspecified-encoding
-            imp = c.imports.stage_import_from_file(fd)
+            imp = c.imports.stage_import_from_file(fd, 'example.gz')
 
         assert imp.id == 1
         assert imp.user_id == 1
         assert imp.size == 118814
+        assert imp.archive == 'example.gz'
 
     def test_stage_import_from_filesystem(self, cdrouter, copy_file_to_container):
         container = cdrouter['container']
@@ -41,6 +42,8 @@ class TestImports:
 
         assert imp.id == 2
         assert imp.user_id == 1
+        assert imp.url == url
+        assert imp.insecure is False
         assert imp.size >= 110000 and imp.size <= 120000
 
     def test_get(self, c):

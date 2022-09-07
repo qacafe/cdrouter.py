@@ -44,7 +44,14 @@ class TestHighlights:
             ))
 
         for line in range(1, 6):
-            assert c.highlights.get(idd, seq, line).color == 'red'
+            h = c.highlights.get(idd, seq, line)
+            assert h.id == idd
+            assert h.seq == seq
+            assert h.line == line
+            assert h.color == 'red'
+
+        with pytest.raises(CDRouterError, match='no such highlight'):
+            c.highlights.get(idd, seq, 9999)
 
     def test_create_or_edit(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
