@@ -9,7 +9,6 @@ import tarfile
 from time import sleep, time
 
 import docker
-from docker.errors import ImageNotFound
 import pytest
 
 from cdrouter import CDRouter
@@ -18,10 +17,7 @@ from cdrouter import CDRouter
 def my_cdrouter():
     client = docker.from_env()
 
-    try:
-        client.images.get(environ.get('CDR_DOCKER_IMAGE'))
-    except ImageNotFound:
-        client.images.pull(environ.get('CDR_DOCKER_IMAGE'))
+    client.images.pull(environ.get('CDR_DOCKER_IMAGE'))
 
     volumes = None
     if 'CDR_DOCKER_VOLUMES' in environ:
