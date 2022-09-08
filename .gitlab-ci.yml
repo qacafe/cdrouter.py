@@ -38,10 +38,8 @@ test:
     - echo "$CDR_DOCKER_LICENSE" | base64 -d > ${SHARED_PATH}/cdrouter.lic
     - CDR_DOCKER_VOLUMES=${SHARED_PATH}:/config tox -p
   interruptible: true
-  rules:
-   - if: '$CI_PIPELINE_SOURCE != "schedule" && $CI_PIPELINE_SOURCE != "web"'
   artifacts:
     name: "cdrouter.py-coverage-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}"
     paths:
-      - .coverage
+      - .coverage*
       - htmlcov/*

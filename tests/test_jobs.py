@@ -167,12 +167,9 @@ class TestJobs:
 
         assert len(list(c.jobs.iter_list())) == 3
 
-        # TODO(niels): cdrouterd panics if bulk_launch is called with
-        # jobs=None, uncomment this once this has been fixed, see
-        # sc-19680
-        # c.jobs.bulk_launch(filter=[field('name').eq('example')])
+        c.jobs.bulk_launch(filter=[field('name').eq('example')])
 
-        # assert len(list(c.jobs.iter_list())) == 4
+        assert len(list(c.jobs.iter_list())) == 4
 
     def test_bulk_delete(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')

@@ -3,8 +3,11 @@
 # All Rights Reserved.
 #
 
-from os.path import basename
 import shutil
+
+import pytest
+
+from cdrouter.cdrouter import CDRouterError
 
 from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
@@ -34,11 +37,7 @@ class TestAttachments:
 
         d = c.devices.get_by_name('Cisco E4200')
 
-        # TODO(niels): cdrouterd completely ignores the page and limit
-        # parameters and always returns all attachments with the list
-        # attachments endpoint.  Add limit=1 here once this is fixed,
-        # see sc-19680.
-        assert len(list(c.attachments.iter_list(d.id))) == 0
+        assert len(list(c.attachments.iter_list(d.id, limit=1))) == 0
 
         with open('tests/testdata/example.gz', 'rb') as fd:
             c.attachments.create(d.id, fd, filename='example1.gz')
@@ -47,11 +46,7 @@ class TestAttachments:
             c.attachments.create(d.id, fd, filename='example4.gz')
             c.attachments.create(d.id, fd, filename='example5.gz')
 
-        # TODO(niels): cdrouterd completely ignores the page and limit
-        # parameters and always returns all attachments with the list
-        # attachments endpoint.  Add limit=1 here once this is fixed,
-        # see sc-19680.
-        assert len(list(c.attachments.iter_list(d.id))) == 5
+        assert len(list(c.attachments.iter_list(d.id, limit=1))) == 5
 
     def test_get(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
@@ -69,10 +64,8 @@ class TestAttachments:
         assert a2.path == a.path
         assert a2.device_id == a.device_id
 
-        # TODO(niels): cdrouterd doesn't return 404 for non-existent
-        # attachments, uncomment this once this is fixed, see sc-19680
-        # with pytest.raises(CDRouterError, match='no such attachment'):
-        #     c.attachments.get(d.id, 9999)
+        with pytest.raises(CDRouterError, match='no such attachment'):
+            c.attachments.get(d.id, 9999)
 
     def test_create(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
@@ -123,10 +116,7 @@ class TestAttachments:
 
         (b, filename) = c.attachments.thumbnail(d.id, a.id)
 
-        # TODO(niels): remove basename() call once cdrouterd return
-        # basename and not full path to attachment in
-        # Content-Disposition header, see sc-19680
-        filename = '{}/{}'.format(tmp_path, basename(filename))
+        filename = '{}/{}'.format(tmp_path, filename)
         with open(filename, 'wb') as fd:
             shutil.copyfileobj (b, fd)
 
