@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -8,7 +8,7 @@
 import collections
 
 class CDRouterFilterError(BaseException):
-    def __init__(self, message):
+    def __init__(self, message): # pylint: disable=super-init-not-called
         self.message = message
 
     def __str__(self):
@@ -85,7 +85,7 @@ class Field(object):
         value = self._value(value)
         if not isinstance(value, collections.Iterable):
             value = [value]
-        return '{{{}}}'.format(','.join([str(v) for v in value]))
+        return '{{{}}}'.format(','.join([str(self._value(v)) for v in value]))
 
     def not_(self):
         """Negate the filter.  Not supported by ``contains``, ``contained_by``

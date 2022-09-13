@@ -241,7 +241,7 @@ class SingleStats(object):
         self.progress = kwargs.get('progress', None)
 
 class SingleStatsSchema(Schema):
-    result_breakdown = fields.Nested(ResultBreakdownSchema)
+    result_breakdown = fields.Nested(TestResultBreakdownSchema)
     progress = fields.Nested(ProgressSchema)
 
     @post_load
@@ -470,6 +470,7 @@ class UpdateField(fields.Field):
                 raise ValidationError(errors, data=data)
             return data
         self.fail('invalid')
+        return None
 
 class Update(object):
     """Model for CDRouter Result Update.
@@ -799,15 +800,6 @@ class ResultsService(object):
         """
         return self.service.bulk_export(self.base, ids, params={'exclude_captures': exclude_captures})
 
-    def bulk_copy(self, ids):
-        """Bulk copy a set of results.
-
-        :param ids: Int list of result IDs.
-        :return: :class:`results.Result <results.Result>` list
-        """
-        schema = ResultSchema()
-        return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
-
     def bulk_edit(self, _fields, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk edit a set of results.
 
@@ -947,8 +939,7 @@ class ResultsService(object):
         :rtype: results.Metric
         """
         schema = MetricSchema()
-        resp = self.service.get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/',
-                                params={'format': format})
+        resp = self.service.get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/')
         return self.service.decode(schema, resp, many=True)
 
     def get_test_metric_csv(self, id, name, metric): # pylint: disable=invalid-name,redefined-builtin
