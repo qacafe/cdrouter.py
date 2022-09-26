@@ -5,13 +5,12 @@
 
 """Module for accessing CDRouter Packages."""
 
-import collections
+from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
 from .results import OptionsSchema as ResultOptionsSchema
 from .testsuites import TestSchema
-from .cdr_datetime import DateTime
 from .filters import Field as field
 from .configs import InterfacesSchema
 
@@ -36,7 +35,7 @@ class AnalysisSchema(Schema):
     skipped_tests = fields.Nested(lambda: TestSchema(many=True))
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Analysis(**data)
 
 class Options(object):
@@ -83,7 +82,7 @@ class OptionsSchema(Schema):
     sync = fields.Bool()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Options(**data)
 
 class Schedule(object):
@@ -104,7 +103,7 @@ class ScheduleSchema(Schema):
     options = fields.Nested(ResultOptionsSchema)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Schedule(**data)
 
 class Package(object):
@@ -155,28 +154,28 @@ class PackageSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
     description = fields.Str()
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     test_count = fields.Int(as_string=True)
-    testlist = fields.List(fields.Str(), missing=None)
+    testlist = fields.List(fields.Str(), load_default=None)
     extra_cli_args = fields.Str()
     user_id = fields.Int(as_string=True)
     agent_id = fields.Int(as_string=True)
     config_id = fields.Int(as_string=True)
-    result_id = fields.Int(as_string=True, missing=None)
+    result_id = fields.Int(as_string=True, load_default=None)
     device_id = fields.Int(as_string=True)
     options = fields.Nested(OptionsSchema)
     tags = fields.List(fields.Str())
     use_as_testlist = fields.Bool()
-    note = fields.Str(missing=None)
+    note = fields.Str(load_default=None)
     schedule = fields.Nested(ScheduleSchema)
     interfaces = fields.Nested(InterfacesSchema, many=True)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Package(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`packages.Package <packages.Package>` list

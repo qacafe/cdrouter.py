@@ -5,11 +5,10 @@
 
 """Module for accessing CDRouter Devices."""
 
-import collections
+from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
-from .cdr_datetime import DateTime
 from .filters import Field as field
 
 class PowerCmd(object):
@@ -25,7 +24,7 @@ class PowerCmdSchema(Schema):
     output = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return PowerCmd(**data)
 
 class Connection(object):
@@ -45,7 +44,7 @@ class ConnectionSchema(Schema):
     proxy_https = fields.Int()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Connection(**data)
 
 class Device(object):
@@ -126,11 +125,11 @@ class Device(object):
 class DeviceSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     user_id = fields.Int(as_string=True)
-    result_id = fields.Int(as_string=True, missing=None)
-    attachments_dir = fields.Str(missing=None)
+    result_id = fields.Int(as_string=True, load_default=None)
+    attachments_dir = fields.Str(load_default=None)
     picture_id = fields.Int(as_string=True)
     tags = fields.List(fields.Str())
 
@@ -153,19 +152,19 @@ class DeviceSchema(Schema):
 
     note = fields.Str()
 
-    insecure_mgmt_url = fields.Bool(missing=None)
-    mgmt_url = fields.Str(missing=None)
-    add_mgmt_addr = fields.Bool(missing=None)
-    mgmt_interface = fields.Str(missing=None)
-    mgmt_addr = fields.Str(missing=None)
-    power_on_cmd = fields.Str(missing=None)
-    power_off_cmd = fields.Str(missing=None)
+    insecure_mgmt_url = fields.Bool(load_default=None)
+    mgmt_url = fields.Str(load_default=None)
+    add_mgmt_addr = fields.Bool(load_default=None)
+    mgmt_interface = fields.Str(load_default=None)
+    mgmt_addr = fields.Str(load_default=None)
+    power_on_cmd = fields.Str(load_default=None)
+    power_off_cmd = fields.Str(load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Device(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`devices.Device <devices.Device>` list

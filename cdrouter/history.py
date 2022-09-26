@@ -5,10 +5,9 @@
 
 """Module for accessing CDRouter History."""
 
-import collections
+from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
-from .cdr_datetime import DateTime
 
 class History(object):
     """Model for CDRouter History entries.
@@ -32,7 +31,7 @@ class History(object):
 
 class HistorySchema(Schema):
     user_id = fields.Int(as_string=True)
-    created = DateTime()
+    created = fields.DateTime()
     resource = fields.Str()
     id = fields.Int(as_string=True)
     name = fields.Str()
@@ -40,10 +39,10 @@ class HistorySchema(Schema):
     description = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return History(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`history.History <history.History>` list

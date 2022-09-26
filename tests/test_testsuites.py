@@ -14,9 +14,14 @@ class TestTestsuites:
         info = c.testsuites.info()
         assert 'Version' in info.build_info
         assert 'QA Cafe' in info.copyright
+        assert isinstance(info.id, int)
+        assert isinstance(info.license_type, str)
         assert isinstance(info.customer, str)
         assert isinstance(info.lifetime, str)
+        assert isinstance(info.killtime, str)
+        assert isinstance(info.nag, bool)
         assert isinstance(info.os, str)
+        assert isinstance(info.os_type, str)
         assert isinstance(info.serial_number, str)
         assert isinstance(info.system_id, str)
         assert isinstance(info.testsuite, str)
@@ -29,6 +34,9 @@ class TestTestsuites:
         assert info.interfaces[0].is_wireless is False
         assert info.interfaces[0].is_ics is False
         assert isinstance(info.execute_instances, int)
+        assert isinstance(info.license_info.is_expired, bool)
+        assert isinstance(info.license_info.expires_date, str)
+        assert isinstance(info.license_info.expires_in, int)
 
     def test_search(self, c):
         results = c.testsuites.search('ipv6')

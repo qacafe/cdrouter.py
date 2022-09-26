@@ -19,7 +19,6 @@ from marshmallow import Schema, fields, post_load
 
 from . import __version__
 from .cdr_error import CDRouterError
-from .cdr_datetime import DateTime
 from .alerts import AlertsService
 from .configs import ConfigsService
 from .devices import DevicesService
@@ -65,11 +64,11 @@ class LinksSchema(Schema):
     current = fields.Int()
     total = fields.Int()
     limit = fields.Int()
-    next = fields.Int(missing=None)
-    prev = fields.Int(missing=None)
+    next = fields.Int(load_default=None)
+    prev = fields.Int(load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Links(**data)
 
 class Response(object):
@@ -80,20 +79,20 @@ class Response(object):
         self.links = kwargs.get('links', None)
 
 class ResponseSchema(Schema):
-    timestamp = DateTime()
-    error = fields.Str(missing=None)
-    data = fields.Dict(missing=None)
+    timestamp = fields.DateTime()
+    error = fields.Str(load_default=None)
+    data = fields.Dict(load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Response(**data)
 
 class ListResponseSchema(ResponseSchema):
-    data = fields.List(fields.Dict(), missing=None)
-    links = fields.Nested(lambda: LinksSchema(), missing=None)
+    data = fields.List(fields.Dict(), load_default=None)
+    links = fields.Nested(LinksSchema(), load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Response(**data)
 
 class Share(object):
@@ -117,7 +116,7 @@ class ShareSchema(Schema):
     execute = fields.Bool()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Share(**data)
 
 class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods

@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'cdrouter.py'
-copyright = u'2017, QA Cafe'
+copyright = u'2017-2022, QA Cafe'
 author = u'QA Cafe'
 
 # The version info for the project you're documenting, acts as replacement for

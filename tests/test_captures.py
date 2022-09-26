@@ -12,7 +12,7 @@ from cdrouter.cdrouter import CDRouterError
 
 from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
-class TestDevices:
+class TestCaptures:
     def test_list(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
@@ -21,10 +21,13 @@ class TestDevices:
 
         caps = c.captures.list(idd, seq)
         assert len(caps) == 3
+        assert caps[0].type == 'device'
         assert caps[0].interface == 'ics'
         assert caps[0].filename == 'start-ics.cap'
+        assert caps[1].type == 'device'
         assert caps[1].interface == 'lan-eth1'
         assert caps[1].filename == 'start-lan-eth1.cap'
+        assert caps[2].type == 'device'
         assert caps[2].interface == 'wan-eth2'
         assert caps[2].filename == 'start-wan-eth2.cap'
 
@@ -33,14 +36,17 @@ class TestDevices:
         assert len(caps) == 3
         assert caps[0].id == idd
         assert caps[0].seq == seq
+        assert caps[0].type == 'device'
         assert caps[0].interface == 'ics'
         assert caps[0].filename == 'start-ics.cap'
         assert caps[1].id == idd
         assert caps[1].seq == seq
+        assert caps[1].type == 'device'
         assert caps[1].interface == 'lan-eth1'
         assert caps[1].filename == 'start-lan-eth1.cap'
         assert caps[2].id == idd
         assert caps[2].seq == seq
+        assert caps[2].type == 'device'
         assert caps[2].interface == 'wan-eth2'
         assert caps[2].filename == 'start-wan-eth2.cap'
 
@@ -51,6 +57,7 @@ class TestDevices:
         seq = 1
 
         cap = c.captures.get(idd, seq, 'lan-eth1')
+        assert cap.type == 'device'
         assert cap.interface == 'lan-eth1'
         assert cap.filename == 'start-lan-eth1.cap'
 

@@ -5,13 +5,11 @@
 
 """Module for accessing CDRouter Results."""
 
-import collections
+from collections import namedtuple
 import io
 
 from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
-from .cdr_datetime import DateTime
-from .cdr_dictfield import DictField
 from .testresults import TestResultSchema
 from .alerts import AlertSchema
 from .configs import InterfacesSchema
@@ -31,7 +29,7 @@ class TestCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestCount(**data)
 
 class TestDuration(object):
@@ -49,7 +47,7 @@ class TestDurationSchema(Schema):
     duration = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestDuration(**data)
 
 class ResultBreakdown(object):
@@ -73,7 +71,7 @@ class ResultBreakdownSchema(Schema):
     alerted = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return ResultBreakdown(**data)
 
 class TimeBreakdown(object):
@@ -91,7 +89,7 @@ class TimeBreakdownSchema(Schema):
     failed = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TimeBreakdown(**data)
 
 class SetStats(object):
@@ -115,7 +113,7 @@ class SetStatsSchema(Schema):
     time_breakdown = fields.Nested(TimeBreakdownSchema)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return SetStats(**data)
 
 class TestResultSummary(object):
@@ -151,7 +149,7 @@ class TestResultSummarySchema(Schema):
     description = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestResultSummary(**data)
 
 class TestResultDiff(object):
@@ -169,7 +167,7 @@ class TestResultDiffSchema(Schema):
     summaries = fields.Nested(lambda: TestResultSummarySchema(many=True))
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestResultDiff(**data)
 
 class DiffStats(object):
@@ -184,7 +182,7 @@ class DiffStatsSchema(Schema):
     tests = fields.Nested(lambda: TestResultDiffSchema(many=True))
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return DiffStats(**data)
 
 class TestResultBreakdown(object):
@@ -202,7 +200,7 @@ class TestResultBreakdownSchema(Schema):
     passed_every_time = fields.Nested(lambda: TestCountSchema(many=True))
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestResultBreakdown(**data)
 
 class Progress(object):
@@ -226,7 +224,7 @@ class ProgressSchema(Schema):
     unit = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Progress(**data)
 
 class SingleStats(object):
@@ -244,7 +242,7 @@ class SingleStatsSchema(Schema):
     progress = fields.Nested(ProgressSchema)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return SingleStats(**data)
 
 class SummaryStats(object):
@@ -259,10 +257,10 @@ class SummaryStats(object):
 
 class SummaryStatsSchema(Schema):
     result_breakdown = fields.Nested(ResultBreakdownSchema)
-    test_summaries = fields.Nested(lambda: TestResultSchema(many=True), missing=None)
+    test_summaries = fields.Nested(lambda: TestResultSchema(many=True), load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return SummaryStats(**data)
 
 class PackageCount(object):
@@ -277,10 +275,10 @@ class PackageCount(object):
 
 class PackageCountSchema(Schema):
     package_name = fields.Str()
-    count = fields.Int(as_string=True, missing=None)
+    count = fields.Int(as_string=True, load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return PackageCount(**data)
 
 class DeviceCount(object):
@@ -295,10 +293,10 @@ class DeviceCount(object):
 
 class DeviceCountSchema(Schema):
     device_name = fields.Str()
-    count = fields.Int(as_string=True, missing=None)
+    count = fields.Int(as_string=True, load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return DeviceCount(**data)
 
 class AllStats(object):
@@ -322,7 +320,7 @@ class AllStatsSchema(Schema):
     device_names = fields.Nested(lambda: DeviceCountSchema(many=True))
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return AllStats(**data)
 
 class Metric(object):
@@ -363,7 +361,7 @@ class Metric(object):
 
 class MetricSchema(Schema):
     log_file = fields.Str()
-    timestamp = DateTime()
+    timestamp = fields.DateTime()
     metric = fields.Str()
     value = fields.Float(as_string=True)
     units = fields.Str()
@@ -379,7 +377,7 @@ class MetricSchema(Schema):
     device_2 = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Metric(**data)
 
 class LogDirFile(object):
@@ -397,10 +395,10 @@ class LogDirFile(object):
 class LogDirFileSchema(Schema):
     name = fields.Str()
     size = fields.Int()
-    modified = DateTime()
+    modified = fields.DateTime()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return LogDirFile(**data)
 
 class Options(object):
@@ -420,14 +418,14 @@ class Options(object):
         self.extra_cli_args = kwargs.get('extra_cli_args', None)
 
 class OptionsSchema(Schema):
-    tags = fields.List(fields.Str(), missing=None)
-    skip_tests = fields.List(fields.Str(), missing=None)
+    tags = fields.List(fields.Str(), load_default=None)
+    skip_tests = fields.List(fields.Str(), load_default=None)
     begin_at = fields.Str()
     end_at = fields.Str()
     extra_cli_args = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Options(**data)
 
 class Feature(object):
@@ -445,10 +443,10 @@ class Feature(object):
 class FeatureSchema(Schema):
     feature = fields.Str()
     enabled = fields.Bool()
-    reason = fields.Str(missing=None)
+    reason = fields.Str(load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Feature(**data)
 
 class UpdateField(fields.Field):
@@ -480,13 +478,13 @@ class Update(object):
 
 class UpdateSchema(Schema):
     id = fields.Int(as_string=True)
-    timestamp = DateTime()
-    progress = fields.Nested(lambda: ProgressSchema(), missing=None)
-    running = fields.Nested(lambda: TestResultSchema(), missing=None)
-    updates = fields.List(UpdateField, missing=None)
+    timestamp = fields.DateTime()
+    progress = fields.Nested(ProgressSchema(), load_default=None)
+    running = fields.Nested(TestResultSchema(), load_default=None)
+    updates = fields.List(UpdateField, load_default=None)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Update(**data)
 
 class Result(object):
@@ -561,8 +559,8 @@ class Result(object):
 
 class ResultSchema(Schema):
     id = fields.Int(as_string=True)
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     result = fields.Str()
     active = fields.Bool()
     status = fields.Str()
@@ -585,19 +583,19 @@ class ResultSchema(Schema):
     config_id = fields.Int(as_string=True)
     user_id = fields.Int(as_string=True)
     note = fields.Str()
-    pause_message = fields.Str(missing=None)
-    build_info = fields.Str(missing=None)
+    pause_message = fields.Str(load_default=None)
+    build_info = fields.Str(load_default=None)
     tags = fields.List(fields.Str())
-    testcases = fields.List(fields.Str(), missing=None)
+    testcases = fields.List(fields.Str(), load_default=None)
     options = fields.Nested(OptionsSchema)
-    features = DictField(fields.Str(), FeatureSchema())
+    features = fields.Dict(keys=fields.Str(), values=fields.Nested(FeatureSchema()))
     interfaces = fields.Nested(InterfacesSchema, many=True)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Result(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`results.Result <results.Result>` list
@@ -742,7 +740,7 @@ class ResultsService(object):
         :return: :class:`results.Result <results.Result>` object
         :rtype: results.Result
         """
-        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'active', 'status', 'loops', 'tests', 'pass', 'fail', 'alerts', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features', 'interfaces'))
+        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'active', 'status', 'loops', 'tests', 'passed', 'fail', 'alerts', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features', 'interfaces'))
         json = self.service.encode(schema, resource)
 
         schema = ResultSchema()
@@ -799,7 +797,7 @@ class ResultsService(object):
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
         """
-        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'active', 'status', 'loops', 'tests', 'pass', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features', 'interfaces'))
+        schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'active', 'status', 'loops', 'tests', 'passed', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features', 'interfaces'))
         _fields = self.service.encode(schema, _fields, skip_none=True)
         return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, type=type, all=all)
 

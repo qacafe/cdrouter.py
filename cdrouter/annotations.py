@@ -29,7 +29,7 @@ class AnnotationSchema(Schema):
     comment = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Annotation(**data)
 
 class AnnotationsService(object):

@@ -5,7 +5,7 @@
 
 """Module for constructing CDRouter Web API filters."""
 
-import collections
+from collections.abc import Iterable
 
 class CDRouterFilterError(BaseException):
     def __init__(self, message): # pylint: disable=super-init-not-called
@@ -83,7 +83,7 @@ class Field(object):
 
     def _array_value(self, value):
         value = self._value(value)
-        if not isinstance(value, collections.Iterable):
+        if not isinstance(value, Iterable):
             value = [value]
         return '{{{}}}'.format(','.join([str(self._value(v)) for v in value]))
 

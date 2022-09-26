@@ -5,11 +5,10 @@
 
 """Module for accessing CDRouter Configs."""
 
-import collections
+from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
-from .cdr_datetime import DateTime
 from .filters import Field as field
 
 class ConfigError(object):
@@ -27,7 +26,7 @@ class ConfigErrorSchema(Schema):
     error = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return ConfigError(**data)
 
 class CheckConfig(object):
@@ -42,7 +41,7 @@ class CheckConfigSchema(Schema):
     errors = fields.Nested(lambda: ConfigErrorSchema(many=True))
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return CheckConfig(**data)
 
 class UpgradeConfig(object):
@@ -60,7 +59,7 @@ class UpgradeConfigSchema(Schema):
     output = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return UpgradeConfig(**data)
 
 class Networks(object):
@@ -83,11 +82,11 @@ class NetworksSchema(Schema):
     name = fields.Str()
     type = fields.Str()
     side = fields.Str()
-    title = fields.Str(missing=None)
+    title = fields.Str(load_default=None)
     children = fields.Nested(lambda: NetworksSchema(many=True))
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Networks(**data)
 
 class Interfaces(object):
@@ -105,13 +104,13 @@ class Interfaces(object):
         self.is_ics = kwargs.get('is_ics', None)
 
 class InterfacesSchema(Schema):
-    name = fields.Str(missing=None)
+    name = fields.Str(load_default=None)
     value = fields.Str()
     is_wireless = fields.Bool()
     is_ics = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Interfaces(**data)
 
 class Testvar(object):
@@ -141,7 +140,7 @@ class TestvarSchema(Schema):
     line = fields.Int()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Testvar(**data)
 
 class Config(object):
@@ -176,20 +175,20 @@ class ConfigSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
     description = fields.Str()
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     contents = fields.Str()
     user_id = fields.Int(as_string=True)
-    result_id = fields.Int(as_string=True, missing=None)
+    result_id = fields.Int(as_string=True, load_default=None)
     tags = fields.List(fields.Str())
     note = fields.Str()
     interfaces = fields.Nested(InterfacesSchema, many=True)
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Config(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`configs.Config <configs.Config>` list

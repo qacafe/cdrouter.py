@@ -25,7 +25,7 @@ class ResourceTagsSchema(Schema):
     tags = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return ResourceTags(**data)
 
 class Tag(object):
@@ -66,7 +66,7 @@ class TagSchema(Schema):
     results = fields.Nested(lambda: ResourceTagsSchema(many=True))
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Tag(**data)
 
 class TagsService(object):

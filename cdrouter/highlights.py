@@ -28,7 +28,7 @@ class HighlightSchema(Schema):
     color = fields.Str()
 
     @post_load
-    def post_load(self, data, **kwargs):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Highlight(**data)
 
 class HighlightsService(object):

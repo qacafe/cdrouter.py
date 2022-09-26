@@ -46,6 +46,7 @@ class TestTestResults:
         assert tr.skip_name == ''
         assert tr.skip_reason == ''
         assert tr.log == 'start.txt'
+        assert tr.keylog == ''
         assert tr.note == ''
 
         with pytest.raises(CDRouterError, match='no such test'):
@@ -82,6 +83,7 @@ class TestTestResults:
         assert log.limit == 700000
         assert len(log.lines) == 558
         assert log.total == 558
+        assert log.more is False
         assert 'Started cdrouter-cli' in log.lines[53].raw
         assert log.lines[53].line == 54
         assert log.lines[53].section is True
