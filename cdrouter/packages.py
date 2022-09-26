@@ -158,7 +158,7 @@ class PackageSchema(Schema):
     created = DateTime()
     updated = DateTime()
     test_count = fields.Int(as_string=True)
-    testlist = fields.List(fields.Str())
+    testlist = fields.List(fields.Str(), missing=None)
     extra_cli_args = fields.Str()
     user_id = fields.Int(as_string=True)
     agent_id = fields.Int(as_string=True)

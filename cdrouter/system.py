@@ -6,7 +6,6 @@
 """Module for accessing CDRouter System."""
 
 import io
-import os.path
 
 from marshmallow import Schema, fields, post_load
 from requests_toolbelt.downloadutils import stream
@@ -245,7 +244,7 @@ class InUseInterfaceSchema(Schema):
 class Preferences(object):
     """Model for CDRouter Preferences.
 
-    :param automatic_logic: (optional) Bool `True` if Automatic Login is enabled.
+    :param automatic_login: (optional) Bool `True` if Automatic Login is enabled.
     :param cloudshark_appliance_autotags: (optional) CloudShark Appliance autotags as a string.
     :param cloudshark_appliance_insecure: (optional) String `yes` if insecure CloudShark Appliance URLs are allowed.
     :param cloudshark_appliance_password: (optional) CloudShark Appliance password as a string.
@@ -420,13 +419,9 @@ class SystemService(object):
 
         :param fd: File-like object to upload.
         :param filename: (optional) Filename to use for license as string.
-        :return: :class:`system.Upgrade <system.Upgrade>` object
-        :rtype: system.Upgrade
         """
-        schema = UpgradeSchema()
-        resp = self.service.post(self.base+'license/',
+        return self.service.post(self.base+'license/',
                                  files={'file': (filename, fd)})
-        return self.service.decode(schema, resp)
 
     def shutdown(self):
         """Shutdown the CDRouter Web UI. Please note that any running tests will be stopped."""
@@ -443,13 +438,6 @@ class SystemService(object):
     def reboot(self):
         """Reboot the NTA1000. Please note that any running tests will be stopped."""
         return self.service.post(self.base+'reboot/')
-
-    def live(self):
-        """Get CDRouter Live info from cdrouter-cli -live output.
-
-        :rtype: string
-        """
-        return self.service.get(self.base+'live/').text
 
     def info(self):
         """Get system info from cdrouter-cli -info output.

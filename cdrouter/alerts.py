@@ -295,7 +295,7 @@ class AlertsService(object):
         trs, l =self.service.decode(schema, resp, many=True, links=True)
         return Page(trs, l)
 
-    def iter_list(self, id, *args, **kwargs):
+    def iter_list(self, id, *args, **kwargs): # pylint: disable=invalid-name,redefined-builtin
         """Get a list of alerts.  Whereas ``list`` fetches a single
         page of alerts according to its ``limit`` and ``page``
         arguments, ``iter_list`` returns all alerts by internally

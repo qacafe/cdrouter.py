@@ -1,0 +1,45 @@
+variables:
+  GIT_DEPTH: 1
+
+stages:
+  - test
+
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+
+# jobs starting with a period (.) are ignored
+
+# default:
+#   before_script:
+#     - |
+#       if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
+#           git checkout -B $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME;
+#       elif [ -n "$CI_COMMIT_BRANCH" ]; then
+#           git checkout -B $CI_COMMIT_BRANCH;
+#       fi
+
+test:
+  image: docker:19.03.12-git
+  stage: test
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add python3 curl
+    - curl -s https://bootstrap.pypa.io/pip/get-pip.py | python3
+    - pip3 install tox
+    # see https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41227,
+    # requires adding "/builds:/builds" to "volumes" list in
+    # /etc/gitlab-runner/config.toml
+    - 'export SHARED_PATH="$(dirname ${CI_PROJECT_DIR})/shared"'
+    - mkdir -p ${SHARED_PATH}
+    - echo "$CDR_DOCKER_LICENSE" | base64 -d > ${SHARED_PATH}/cdrouter.lic
+    - CDR_DOCKER_VOLUMES=${SHARED_PATH}:/config tox -p
+  interruptible: true
+  artifacts:
+    name: "cdrouter.py-coverage-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - .coverage*
+      - htmlcov/*

@@ -1,11 +1,10 @@
 #
-# Copyright (c) 2017-2020 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
 """Module for accessing CDRouter Imports."""
 
-import os.path
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
 from .cdr_dictfield import DictField

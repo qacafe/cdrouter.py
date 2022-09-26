@@ -217,22 +217,29 @@ class JobsService(object):
                                  params={'process': 'interfaces'}, json=json)
         return self.service.decode(schema, resp, many=True)
 
-    def bulk_launch(self, jobs=None, filter=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_launch(self, jobs=None, _fields=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk launch a set of jobs.
 
         :param jobs: :class:`jobs.Job <jobs.Job>` list
+        :param _fields: :class:`jobs.Job <jobs.Job>` object
         :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
+        :return: :class:`jobs.Job <jobs.Job>` list
         """
-        json = None
+        json = {}
         if jobs is not None:
-            schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
+            schema = JobSchema()
             jobs_json = self.service.encode(schema, jobs, many=True)
-            json = {self.RESOURCE: jobs_json}
+            json[self.RESOURCE] = jobs_json
+        elif _fields is not None:
+            schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
+            jobs_json = self.service.encode(schema, _fields)
+            json['fields'] = jobs_json
 
         schema = JobSchema()
         resp = self.service.post(self.base,
-                                 params={'bulk': 'launch', 'filter': filter, 'all': all}, json=json)
+                                 params={'bulk': 'launch', 'filter': filter, 'type': type, 'all': all}, json=json)
         return self.service.decode(schema, resp, many=True)
 
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin

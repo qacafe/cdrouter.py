@@ -83,7 +83,7 @@ class NetworksSchema(Schema):
     name = fields.Str()
     type = fields.Str()
     side = fields.Str()
-    title = fields.Str()
+    title = fields.Str(missing=None)
     children = fields.Nested(lambda: NetworksSchema(many=True))
 
     @post_load
@@ -375,7 +375,7 @@ class ConfigsService(object):
         schema = NetworksSchema()
         resp = self.service.post(self.base,
                                  params={'process': 'networks'}, json={'contents': contents})
-        return self.service.decode(schema, resp, many=True)
+        return self.service.decode(schema, resp)
 
     def get_interfaces(self, contents):
         """Process config contents with cdrouter-cli -print-interfaces.
@@ -417,6 +417,10 @@ class ConfigsService(object):
         """
         schema = self.EDIT_SCHEMA
         _fields = self.service.encode(schema, _fields, skip_none=True)
+        if testvars is not None:
+            schema = TestvarSchema()
+            testvars = self.service.encode(schema, testvars, many=True)
+
         return self.service.bulk_edit(self.base, self.RESOURCE,
                                       _fields, ids=ids, filter=filter, type=type, all=all, testvars=testvars)
 

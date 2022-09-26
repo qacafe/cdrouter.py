@@ -8,12 +8,12 @@ import getpass
 import io
 import os
 import re
-import requests
 from threading import Lock
+import requests
 from requests_toolbelt.downloadutils import stream
 from requests_toolbelt import sessions
 from requests_toolbelt.utils.user_agent import user_agent
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from requests.packages.urllib3.exceptions import InsecureRequestWarning # pylint: disable=import-error
 from requests.exceptions import HTTPError
 from marshmallow import Schema, fields, post_load
 
@@ -137,7 +137,7 @@ class Auth(requests.auth.AuthBase): # pylint: disable=too-few-public-methods
         if token is None:
             # if API request with no token returns a 401, automatic
             # login is disabled and user needs to authenticate
-            resp = requests.get(self.c.base + self.c.BASE + 'system/hostname/', verify=(not self.c.insecure))
+            resp = requests.get(self.c.base + self.c.BASE + 'system/hostname/', verify=(not self.c.insecure), timeout=10.0)
 
             if resp.status_code == 401:
                 self.c.authenticate(self.c.retries)
@@ -214,7 +214,7 @@ class CDRouter(object):
 
         if insecure:
             # disable annoying InsecureRequestWarning
-            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+            requests.packages.urllib3.disable_warnings(InsecureRequestWarning) # pylint: disable=no-member
 
         self.session = sessions.BaseUrlSession(base_url=self.base+self.BASE)
 
@@ -256,7 +256,7 @@ class CDRouter(object):
         self.users = UsersService(self)
 
     # base request methods
-    def _req(self, path, method='GET', json=None, data=None, params=None, headers=None, files=None, stream=None):
+    def _req(self, path, method='GET', json=None, data=None, params=None, headers=None, files=None, stream=None): # pylint: disable=redefined-outer-name
         if params is None:
             params = {}
         if headers is None:
@@ -265,14 +265,14 @@ class CDRouter(object):
             files = {}
         headers.update({'user-agent': user_agent('cdrouter.py', __version__)})
         resp = self.session.request(method, path, params=params, headers=headers, files=files, stream=stream,
-                                    json=json, data=data, verify=(not self.insecure), auth=Auth(c=self))
+                                    json=json, data=data, verify=(not self.insecure), auth=Auth(c=self), timeout=600.0)
         self.raise_for_status(resp)
         return resp
 
-    def get(self, path, params=None, stream=None):
+    def get(self, path, params=None, stream=None): # pylint: disable=redefined-outer-name
         return self._req(path, method='GET', params=params, stream=stream)
 
-    def post(self, path, json=None, data=None, params=None, headers=None, files=None, stream=None):
+    def post(self, path, json=None, data=None, params=None, headers=None, files=None, stream=None): # pylint: disable=redefined-outer-name
         return self._req(path, method='POST', json=json, data=data, params=params, headers=headers, stream=stream, files=files)
 
     def patch(self, path, json, params=None):
@@ -283,11 +283,11 @@ class CDRouter(object):
 
     # cdrouter-specific request methods
     def list(self, base, filter=None, type=None, sort=None, limit=None, page=None, format=None, detailed=None): # pylint: disable=redefined-builtin
-        if sort != None:
+        if sort is not None:
             if not isinstance(sort, list):
                 sort = [sort]
             sort = ','.join(sort)
-        if detailed != None:
+        if detailed is not None:
             detailed = bool(detailed)
         return self.get(base, params={'filter': filter, 'type': type, 'sort': sort, 'limit': limit,
                                       'page': page, 'format': format, 'detailed': detailed})
@@ -301,7 +301,7 @@ class CDRouter(object):
                 break
             kwargs.update({'page': links.next})
 
-    def get_id(self, base, id, params=None, stream=None): # pylint: disable=invalid-name,redefined-builtin
+    def get_id(self, base, id, params=None, stream=None): # pylint: disable=invalid-name,redefined-builtin,redefined-outer-name
         return self.get(base+str(id)+'/', params=params, stream=stream)
 
     def create(self, base, resource):
@@ -357,19 +357,19 @@ class CDRouter(object):
                          json={resource: [{'id': str(x)} for x in ids]})
         return self.decode(schema, resp, many=True)
 
-    def bulk_edit(self, base, resource, fields, ids=None, filter=None, type=None, all=False, testvars=None): # pylint: disable=redefined-builtin
+    def bulk_edit(self, base, resource, fields, ids=None, filter=None, type=None, all=False, testvars=None): # pylint: disable=redefined-builtin,redefined-outer-name
         json = {'fields': fields}
-        if ids != None or testvars != None:
-            if ids != None:
+        if ids is not None or testvars is not None:
+            if ids is not None:
                 json[resource] = [{'id': str(x)} for x in ids]
-            if testvars != None:
+            if testvars is not None:
                 json['testvars'] = testvars
 
         return self.post(base, params={'bulk': 'edit', 'filter': filter, 'type': type, 'all': all}, json=json)
 
     def bulk_delete(self, base, resource, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         json = None
-        if ids != None:
+        if ids is not None:
             json = {resource: [{'id': str(x)} for x in ids]}
         return self.post(base, params={'bulk': 'delete', 'filter': filter, 'type': type, 'all': all}, json=json)
 
@@ -391,7 +391,7 @@ class CDRouter(object):
                     message = result.error
             except HTTPError as he:
                 message = str(he)
-            except:
+            except: # pylint: disable=bare-except
                 pass
 
             raise CDRouterError(message, response=resp)
@@ -444,9 +444,8 @@ class CDRouter(object):
                 u = self.decode(schema, resp)
 
                 if u.token is not None:
-                    self.lock.acquire()
-                    self.token = u.token
-                    self.lock.release()
+                    with self.lock:
+                        self.token = u.token
                     break
             except CDRouterError as cde:
                 password = None
