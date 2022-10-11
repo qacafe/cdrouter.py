@@ -3,13 +3,12 @@
 # All Rights Reserved.
 #
 
-import collections
+from collections import namedtuple
 from functools import partial
 import io
 
 from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
-from .cdr_datetime import DateTime
 
 class Attachment(object):
     """Model for CDRouter Attachments.
@@ -37,17 +36,17 @@ class AttachmentSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
     description = fields.Str()
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     size = fields.Int()
     path = fields.Str()
     device_id = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Attachment(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`attachments.Attachment <attachments.Attachment>` list
@@ -79,7 +78,7 @@ class AttachmentsService(object):
         """
         schema = AttachmentSchema()
         if not detailed:
-            schema = AttachmentSchema(exclude=('path'))
+            schema = AttachmentSchema(exclude=('path',))
         resp = self.service.list(self._base(id), filter, type, sort, limit, page, detailed=detailed)
         at, l = self.service.decode(schema, resp, many=True, links=True)
         return Page(at, l)

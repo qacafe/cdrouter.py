@@ -5,11 +5,10 @@
 
 """Module for accessing CDRouter Users."""
 
-import collections
+from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
-from .cdr_datetime import DateTime
 from .filters import Field as field
 
 class User(object):
@@ -44,18 +43,18 @@ class UserSchema(Schema):
     disabled = fields.Bool()
     name = fields.Str()
     description = fields.Str()
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     token = fields.Str()
 
     password = fields.Str()
     password_confirm = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return User(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`users.User <users.User>` list

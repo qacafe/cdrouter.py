@@ -5,12 +5,10 @@
 
 """Module for accessing CDRouter Alerts."""
 
-import collections
+from collections import namedtuple
 from functools import partial
 
 from marshmallow import Schema, fields, post_load
-from .cdr_datetime import DateTime
-from .cdr_dictfield import DictField
 
 class Alert(object):
     """Model for CDRouter Alerts.
@@ -75,8 +73,8 @@ class Alert(object):
 class AlertSchema(Schema):
     id = fields.Int(as_string=True)
     idx = fields.Int(as_string=True)
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
 
     seq = fields.Int(as_string=True)
     loop = fields.Int(as_string=True)
@@ -84,15 +82,15 @@ class AlertSchema(Schema):
     test_description = fields.Str()
 
     category = fields.Str()
-    description = fields.Str(missing=None)
+    description = fields.Str(load_default=None)
     dest_ip = fields.Str()
-    dest_port = fields.Int(as_string=True, missing=None)
+    dest_port = fields.Int(as_string=True, load_default=None)
     interface = fields.Str()
-    payload = fields.Str(missing=None)
-    payload_ascii = fields.Str(missing=None)
-    payload_hex = fields.Str(missing=None)
+    payload = fields.Str(load_default=None)
+    payload_ascii = fields.Str(load_default=None)
+    payload_hex = fields.Str(load_default=None)
     proto = fields.Str()
-    references = fields.List(fields.Str(), missing=None)
+    references = fields.List(fields.Str(), load_default=None)
     rev = fields.Int(as_string=True)
     rule = fields.Str()
     rule_set = fields.Str()
@@ -100,10 +98,10 @@ class AlertSchema(Schema):
     sid = fields.Int(as_string=True)
     signature = fields.Str()
     src_ip = fields.Str()
-    src_port = fields.Int(as_string=True, missing=None)
+    src_port = fields.Int(as_string=True, load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Alert(**data)
 
 class SeverityCount(object):
@@ -124,7 +122,7 @@ class SeverityCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return SeverityCount(**data)
 
 class CategoryCount(object):
@@ -145,7 +143,7 @@ class CategoryCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return CategoryCount(**data)
 
 class RuleSetCount(object):
@@ -163,7 +161,7 @@ class RuleSetCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return RuleSetCount(**data)
 
 class SignatureCount(object):
@@ -184,7 +182,7 @@ class SignatureCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return SignatureCount(**data)
 
 class TestCount(object):
@@ -202,7 +200,7 @@ class TestCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestCount(**data)
 
 class AddrCount(object):
@@ -220,7 +218,7 @@ class AddrCountSchema(Schema):
     count = fields.Int(as_string=True)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return AddrCount(**data)
 
 class AllStats(object):
@@ -244,19 +242,19 @@ class AllStats(object):
         self.frequent_destinations = kwargs.get('frequent_destinations', None)
 
 class AllStatsSchema(Schema):
-    severities = DictField(fields.Int(), SeverityCountSchema())
-    categories = fields.Nested(CategoryCountSchema, many=True)
-    rule_sets = fields.Nested(RuleSetCountSchema, many=True)
-    signatures = fields.Nested(SignatureCountSchema, many=True)
-    tests = fields.Nested(TestCountSchema, many=True)
-    frequent_sources = fields.Nested(AddrCountSchema, many=True)
-    frequent_destinations = fields.Nested(AddrCountSchema, many=True)
+    severities = fields.Dict(keys=fields.Int(), values=fields.Nested(SeverityCountSchema()))
+    categories = fields.Nested(lambda: CategoryCountSchema(many=True))
+    rule_sets = fields.Nested(lambda: RuleSetCountSchema(many=True))
+    signatures = fields.Nested(lambda: SignatureCountSchema(many=True))
+    tests = fields.Nested(lambda: TestCountSchema(many=True))
+    frequent_sources = fields.Nested(lambda: AddrCountSchema(many=True))
+    frequent_destinations = fields.Nested(lambda: AddrCountSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return AllStats(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`alerts.Alert <alerts.Alert>` list

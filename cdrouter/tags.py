@@ -25,7 +25,7 @@ class ResourceTagsSchema(Schema):
     tags = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return ResourceTags(**data)
 
 class Tag(object):
@@ -60,13 +60,13 @@ class TagSchema(Schema):
     count = fields.Int()
     tags = fields.List(fields.Str())
 
-    configs = fields.Nested(ResourceTagsSchema, many=True)
-    devices = fields.Nested(ResourceTagsSchema, many=True)
-    packages = fields.Nested(ResourceTagsSchema, many=True)
-    results = fields.Nested(ResourceTagsSchema, many=True)
+    configs = fields.Nested(lambda: ResourceTagsSchema(many=True))
+    devices = fields.Nested(lambda: ResourceTagsSchema(many=True))
+    packages = fields.Nested(lambda: ResourceTagsSchema(many=True))
+    results = fields.Nested(lambda: ResourceTagsSchema(many=True))
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Tag(**data)
 
 class TagsService(object):

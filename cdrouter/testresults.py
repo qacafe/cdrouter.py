@@ -5,11 +5,10 @@
 
 """Module for accessing CDRouter TestResults."""
 
-import collections
+from collections import namedtuple
 from functools import partial
 
 from marshmallow import Schema, fields, post_load
-from .cdr_datetime import DateTime
 
 class Summary(object):
     """Model for CDRouter Log Section Summaries.
@@ -35,7 +34,7 @@ class SummarySchema(Schema):
     alerts = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Summary(**data)
 
 class Line(object):
@@ -111,40 +110,40 @@ class LineSchema(Schema):
     raw = fields.Str()
 
     line = fields.Int()
-    header = fields.Bool(missing=None)
-    section = fields.Bool(missing=None)
-    prefix = fields.Str(missing=None)
-    name = fields.Str(missing=None)
-    timestamp = fields.Str(missing=None)
-    timestamp_display = fields.Str(missing=None)
+    header = fields.Bool(load_default=None)
+    section = fields.Bool(load_default=None)
+    prefix = fields.Str(load_default=None)
+    name = fields.Str(load_default=None)
+    timestamp = fields.Str(load_default=None)
+    timestamp_display = fields.Str(load_default=None)
     message = fields.Str()
 
-    interface = fields.Str(missing=None)
-    packet = fields.Int(as_string=True, missing=None)
+    interface = fields.Str(load_default=None)
+    packet = fields.Int(as_string=True, load_default=None)
 
-    src = fields.Str(missing=None)
-    dst = fields.Str(missing=None)
-    proto = fields.Str(missing=None)
-    info = fields.Str(missing=None)
+    src = fields.Str(load_default=None)
+    dst = fields.Str(load_default=None)
+    proto = fields.Str(load_default=None)
+    info = fields.Str(load_default=None)
 
-    alert_interface = fields.Str(missing=None)
-    alert_index = fields.Int(as_string=True, missing=None)
+    alert_interface = fields.Str(load_default=None)
+    alert_index = fields.Int(as_string=True, load_default=None)
 
-    alert_src = fields.Str(missing=None)
-    alert_dst = fields.Str(missing=None)
-    alert_proto = fields.Str(missing=None)
-    alert_src_port = fields.Int(as_string=True, missing=None)
-    alert_dst_port = fields.Int(as_string=True, missing=None)
-    alert_signature = fields.Str(missing=None)
-    alert_severity = fields.Int(as_string=True, missing=None)
-    alert_severity_display = fields.Str(missing=None)
-    alert_sid = fields.Int(as_string=True, missing=None)
-    alert_rev = fields.Int(as_string=True, missing=None)
+    alert_src = fields.Str(load_default=None)
+    alert_dst = fields.Str(load_default=None)
+    alert_proto = fields.Str(load_default=None)
+    alert_src_port = fields.Int(as_string=True, load_default=None)
+    alert_dst_port = fields.Int(as_string=True, load_default=None)
+    alert_signature = fields.Str(load_default=None)
+    alert_severity = fields.Int(as_string=True, load_default=None)
+    alert_severity_display = fields.Str(load_default=None)
+    alert_sid = fields.Int(as_string=True, load_default=None)
+    alert_rev = fields.Int(as_string=True, load_default=None)
 
     summary = fields.Nested(SummarySchema)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Line(**data)
 
 class Log(object):
@@ -154,21 +153,24 @@ class Log(object):
     :param limit: (optional) Limit as int.
     :param lines: (optional) :class:`testresults.Line <testresults.Line>` list
     :param total: (optional) Total line count as int.
+    :param more: (optional) Bool `True` if more lines are available.
     """
     def __init__(self, **kwargs):
         self.offset = kwargs.get('offset', None)
         self.limit = kwargs.get('limit', None)
         self.lines = kwargs.get('lines', None)
         self.total = kwargs.get('total', None)
+        self.more = kwargs.get('more', None)
 
 class LogSchema(Schema):
     offset = fields.Int()
     limit = fields.Int()
-    lines = fields.Nested(LineSchema, many=True)
+    lines = fields.Nested(lambda: LineSchema(many=True))
     total = fields.Int()
+    more = fields.Bool(load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Log(**data)
 
 class TestResult(object):
@@ -189,6 +191,7 @@ class TestResult(object):
     :param skip_name: (optional) Skip name for TestResult as string.
     :param skip_reason: (optional) Skip reason for TestResult as string.
     :param log: (optional) Logfile path for TestResult as string.
+    :param keylog: (optional) Keylog path for TestResult as string.
     :param note: (optional) Note for TestResult as string.
     """
     def __init__(self, **kwargs):
@@ -207,6 +210,7 @@ class TestResult(object):
         self.skip_name = kwargs.get('skip_name', None)
         self.skip_reason = kwargs.get('skip_reason', None)
         self.log = kwargs.get('log', None)
+        self.keylog = kwargs.get('keylog', None)
         self.note = kwargs.get('note', None)
 
 class TestResultSchema(Schema):
@@ -217,7 +221,7 @@ class TestResultSchema(Schema):
     result = fields.Str()
     alerts = fields.Int()
     retries = fields.Int()
-    started = DateTime()
+    started = fields.DateTime()
     duration = fields.Int()
     flagged = fields.Bool()
     name = fields.Str()
@@ -225,13 +229,14 @@ class TestResultSchema(Schema):
     skip_name = fields.Str()
     skip_reason = fields.Str()
     log = fields.Str()
+    keylog = fields.Str(load_default=None)
     note = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestResult(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`testresults.TestResult <testresults.TestResult>` list

@@ -6,8 +6,6 @@
 """Module for accessing CDRouter Imports."""
 
 from marshmallow import Schema, fields, post_load
-from .cdr_datetime import DateTime
-from .cdr_dictfield import DictField
 
 class Import(object):
     """Model for CDRouter Staged Imports.
@@ -36,8 +34,8 @@ class Import(object):
 class ImportSchema(Schema):
     id = fields.Int(as_string=True)
     user_id = fields.Int(as_string=True)
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     archive = fields.Str()
     path = fields.Str()
     url = fields.Str()
@@ -45,7 +43,7 @@ class ImportSchema(Schema):
     size = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Import(**data)
 
 class Response(object):
@@ -64,12 +62,12 @@ class Response(object):
 
 class ResponseSchema(Schema):
     imported = fields.Bool()
-    id = fields.Int(as_string=True, missing=None)
-    name = fields.Str(missing=None)
-    message = fields.Str(missing=None)
+    id = fields.Int(as_string=True, load_default=None)
+    name = fields.Str(load_default=None)
+    message = fields.Str(load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Response(**data)
 
 class Resource(object):
@@ -87,13 +85,13 @@ class Resource(object):
         self.response = kwargs.get('response', None)
 
 class ResourceSchema(Schema):
-    name = fields.Str(missing=None)
-    should_import = fields.Bool(attribute='should_import', load_from='import', dump_to='import')
-    existing_id = fields.Int(as_string=True, missing=None)
-    response = fields.Nested(ResponseSchema, missing=None)
+    name = fields.Str(load_default=None)
+    should_import = fields.Bool(attribute='should_import', data_key='import')
+    existing_id = fields.Int(as_string=True, load_default=None)
+    response = fields.Nested(ResponseSchema(), load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Resource(**data)
 
 class Request(object):
@@ -119,15 +117,15 @@ class Request(object):
 class RequestSchema(Schema):
     replace_existing = fields.Bool()
 
-    configs = DictField(fields.Str(), ResourceSchema())
-    devices = DictField(fields.Str(), ResourceSchema())
-    packages = DictField(fields.Str(), ResourceSchema())
-    results = DictField(fields.Str(), ResourceSchema())
+    configs = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()))
+    devices = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()))
+    packages = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()))
+    results = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()))
 
-    tags = fields.List(fields.Str(), missing=None)
+    tags = fields.List(fields.Str(), load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Request(**data)
 
 class ImportsService(object):

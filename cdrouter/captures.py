@@ -16,23 +16,26 @@ class Capture(object):
 
     :param id: (optional) Result ID as an int.
     :param seq: (optional) TestResult sequence ID as an int.
+    :param type: (optional) Capture type as string.
     :param interface: (optional) Interface name as string.
     :param filename: (optional) Path to capture file as string.
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
         self.seq = kwargs.get('seq', None)
+        self.type = kwargs.get('type', None)
         self.interface = kwargs.get('interface', None)
         self.filename = kwargs.get('filename', None)
 
 class CaptureSchema(Schema):
     id = mfields.Int(as_string=True)
     seq = mfields.Int(as_string=True)
+    type = mfields.Str(load_default=None)
     interface = mfields.Str()
     filename = mfields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Capture(**data)
 
 class CloudShark(object):
@@ -47,7 +50,7 @@ class CloudSharkSchema(Schema):
     url = mfields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return CloudShark(**data)
 
 class CapturesService(object):

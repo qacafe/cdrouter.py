@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE=python:2
+IMAGE=python:3.5
 
 SSH_DIR_HOST=$(realpath ~/.ssh)
 SSH_DIR=/ssh

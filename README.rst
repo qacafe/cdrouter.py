@@ -18,6 +18,8 @@ cdrouter is available on PyPI.
 
     $ pip install -U cdrouter
 
+cdrouter supports Python 3.5 or newer.
+
 Documentation
 =============
 

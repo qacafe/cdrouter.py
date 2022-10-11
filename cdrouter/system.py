@@ -31,7 +31,7 @@ class VersionSchema(Schema):
     build = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Version(**data)
 
 class ReleaseLatest(object):
@@ -52,7 +52,7 @@ class ReleaseLatestSchema(Schema):
     newer = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return ReleaseLatest(**data)
 
 class Testsuite(object):
@@ -70,7 +70,7 @@ class TestsuiteSchema(Schema):
     name = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Testsuite(**data)
 
 class Release(object):
@@ -94,10 +94,10 @@ class ReleaseSchema(Schema):
     filename = fields.Str()
     version = fields.Nested(VersionSchema)
     testsuite = fields.Nested(TestsuiteSchema)
-    nonce = fields.Str(missing=None)
+    nonce = fields.Str(load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Release(**data)
 
 class Upgrade(object):
@@ -116,12 +116,12 @@ class Upgrade(object):
 
 class UpgradeSchema(Schema):
     success = fields.Bool()
-    installer_path = fields.Str(missing=None)
-    output = fields.Str(missing=None)
-    error = fields.Str(missing=None)
+    installer_path = fields.Str(load_default=None)
+    output = fields.Str(load_default=None)
+    error = fields.Str(load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Upgrade(**data)
 
 class InterfaceFlags(object):
@@ -148,7 +148,7 @@ class InterfaceFlagsSchema(Schema):
     multicast = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return InterfaceFlags(**data)
 
 class InterfaceAddr(object):
@@ -166,7 +166,7 @@ class InterfaceAddrSchema(Schema):
     address = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return InterfaceAddr(**data)
 
 class Interface(object):
@@ -195,11 +195,11 @@ class InterfaceSchema(Schema):
     name = fields.Str()
     hardware_addr = fields.Str()
     flags = fields.Nested(InterfaceFlagsSchema)
-    addresses = fields.Nested(InterfaceAddrSchema, many=True, missing=None)
-    multicast_addresses = fields.Nested(InterfaceAddrSchema, many=True, missing=None)
+    addresses = fields.Nested(lambda: InterfaceAddrSchema(many=True), load_default=None)
+    multicast_addresses = fields.Nested(lambda: InterfaceAddrSchema(many=True), load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Interface(**data)
 
 class InUseInterfaceFlags(object):
@@ -220,7 +220,7 @@ class InUseInterfaceFlagsSchema(Schema):
     is_ics = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return InUseInterfaceFlags(**data)
 
 class InUseInterface(object):
@@ -238,7 +238,7 @@ class InUseInterfaceSchema(Schema):
     flags = fields.Nested(InUseInterfaceFlagsSchema)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return InUseInterface(**data)
 
 class Preferences(object):
@@ -304,7 +304,7 @@ class PreferencesSchema(Schema):
     lounge_insecure = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Preferences(**data)
 
 class Space(object):
@@ -334,7 +334,7 @@ class SpaceSchema(Schema):
     used = fields.Int()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Space(**data)
 
 class SystemService(object):

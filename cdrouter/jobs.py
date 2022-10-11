@@ -5,10 +5,9 @@
 
 """Module for accessing CDRouter Jobs."""
 
-import collections
+from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
-from .cdr_datetime import DateTime
 from .configs import InterfacesSchema
 
 class Options(object):
@@ -28,14 +27,14 @@ class Options(object):
         self.extra_cli_args = kwargs.get('extra_cli_args', None)
 
 class OptionsSchema(Schema):
-    tags = fields.List(fields.Str(), missing=None)
-    skip_tests = fields.List(fields.Str(), missing=None)
+    tags = fields.List(fields.Str(), load_default=None)
+    skip_tests = fields.List(fields.Str(), load_default=None)
     begin_at = fields.Str()
     end_at = fields.Str()
     extra_cli_args = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Options(**data)
 
 class Job(object):
@@ -95,22 +94,22 @@ class JobSchema(Schema):
     config_name = fields.Str()
     device_id = fields.Int(as_string=True)
     device_name = fields.Str()
-    result_id = fields.Int(as_string=True, missing=None)
+    result_id = fields.Int(as_string=True, load_default=None)
     user_id = fields.Int(as_string=True)
-    created = DateTime()
-    updated = DateTime()
+    created = fields.DateTime()
+    updated = fields.DateTime()
     automatic = fields.Bool()
-    run_at = DateTime()
+    run_at = fields.DateTime()
     interfaces = fields.Nested(InterfacesSchema, many=True)
     interface_names = fields.List(fields.Str())
     uses_wireless = fields.Bool()
     uses_ics = fields.Bool()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Job(**data)
 
-class Page(collections.namedtuple('Page', ['data', 'links'])):
+class Page(namedtuple('Page', ['data', 'links'])):
     """Named tuple for a page of list response data.
 
     :param data: :class:`jobs.Job <jobs.Job>` list

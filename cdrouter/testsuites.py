@@ -6,16 +6,46 @@
 """Module for accessing CDRouter Testsuites."""
 
 from marshmallow import Schema, fields, post_load
+
 from .configs import InterfacesSchema
+
+class LicenseInfo(object):
+    """Model for CDRouter License Info.
+
+    :param is_expired (optional): Bool `True` if license is expired.
+    :param expires_date (optional): License expiration date as string.
+    :param expires_at (optional): License expiration as `DateTime`.
+    :param expires_in (optional): Seconds until license expiration as an int.
+    """
+    def __init__(self, **kwargs):
+        self.is_expired = kwargs.get('is_expired', None)
+        self.expires_date = kwargs.get('expires_date', None)
+        self.expires_at = kwargs.get('expires_at', None)
+        self.expires_in = kwargs.get('expires_in', None)
+
+class LicenseInfoSchema(Schema):
+    is_expired = fields.Bool()
+    expires_date = fields.Str()
+    expires_at = fields.DateTime()
+    expires_in = fields.Int()
+
+    @post_load
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
+        return LicenseInfo(**data)
 
 class Info(object):
     """Model for CDRouter Testsuite Info.
 
+    :param id: (optional) Testsuite ID as an int.
     :param build_info: (optional) CDRouter build info as string.
     :param copyright: (optional) CDRouter copyright info as string.
+    :param license_type: (optional) License type as string.
     :param customer: (optional) Customer name from license as string.
     :param lifetime: (optional) License lifetime as string.
+    :param killtime: (optional) License killtime as string.
+    :param nag: (optional) Bool `True` if should nag leading up to license expiration.
     :param os: (optional) OS name as string.
+    :param os_type: (optional) OS type as string.
     :param serial_number: (optional) NTA serial number as string.
     :param system_id: (optional) CDRouter system ID as string.
     :param testsuite: (optional) CDRouter testsuite name as string.
@@ -24,13 +54,19 @@ class Info(object):
     :param all_addons: (optional) All CDRouter addons as string list.
     :param interfaces: (optional) :class:`configs.Interfaces <configs.Interfaces>` list
     :param execute_instances: (optional) Execute instances as an int.
+    :param license_info: (optional) :class:`testsuites.LicenseInfo <testsuites.LicenseInfo>` object
     """
     def __init__(self, **kwargs):
+        self.id = kwargs.get('id', None)
         self.build_info = kwargs.get('build_info', None)
         self.copyright = kwargs.get('copyright', None)
+        self.license_type = kwargs.get('license_type', None)
         self.customer = kwargs.get('customer', None)
         self.lifetime = kwargs.get('lifetime', None)
+        self.killtime = kwargs.get('killtime', None)
+        self.nag = kwargs.get('nag', None)
         self.os = kwargs.get('os', None)
+        self.os_type = kwargs.get('os_type', None)
         self.serial_number = kwargs.get('serial_number', None)
         self.system_id = kwargs.get('system_id', None)
         self.testsuite = kwargs.get('testsuite', None)
@@ -39,13 +75,19 @@ class Info(object):
         self.all_addons = kwargs.get('all_addons', None)
         self.interfaces = kwargs.get('interfaces', None)
         self.execute_instances = kwargs.get('execute_instances', None)
+        self.license_info = kwargs.get('license_info', None)
 
 class InfoSchema(Schema):
+    id = fields.Int(load_default=None)
     build_info = fields.Str()
     copyright = fields.Str()
+    license_type = fields.Str(load_default=None)
     customer = fields.Str()
     lifetime = fields.Str()
+    killtime = fields.Str(load_default=None)
+    nag = fields.Bool(load_default=None)
     os = fields.Str()
+    os_type = fields.Str(load_default=None)
     serial_number = fields.Str()
     system_id = fields.Str()
     testsuite = fields.Str()
@@ -54,9 +96,10 @@ class InfoSchema(Schema):
     all_addons = fields.List(fields.Str())
     interfaces = fields.Nested(InterfacesSchema, many=True)
     execute_instances = fields.Int()
+    license_info = fields.Nested(LicenseInfoSchema, load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Info(**data)
 
 class Group(object):
@@ -76,14 +119,14 @@ class Group(object):
         self.modules = kwargs.get('modules', None)
 
 class GroupSchema(Schema):
-    id = fields.Int(missing=None)
+    id = fields.Int(load_default=None)
     name = fields.Str()
     index = fields.Int()
     test_count = fields.Int()
     modules = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Group(**data)
 
 class Module(object):
@@ -111,7 +154,7 @@ class Module(object):
         self.aliases = kwargs.get('aliases', None)
 
 class ModuleSchema(Schema):
-    id = fields.Int(missing=None)
+    id = fields.Int(load_default=None)
     name = fields.Str()
     index = fields.Int()
     group = fields.Str()
@@ -122,7 +165,7 @@ class ModuleSchema(Schema):
     aliases = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Module(**data)
 
 class Test(object):
@@ -157,22 +200,22 @@ class Test(object):
         self.skip_reason = kwargs.get('skip_reason', None)
 
 class TestSchema(Schema):
-    id = fields.Int(missing=None)
+    id = fields.Int(load_default=None)
     name = fields.Str()
     index = fields.Int()
     group = fields.Str()
     module = fields.Str()
     synopsis = fields.Str()
     description = fields.Str()
-    labels = fields.List(fields.Str())
-    aliases = fields.List(fields.Str())
-    testvars = fields.List(fields.Str())
+    labels = fields.List(fields.Str(), load_default=None)
+    aliases = fields.List(fields.Str(), load_default=None)
+    testvars = fields.List(fields.Str(), load_default=None)
 
-    skip_name = fields.Str(missing=None)
-    skip_reason = fields.Str(missing=None)
+    skip_name = fields.Str(load_default=None)
+    skip_reason = fields.Str(load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Test(**data)
 
 class Label(object):
@@ -196,7 +239,7 @@ class Label(object):
         self.tests = kwargs.get('tests', None)
 
 class LabelSchema(Schema):
-    id = fields.Int(missing=None)
+    id = fields.Int(load_default=None)
     name = fields.Str()
     index = fields.Int()
     reason = fields.Str()
@@ -205,7 +248,7 @@ class LabelSchema(Schema):
     tests = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Label(**data)
 
 class Error(object):
@@ -223,13 +266,13 @@ class Error(object):
         self.description = kwargs.get('description', None)
 
 class ErrorSchema(Schema):
-    id = fields.Int(missing=None)
+    id = fields.Int(load_default=None)
     name = fields.Str()
     index = fields.Int()
     description = fields.Str()
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Error(**data)
 
 class Testvar(object):
@@ -285,7 +328,7 @@ class Testvar(object):
         self.tests = kwargs.get('tests', None)
 
 class TestvarSchema(Schema):
-    id = fields.Int(missing=None)
+    id = fields.Int(load_default=None)
     name = fields.Str()
     index = fields.Int()
     humanname = fields.Str()
@@ -310,7 +353,7 @@ class TestvarSchema(Schema):
     tests = fields.List(fields.Str())
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Testvar(**data)
 
 class Search(object):
@@ -332,15 +375,15 @@ class Search(object):
         self.testvars = kwargs.get('testvars', None)
 
 class SearchSchema(Schema):
-    addons = fields.Nested(GroupSchema, many=True, missing=None)
-    modules = fields.Nested(ModuleSchema, many=True, missing=None)
-    tests = fields.Nested(TestSchema, many=True, missing=None)
-    reasons = fields.Nested(LabelSchema, many=True, missing=None)
-    errors = fields.Nested(ErrorSchema, many=True, missing=None)
-    testvars = fields.Nested(TestvarSchema, many=True, missing=None)
+    addons = fields.Nested(lambda: GroupSchema(many=True), load_default=None)
+    modules = fields.Nested(lambda: ModuleSchema(many=True), load_default=None)
+    tests = fields.Nested(lambda: TestSchema(many=True), load_default=None)
+    reasons = fields.Nested(lambda: LabelSchema(many=True), load_default=None)
+    errors = fields.Nested(lambda: ErrorSchema(many=True), load_default=None)
+    testvars = fields.Nested(lambda: TestvarSchema(many=True), load_default=None)
 
     @post_load
-    def post_load(self, data):
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Search(**data)
 
 class TestsuitesService(object):

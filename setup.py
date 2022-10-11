@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017 by QA Cafe.
+# Copyright (c) 2017-2022 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -49,15 +49,17 @@ setup(
         "Environment :: Web Environment",
         "Topic :: Software Development",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3 :: ONLY",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     keywords="cdrouter json rest api client",
     packages=["cdrouter"],
-    install_requires=["future", "marshmallow<3", "requests", "requests-toolbelt"],
+    install_requires=["future", "marshmallow<4", "requests", "requests-toolbelt"],
 )
