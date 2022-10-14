@@ -6,6 +6,7 @@
 """Module for accessing CDRouter Imports."""
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Import(object):
     """Model for CDRouter Staged Imports.
@@ -34,8 +35,8 @@ class Import(object):
 class ImportSchema(Schema):
     id = fields.Int(as_string=True)
     user_id = fields.Int(as_string=True)
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     archive = fields.Str()
     path = fields.Str()
     url = fields.Str()

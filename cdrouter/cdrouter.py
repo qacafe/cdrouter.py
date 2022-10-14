@@ -19,6 +19,7 @@ from marshmallow import Schema, fields, post_load
 
 from . import __version__
 from .cdr_error import CDRouterError
+from .cdr_datetime import DateTime
 from .alerts import AlertsService
 from .configs import ConfigsService
 from .devices import DevicesService
@@ -79,7 +80,7 @@ class Response(object):
         self.links = kwargs.get('links', None)
 
 class ResponseSchema(Schema):
-    timestamp = fields.DateTime()
+    timestamp = DateTime()
     error = fields.Str(load_default=None)
     data = fields.Dict(load_default=None)
 

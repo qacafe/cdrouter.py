@@ -9,6 +9,7 @@ from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
+from .cdr_datetime import DateTime
 from .filters import Field as field
 
 class ConfigError(object):
@@ -175,8 +176,8 @@ class ConfigSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
     description = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     contents = fields.Str()
     user_id = fields.Int(as_string=True)
     result_id = fields.Int(as_string=True, load_default=None)

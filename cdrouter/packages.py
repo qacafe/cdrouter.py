@@ -11,6 +11,7 @@ from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
 from .results import OptionsSchema as ResultOptionsSchema
 from .testsuites import TestSchema
+from .cdr_datetime import DateTime
 from .filters import Field as field
 from .configs import InterfacesSchema
 
@@ -154,8 +155,8 @@ class PackageSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
     description = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     test_count = fields.Int(as_string=True)
     testlist = fields.List(fields.Str(), load_default=None)
     extra_cli_args = fields.Str()

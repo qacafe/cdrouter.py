@@ -9,6 +9,7 @@ import io
 
 from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Attachment(object):
     """Model for CDRouter Attachments.
@@ -36,8 +37,8 @@ class AttachmentSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
     description = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     size = fields.Int()
     path = fields.Str()
     device_id = fields.Int(as_string=True)
