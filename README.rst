@@ -9,10 +9,10 @@ API. https://support.qacafe.com/cdrouter-web-api/
 
 For more information on CDRouter, please visit http://www.qacafe.com/.
 
-Installing
-==========
+Installing/Upgrading
+====================
 
-cdrouter is available on PyPI.
+cdrouter is available on PyPI.  To install the latest stable version from PyPI:
 
 .. code-block:: bash
 
