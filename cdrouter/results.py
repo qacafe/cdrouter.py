@@ -10,6 +10,7 @@ import io
 
 from requests_toolbelt.downloadutils import stream
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 from .testresults import TestResultSchema
 from .alerts import AlertSchema
 from .configs import InterfacesSchema
@@ -361,7 +362,7 @@ class Metric(object):
 
 class MetricSchema(Schema):
     log_file = fields.Str()
-    timestamp = fields.DateTime()
+    timestamp = DateTime()
     metric = fields.Str()
     value = fields.Float(as_string=True)
     units = fields.Str()
@@ -395,7 +396,7 @@ class LogDirFile(object):
 class LogDirFileSchema(Schema):
     name = fields.Str()
     size = fields.Int()
-    modified = fields.DateTime()
+    modified = DateTime()
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -478,7 +479,7 @@ class Update(object):
 
 class UpdateSchema(Schema):
     id = fields.Int(as_string=True)
-    timestamp = fields.DateTime()
+    timestamp = DateTime()
     progress = fields.Nested(ProgressSchema(), load_default=None)
     running = fields.Nested(TestResultSchema(), load_default=None)
     updates = fields.List(UpdateField, load_default=None)
@@ -559,8 +560,8 @@ class Result(object):
 
 class ResultSchema(Schema):
     id = fields.Int(as_string=True)
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     result = fields.Str()
     active = fields.Bool()
     status = fields.Str()

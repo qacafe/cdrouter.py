@@ -9,6 +9,7 @@ from collections import namedtuple
 from functools import partial
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Summary(object):
     """Model for CDRouter Log Section Summaries.
@@ -221,7 +222,7 @@ class TestResultSchema(Schema):
     result = fields.Str()
     alerts = fields.Int()
     retries = fields.Int()
-    started = fields.DateTime()
+    started = DateTime()
     duration = fields.Int()
     flagged = fields.Bool()
     name = fields.Str()

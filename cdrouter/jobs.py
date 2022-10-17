@@ -8,6 +8,7 @@
 from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 from .configs import InterfacesSchema
 
 class Options(object):
@@ -96,10 +97,10 @@ class JobSchema(Schema):
     device_name = fields.Str()
     result_id = fields.Int(as_string=True, load_default=None)
     user_id = fields.Int(as_string=True)
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     automatic = fields.Bool()
-    run_at = fields.DateTime()
+    run_at = DateTime()
     interfaces = fields.Nested(InterfacesSchema, many=True)
     interface_names = fields.List(fields.Str())
     uses_wireless = fields.Bool()

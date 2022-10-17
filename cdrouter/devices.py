@@ -9,6 +9,7 @@ from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
+from .cdr_datetime import DateTime
 from .filters import Field as field
 
 class PowerCmd(object):
@@ -125,8 +126,8 @@ class Device(object):
 class DeviceSchema(Schema):
     id = fields.Int(as_string=True)
     name = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     user_id = fields.Int(as_string=True)
     result_id = fields.Int(as_string=True, load_default=None)
     attachments_dir = fields.Str(load_default=None)
