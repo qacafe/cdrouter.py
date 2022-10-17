@@ -68,6 +68,7 @@ class TestDevices:
             default_ip='1.1.1.1',
             default_login='admin',
             default_password='cdrouter',
+            default_ssid='qacafe',
             location='here',
             device_category='device',
             manufacturer='some company',
@@ -97,6 +98,7 @@ class TestDevices:
         assert d2.default_ip == d.default_ip
         assert d2.default_login == d.default_login
         assert d2.default_password == d.default_password
+        assert d2.default_ssid == d.default_ssid
         assert d2.location == d.location
         assert d2.device_category == d.device_category
         assert d2.manufacturer == d.manufacturer

@@ -44,7 +44,7 @@ class TestImports:
         assert imp.user_id == 1
         assert imp.url == url
         assert imp.insecure is False
-        assert imp.size >= 110000 and imp.size <= 120000
+        assert imp.size > 0
 
     def test_get(self, c):
         with open('tests/testdata/example.gz', 'rb') as fd: # pylint: disable=unspecified-encoding

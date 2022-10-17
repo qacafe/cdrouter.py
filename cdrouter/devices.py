@@ -63,6 +63,7 @@ class Device(object):
     :param default_ip: (optional) Default IP as a string
     :param default_login: (optional) Default login as a string
     :param default_password: (optional) Default password as a string
+    :param default_ssid: (optional) Default SSID as a string
     :param location: (optional) Location as a string
     :param device_category: (optional) Device category as a string
     :param manufacturer: (optional) Manufacturer as a string
@@ -99,6 +100,7 @@ class Device(object):
         self.default_ip = kwargs.get('default_ip', None)
         self.default_login = kwargs.get('default_login', None)
         self.default_password = kwargs.get('default_password', None)
+        self.default_ssid = kwargs.get('default_ssid', None)
         self.location = kwargs.get('location', None)
 
         self.device_category = kwargs.get('device_category', None)
@@ -137,6 +139,7 @@ class DeviceSchema(Schema):
     default_ip = fields.Str()
     default_login = fields.Str()
     default_password = fields.Str()
+    default_ssid = fields.Str(load_default=None)
     location = fields.Str()
 
     device_category = fields.Str()
@@ -196,7 +199,7 @@ class DevicesService(object):
         """
         schema = DeviceSchema()
         if not detailed:
-            schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password',
+            schema = DeviceSchema(exclude=('attachments_dir', 'default_ip', 'default_login', 'default_password', 'default_ssid',
                                            'location', 'device_category', 'manufacturer', 'manufacturer_oui',
                                            'model_name', 'model_number', 'product_class', 'serial_number',
                                            'hardware_version', 'software_version', 'provisioning_code', 'note',
