@@ -9,6 +9,7 @@ from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
 from .cdr_error import CDRouterError
+from .cdr_datetime import DateTime
 from .filters import Field as field
 
 class User(object):
@@ -43,8 +44,8 @@ class UserSchema(Schema):
     disabled = fields.Bool()
     name = fields.Str()
     description = fields.Str()
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
     token = fields.Str()
 
     password = fields.Str()

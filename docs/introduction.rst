@@ -6,10 +6,10 @@ API. https://support.qacafe.com/cdrouter-web-api/
 
 For more information on CDRouter, please visit http://www.qacafe.com/.
 
-Download & Install
-------------------
+Install/Upgrade
+---------------
 
-cdrouter is available on PyPI_.
+cdrouter is available on PyPI_.  To install the latest stable version from PyPI:
 
 .. _PyPI: https://pypi.python.org/pypi/cdrouter
 

@@ -6,7 +6,7 @@
 """Module for accessing CDRouter Testsuites."""
 
 from marshmallow import Schema, fields, post_load
-
+from .cdr_datetime import DateTime
 from .configs import InterfacesSchema
 
 class LicenseInfo(object):
@@ -26,7 +26,7 @@ class LicenseInfo(object):
 class LicenseInfoSchema(Schema):
     is_expired = fields.Bool()
     expires_date = fields.Str()
-    expires_at = fields.DateTime()
+    expires_at = DateTime()
     expires_in = fields.Int()
 
     @post_load

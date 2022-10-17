@@ -9,6 +9,7 @@ from collections import namedtuple
 from functools import partial
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class Alert(object):
     """Model for CDRouter Alerts.
@@ -73,8 +74,8 @@ class Alert(object):
 class AlertSchema(Schema):
     id = fields.Int(as_string=True)
     idx = fields.Int(as_string=True)
-    created = fields.DateTime()
-    updated = fields.DateTime()
+    created = DateTime()
+    updated = DateTime()
 
     seq = fields.Int(as_string=True)
     loop = fields.Int(as_string=True)

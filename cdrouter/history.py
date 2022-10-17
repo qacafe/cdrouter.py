@@ -8,6 +8,7 @@
 from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load
+from .cdr_datetime import DateTime
 
 class History(object):
     """Model for CDRouter History entries.
@@ -31,7 +32,7 @@ class History(object):
 
 class HistorySchema(Schema):
     user_id = fields.Int(as_string=True)
-    created = fields.DateTime()
+    created = DateTime()
     resource = fields.Str()
     id = fields.Int(as_string=True)
     name = fields.Str()
