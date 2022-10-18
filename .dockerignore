@@ -1,0 +1,8 @@
+*.egg
+*.egg-info
+.cache
+.coverage
+.git
+.tox
+htmlcov
+tests/testdata
