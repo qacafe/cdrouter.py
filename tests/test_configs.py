@@ -377,6 +377,52 @@ class TestConfigs:
             assert c.configs.get(cfg.id).tags == new_tags
             assert c.configs.get_testvar(cfg.id, 'lanIp').value == '3.3.3.3'
 
+    def test_bulk_upgrade(self, c):
+        for ii in range(1, 4):
+            cfg = Config(
+                name='My config {}'.format(ii),
+                contents='# i have not been upgraded'
+            )
+            cfg = c.configs.create(cfg)
+
+        c.configs.bulk_upgrade(ids=[1, 3])
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            if ii in (1, 3):
+                assert 'SECTION' in cfg.contents
+            else:
+                assert cfg.contents == '# i have not been upgraded'
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            cfg.contents = '# i have not been upgraded'
+            c.configs.edit(cfg)
+            cfg = c.configs.get(ii)
+            assert cfg.contents == '# i have not been upgraded'
+
+        c.configs.bulk_upgrade(filter=[field('id').eq(1), field('id').eq(3)], type='union')
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            if ii in (1, 3):
+                assert 'SECTION' in cfg.contents
+            else:
+                assert cfg.contents == '# i have not been upgraded'
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            cfg.contents = '# i have not been upgraded'
+            c.configs.edit(cfg)
+            cfg = c.configs.get(ii)
+            assert cfg.contents == '# i have not been upgraded'
+
+        c.configs.bulk_upgrade(all=True)
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            assert 'SECTION' in cfg.contents
+
     def test_bulk_delete(self, c):
         cfg = Config(
             name='My config',
