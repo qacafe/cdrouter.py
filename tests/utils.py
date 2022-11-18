@@ -3,6 +3,7 @@
 # All Rights Reserved.
 #
 
+from collections import namedtuple
 from os import environ
 from os.path import basename
 import tarfile
@@ -12,6 +13,28 @@ import docker
 import pytest
 
 from cdrouter import CDRouter
+
+CDRouterVersion = namedtuple('CDRouterVersion', ['major', 'minor', 'build'], defaults=[0, 0])
+
+def cdrouter_version():
+    # <registry>/<path>/<image>:<major>.<minor>.<build>-<rest-of-tag>
+    image = environ.get('CDR_DOCKER_IMAGE')
+    if image is None:
+        raise ValueError('CDR_DOCKER_IMAGE not defined')
+    ver = image
+    idx = ver.rfind(':')
+    if idx == -1:
+        raise ValueError('unable to find last : in CDR_DOCKER_IMAGE={}'.format(image))
+    ver = ver[idx+1:]
+    idx = ver.find('-')
+    if idx == -1:
+        raise ValueError('unable to find first - in CDR_DOCKER_IMAGE={}'.format(image))
+    ver = ver[:idx]
+    parts = ver.split('.')
+    if len(parts) != 3:
+        raise ValueError('unable to find <major>.<minor>.<build> in CDR_DOCKER_IMAGE={}'.format(image))
+    major, minor, build = int(parts[0]), int(parts[1]), int(parts[2])
+    return CDRouterVersion(major, minor, build)
 
 @pytest.fixture(name="cdrouter")
 def my_cdrouter():

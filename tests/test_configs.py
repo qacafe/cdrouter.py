@@ -11,7 +11,7 @@ from cdrouter.configs import Config, Testvar
 from cdrouter.filters import Field as field
 from cdrouter.users import User
 
-from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
+from .utils import cdrouter_version, my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
 class TestConfigs:
     def test_list(self, c):
@@ -377,6 +377,7 @@ class TestConfigs:
             assert c.configs.get(cfg.id).tags == new_tags
             assert c.configs.get_testvar(cfg.id, 'lanIp').value == '3.3.3.3'
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 9, 1), reason="bulk upgrade endpoint added in 13.9.1")
     def test_bulk_upgrade(self, c):
         for ii in range(1, 4):
             cfg = Config(

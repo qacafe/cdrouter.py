@@ -11,7 +11,7 @@ from cdrouter.devices import Device
 from cdrouter.filters import Field as field
 from cdrouter.users import User
 
-from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
+from .utils import cdrouter_version, my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
 class TestDevices:
     def test_list(self, c):
@@ -98,7 +98,9 @@ class TestDevices:
         assert d2.default_ip == d.default_ip
         assert d2.default_login == d.default_login
         assert d2.default_password == d.default_password
-        assert d2.default_ssid == d.default_ssid
+        # default_ssid field added in 13.8.1
+        if cdrouter_version() >= (13, 8, 1):
+            assert d2.default_ssid == d.default_ssid
         assert d2.location == d.location
         assert d2.device_category == d.device_category
         assert d2.manufacturer == d.manufacturer
