@@ -1,5 +1,8 @@
 variables:
   GIT_DEPTH: 1
+  UPSTREAM_REF:
+    value: master
+    description: "Name of upstream (cdrouter) branch. Variable used by test job."
 
 stages:
   - build
@@ -9,6 +12,7 @@ workflow:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
     - if: '$CI_COMMIT_BRANCH == "master"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
 
@@ -44,18 +48,26 @@ docker:
 test:
   image: docker:19.03.12-git
   stage: build
+  needs:
+    - project: qacafe/cdrouter/cdrouter
+      job: releases
+      ref: $UPSTREAM_REF
+      artifacts: true
   script:
+    - |
+      if [ "$UPSTREAM_REF" = "master" ]; then
+         CDR_DOCKER_VER=latest
+      else
+         CDR_RELEASE=$(find out/releases -type f -regex .\*/cdrouter-[0-9].\* -print)
+         CDR_DOCKER_VER=$(basename $CDR_RELEASE | sed -e 's/cdrouter-\(.*\)\.qacafe\.x86_64.rpm/\1/')
+      fi
+      export CDR_DOCKER_IMAGE=$CI_REGISTRY/qacafe/cdrouter/cdrouter/cdrouter:$CDR_DOCKER_VER
+    - echo $CDR_DOCKER_IMAGE
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add python3 curl
     - curl -s https://bootstrap.pypa.io/pip/get-pip.py | python3
     - pip3 install tox
-    # see https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41227,
-    # requires adding "/builds:/builds" to "volumes" list in
-    # /etc/gitlab-runner/config.toml
-    - 'export SHARED_PATH="$(dirname ${CI_PROJECT_DIR})/shared"'
-    - mkdir -p ${SHARED_PATH}
-    - echo "$CDR_DOCKER_LICENSE" | base64 -d > ${SHARED_PATH}/cdrouter.lic
-    - CDR_DOCKER_VOLUMES=${SHARED_PATH}:/config tox -p
+    - tox -p
   interruptible: true
   artifacts:
     name: "cdrouter.py-coverage-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}"

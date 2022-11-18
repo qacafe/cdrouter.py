@@ -19,15 +19,20 @@ def my_cdrouter():
 
     client.images.pull(environ.get('CDR_DOCKER_IMAGE'))
 
-    volumes = None
+    container_environment = None
+    container_volumes = None
+
+    if 'CDR_DOCKER_LICENSE' in environ:
+        container_environment = {'CDR_DOCKER_LICENSE': environ.get('CDR_DOCKER_LICENSE')}
     if 'CDR_DOCKER_VOLUMES' in environ:
-        volumes = environ.get('CDR_DOCKER_VOLUMES').split(',')
+        container_volumes = environ.get('CDR_DOCKER_VOLUMES').split(',')
 
     container = client.containers.create(
         environ.get('CDR_DOCKER_IMAGE'),
         auto_remove=True, tty=True, privileged=True,
         publish_all_ports=True,
-        volumes=volumes)
+        environment=container_environment,
+        volumes=container_volumes)
     container.start()
 
     info = docker.APIClient().inspect_container(container.id)
