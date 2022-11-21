@@ -5,7 +5,10 @@
 
 import pytest
 
+from marshmallow import Schema, post_load
+
 from cdrouter.cdrouter import CDRouterError
+from cdrouter.cdr_datetime import DateTime
 from cdrouter.filters import Field as field
 from cdrouter.jobs import Job
 
@@ -20,7 +23,7 @@ class TestJobs:
         assert links.total == 0
 
         package = c.packages.get_by_name('example')
-        c.jobs.launch(Job(package_id=package.id))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
 
         (jobs, links) = c.jobs.list()
         assert len(jobs) == 1
@@ -32,7 +35,7 @@ class TestJobs:
         assert len(list(c.jobs.iter_list(limit=1))) == 0
 
         package = c.packages.get_by_name('example')
-        c.jobs.launch(Job(package_id=package.id))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
 
         assert len(list(c.jobs.iter_list(limit=1))) == 1
 
@@ -42,7 +45,7 @@ class TestJobs:
         assert len(list(c.jobs.iter_list())) == 0
 
         package = c.packages.get_by_name('example')
-        c.jobs.launch(Job(package_id=package.id))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
 
         assert len(list(c.jobs.iter_list())) == 1
 
@@ -74,11 +77,11 @@ class TestJobs:
 
         package = c.packages.get_by_name('example')
 
-        c.jobs.launch(Job(package_id=package.id))
-        c.jobs.launch(Job(package_id=package.id))
-        c.jobs.launch(Job(package_id=package.id))
-        c.jobs.launch(Job(package_id=package.id))
-        c.jobs.launch(Job(package_id=package.id))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
 
         jobs = list(c.jobs.iter_list(filter=[field('active').eq(False)]))
 
@@ -104,7 +107,7 @@ class TestJobs:
 
         assert len(list(c.jobs.iter_list())) == 0
 
-        j = c.jobs.launch(Job(package_id=package.id))
+        j = c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
         assert j.id > 0
         assert j.package_id == package.id
         assert j.package_name == package.name
@@ -125,11 +128,11 @@ class TestJobs:
 
         assert len(list(c.jobs.iter_list())) == 0
 
-        c.jobs.launch(Job(package_id=package.id))
-        c.jobs.launch(Job(package_id=package.id))
-        c.jobs.launch(Job(package_id=package.id))
-        c.jobs.launch(Job(package_id=package.id))
-        c.jobs.launch(Job(package_id=package.id))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
 
         assert len(list(c.jobs.iter_list())) == 5
 
@@ -145,7 +148,7 @@ class TestJobs:
 
         package = c.packages.get_by_name('example')
 
-        j = c.jobs.launch(Job(package_id=package.id))
+        j = c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
 
         intfs = c.jobs.get_interfaces(j)
         assert len(intfs) == 1
@@ -160,9 +163,9 @@ class TestJobs:
         package = c.packages.get_by_name('example')
 
         c.jobs.bulk_launch(jobs=[
-            Job(package_id=package.id),
-            Job(package_id=package.id),
-            Job(package_id=package.id)
+            Job(package_id=package.id, run_at=self.run_at_year_9999()),
+            Job(package_id=package.id, run_at=self.run_at_year_9999()),
+            Job(package_id=package.id, run_at=self.run_at_year_9999())
         ])
 
         assert len(list(c.jobs.iter_list())) == 3
@@ -176,11 +179,11 @@ class TestJobs:
 
         package = c.packages.get_by_name('example')
 
-        c.jobs.launch(Job(package_id=package.id))
-        j2 = c.jobs.launch(Job(package_id=package.id))
-        j3 = c.jobs.launch(Job(package_id=package.id))
-        j4 = c.jobs.launch(Job(package_id=package.id))
-        j5 = c.jobs.launch(Job(package_id=package.id))
+        c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        j2 = c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        j3 = c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        j4 = c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
+        j5 = c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
         assert len(list(c.jobs.iter_list())) == 5
 
         c.jobs.bulk_delete(ids=[j2.id, j3.id])
@@ -196,3 +199,21 @@ class TestJobs:
             c.jobs.get(j4.id)
         with pytest.raises(CDRouterError, match='no such Job'):
             c.jobs.get(j5.id)
+
+    def run_at_year_9999(self):
+        data = { 'timestamp': '9999-01-01T12:00:00-00:00' }
+        schema = TimestampSchema()
+        timestamp = schema.load(data)
+        run_at = timestamp.timestamp
+        return run_at
+
+class Timestamp(object):
+    def __init__(self, **kwargs):
+        self.timestamp = kwargs.get('timestamp', None)
+
+class TimestampSchema(Schema):
+    timestamp = DateTime()
+
+    @post_load
+    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
+        return Timestamp(**data)

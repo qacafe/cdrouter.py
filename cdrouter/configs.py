@@ -424,6 +424,21 @@ class ConfigsService(object):
         return self.service.bulk_edit(self.base, self.RESOURCE,
                                       _fields, ids=ids, filter=filter, type=type, all=all, testvars=testvars)
 
+    def bulk_upgrade(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
+        """Bulk upgrade a set of configs.
+
+        :param ids: (optional) Int list of config IDs.
+        :param filter: (optional) String list of filters.
+        :param type: (optional) `union` or `inter` as string.
+        :param all: (optional) Apply to all if bool `True`.
+        """
+        json = {}
+        if ids is not None:
+            json[self.RESOURCE] = [{'id': str(x)} for x in ids]
+
+        return self.service.post(self.base,
+                                 params={'bulk': 'upgrade', 'filter': filter, 'type': type, 'all': all}, json=json)
+
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of configs.
 

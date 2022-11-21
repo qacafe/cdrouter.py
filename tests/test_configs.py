@@ -11,7 +11,7 @@ from cdrouter.configs import Config, Testvar
 from cdrouter.filters import Field as field
 from cdrouter.users import User
 
-from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
+from .utils import cdrouter_version, my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
 class TestConfigs:
     def test_list(self, c):
@@ -376,6 +376,53 @@ class TestConfigs:
         for cfg in configs:
             assert c.configs.get(cfg.id).tags == new_tags
             assert c.configs.get_testvar(cfg.id, 'lanIp').value == '3.3.3.3'
+
+    @pytest.mark.skipif(cdrouter_version() < (13, 9, 1), reason="bulk upgrade endpoint added in 13.9.1")
+    def test_bulk_upgrade(self, c):
+        for ii in range(1, 4):
+            cfg = Config(
+                name='My config {}'.format(ii),
+                contents='# i have not been upgraded'
+            )
+            cfg = c.configs.create(cfg)
+
+        c.configs.bulk_upgrade(ids=[1, 3])
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            if ii in (1, 3):
+                assert 'SECTION' in cfg.contents
+            else:
+                assert cfg.contents == '# i have not been upgraded'
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            cfg.contents = '# i have not been upgraded'
+            c.configs.edit(cfg)
+            cfg = c.configs.get(ii)
+            assert cfg.contents == '# i have not been upgraded'
+
+        c.configs.bulk_upgrade(filter=[field('id').eq(1), field('id').eq(3)], type='union')
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            if ii in (1, 3):
+                assert 'SECTION' in cfg.contents
+            else:
+                assert cfg.contents == '# i have not been upgraded'
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            cfg.contents = '# i have not been upgraded'
+            c.configs.edit(cfg)
+            cfg = c.configs.get(ii)
+            assert cfg.contents == '# i have not been upgraded'
+
+        c.configs.bulk_upgrade(all=True)
+
+        for ii in range(1, 4):
+            cfg = c.configs.get(ii)
+            assert 'SECTION' in cfg.contents
 
     def test_bulk_delete(self, c):
         cfg = Config(

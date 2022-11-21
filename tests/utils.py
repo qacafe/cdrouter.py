@@ -3,8 +3,10 @@
 # All Rights Reserved.
 #
 
+from collections import namedtuple
 from os import environ
 from os.path import basename
+import re
 import tarfile
 from time import sleep, time
 
@@ -12,6 +14,30 @@ import docker
 import pytest
 
 from cdrouter import CDRouter
+
+CDRouterVersion = namedtuple('CDRouterVersion', ['major', 'minor', 'build'], defaults=[0, 0])
+
+_cdrouter_version = None
+def cdrouter_version():
+    global _cdrouter_version    # pylint: disable=global-statement
+    if _cdrouter_version is not None:
+        return _cdrouter_version
+    client = docker.from_env()
+    client.images.pull(environ.get('CDR_DOCKER_IMAGE'))
+    container = client.containers.create(
+        environ.get('CDR_DOCKER_IMAGE'),
+        ['-c', '/usr/cdrouter/bin/cdrouter -version'],
+        entrypoint=['/bin/bash'])
+    container.start()
+    container.wait()
+    ver = container.logs()
+    container.remove()
+    m = re.search(r'Version (\d+)\.(\d+) build (\d+)', str(ver))
+    if m is None:
+        raise ValueError('unable to parse cdrouter version: {}'.format(ver))
+    major, minor, build = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    _cdrouter_version = CDRouterVersion(major, minor, build)
+    return _cdrouter_version
 
 @pytest.fixture(name="cdrouter")
 def my_cdrouter():
