@@ -269,6 +269,7 @@ class TestConfigs:
         assert upg.success is True
         assert 'SECTION "About"' in upg.output
 
+    @pytest.mark.flaky(reruns=5)
     def test_get_networks(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
