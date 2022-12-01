@@ -10,7 +10,7 @@ from marshmallow import Schema, post_load
 from cdrouter.cdrouter import CDRouterError
 from cdrouter.cdr_datetime import DateTime
 from cdrouter.filters import Field as field
-from cdrouter.jobs import Job
+from cdrouter.jobs import Job, Options
 
 from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
@@ -173,6 +173,20 @@ class TestJobs:
         c.jobs.bulk_launch(filter=[field('name').eq('example')])
 
         assert len(list(c.jobs.iter_list())) == 4
+
+        # bulk launch all packages matching the given filter using the
+        # given run_at and options job fields
+        c.jobs.bulk_launch(_fields=Job(
+            run_at=self.run_at_year_9999(),
+            options=Options(tags=['iamatag'], extra_cli_args='-testvar lanIp=1.1.1.1'),
+        ), filter=[field('name').eq('example')])
+
+        jobs = list(c.jobs.iter_list())
+        assert len(jobs) == 5
+        j = jobs[4]
+
+        assert j.options.tags == ['iamatag']
+        assert j.options.extra_cli_args == '-testvar lanIp=1.1.1.1'
 
     def test_bulk_delete(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
