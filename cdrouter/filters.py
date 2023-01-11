@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -50,7 +50,7 @@ class Field(object):
 
     See this_ page for more details on CDRouter Web API filters.
 
-    .. _this: https://support.qacafe.com/cdrouter-web-api/overview/#filtering
+    .. _this: https://support.qacafe.com/cdrouter/cdrouter-web-api/overview/#filtering
     """
 
     def __init__(self, *args):

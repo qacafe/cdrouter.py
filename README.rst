@@ -5,7 +5,7 @@ cdrouter
     :target: https://pypi.python.org/pypi/cdrouter
 
 Simple Python wrapper for the CDRouter Web
-API. https://support.qacafe.com/cdrouter-web-api/
+API. https://support.qacafe.com/cdrouter/cdrouter-web-api/
 
 For more information on CDRouter, please visit http://www.qacafe.com/.
 
