@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -144,7 +144,7 @@ class TestSystem:
         with open(path, 'wb') as fd:
             shutil.copyfileobj(b, fd)
 
-        with tarfile.open(path, mode='r') as tar:
+        with tarfile.open(path, mode='rb') as tar:
             for member in tar.getmembers():
                 print(member)
 
