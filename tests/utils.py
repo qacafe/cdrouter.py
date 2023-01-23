@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2023 by QA Cafe.
+# Copyright (c) 2022 by QA Cafe.
 # All Rights Reserved.
 #
 
