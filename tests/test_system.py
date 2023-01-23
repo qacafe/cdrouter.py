@@ -144,7 +144,7 @@ class TestSystem:
         with open(path, 'wb') as fd:
             shutil.copyfileobj(b, fd)
 
-        with tarfile.open(path, mode='rb') as tar:
+        with tarfile.open(path, mode='r') as tar:
             for member in tar.getmembers():
                 print(member)
 

@@ -152,7 +152,7 @@ def my_copy_file_from_container(tmp_path):
             for chunk in bits:
                 fd.write(chunk)
 
-        with tarfile.open(local_path, mode='rb') as tar:
+        with tarfile.open(local_path, mode='r') as tar:
             tar.extractall(path=tmp_path)
 
         return '{}/{}'.format(tmp_path, base)
@@ -165,7 +165,7 @@ def my_copy_file_to_container(tmp_path):
     def _my_copy_file_to_container(container, path):
         tarpath = '{}/{}'.format(tmp_path, 'files.tar')
 
-        with tarfile.open(tarpath, 'wb') as tar:
+        with tarfile.open(tarpath, 'w') as tar:
             tar.add(path, arcname=basename(path))
 
         dstpath = '/tmp'
