@@ -16,7 +16,7 @@ archive = sys.argv[3]
 # create service
 c = CDRouter(base, token=token)
 
-with open(archive, 'r+') as fd:
+with open(archive, 'rb') as fd:
     si = c.imports.stage_import_from_file(fd, filename=os.path.basename(archive))
 
 impreq = c.imports.get_commit_request(si.id)
