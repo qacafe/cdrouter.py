@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -116,7 +116,7 @@ class TestSystem:
         container = cdrouter['container']
         c = cdrouter['c']
 
-        path = copy_file_from_container(container, '/usr/cdrouter-data/etc/*.lic')
+        path = copy_file_from_container(container, '/usr/cdrouter-data/etc/cdrouter-*.lic')
         with open(path, 'rb') as fd: # pylint: disable=unspecified-encoding
             c.system.manual_update_license(fd, basename(path))
 

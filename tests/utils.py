@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -140,7 +140,7 @@ def my_copy_file_from_container(tmp_path):
     tmp_path = str(tmp_path)
 
     def _my_copy_file_from_container(container, path):
-        (exit_code, output) = container.exec_run(['/bin/sh', '-c', 'ls {}'.format(path)])
+        (exit_code, output) = container.exec_run(['/bin/sh', '-c', 'ls {} | head -n1'.format(path)])
         assert exit_code == 0
         lspath = output.decode().strip()
         base = basename(lspath)
