@@ -1,7 +1,7 @@
 This directory contains example Python scripts using the
 [**cdrouter.py**](https://cdrouterpy.readthedocs.io/en/latest/introduction.html)
 wrapper module for the [**CDRouter Web
-API**](https://support.qacafe.com/cdrouter-web-api). Feel free to use
+API**](https://support.qacafe.com/cdrouter/cdrouter-web-api). Feel free to use
 them or modify them to suit your needs.
 
 | Name                                                       | Description
