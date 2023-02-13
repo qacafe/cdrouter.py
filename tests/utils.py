@@ -23,7 +23,8 @@ def cdrouter_version():
     if _cdrouter_version is not None:
         return _cdrouter_version
     client = docker.from_env()
-    client.images.pull(environ.get('CDR_DOCKER_IMAGE'))
+    if 'CDR_DOCKER_PULL' not in environ or environ.get('CDR_DOCKER_PULL') != '0':
+        client.images.pull(environ.get('CDR_DOCKER_IMAGE'))
     container = client.containers.create(
         environ.get('CDR_DOCKER_IMAGE'),
         ['-c', '/usr/cdrouter/bin/cdrouter -version'],
@@ -43,7 +44,8 @@ def cdrouter_version():
 def my_cdrouter():
     client = docker.from_env()
 
-    client.images.pull(environ.get('CDR_DOCKER_IMAGE'))
+    if 'CDR_DOCKER_PULL' not in environ or environ.get('CDR_DOCKER_PULL') != '0':
+        client.images.pull(environ.get('CDR_DOCKER_IMAGE'))
 
     container_environment = None
     container_volumes = None
