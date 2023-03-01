@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -10,6 +10,7 @@ from functools import partial
 
 from marshmallow import Schema, fields, post_load
 from .cdr_datetime import DateTime
+from .metrics import BandwidthSchema, ClientBandwidthSchema, ClientLatencySchema, LatencySchema, MetricSchema, Page as MetricPage
 
 class Summary(object):
     """Model for CDRouter Log Section Summaries.
@@ -387,3 +388,56 @@ class TestResultsService(object):
         """
         return self.service.get(self._base(id)+str(seq)+'/log/',
                                 params={'format': 'text'}).text
+
+    def list_metrics(self, id, seq, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
+        """Get a list of metrics, using summary representation by default (see
+        ``detailed`` parameter).
+
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
+        :return: :class:`metrics.Page <metrics.Page>` object
+        :rtype: metrics.Page
+        """
+        schema = MetricSchema()
+        resp = self.service.list(self._base(id)+str(seq)+'/metrics/', filter, type, sort, limit, page, detailed=detailed)
+        rs, l = self.service.decode(schema, resp, many=True, links=True)
+        return MetricPage(rs, l)
+
+    def get_test_metric(self, id, seq, metric): # pylint: disable=invalid-name,redefined-builtin
+        """Get a bandwidth, latency, client_bandwidth or client_latency test metric.  This method is only for getting "bandwidth", "latency", "client_bandwidth" or "client_lantecy" test metrics.
+
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
+        :param metric: Metric name as string, must be "bandwidth", "latency", "client_bandwidth" or "client_latency"
+        :return: :class:`metrics.Bandwidth <metrics.Bandwidth>` list, :class:`metrics.Latency <metrics.Latency>` list, :class:`metrics.ClientBandwidth <metrics.ClientBandwidth>` list or :class:`metrics.ClientLatency <metrics.ClientLatency>` list
+        :rtype: Union[metrics.Bandwidth, metrics.Latency, metrics.ClientBandwidth, metrics.ClientLatency]
+        """
+        if metric == 'bandwidth':
+            schema = BandwidthSchema()
+        elif metric == 'latency':
+            schema = LatencySchema()
+        elif metric == 'client_bandwidth':
+            schema = ClientBandwidthSchema()
+        elif metric == 'client_latency':
+            schema = ClientLatencySchema()
+        else:
+            raise ValueError('unknown metric {}, must be bandwidth, latency, client_bandwidth or client_latency'.format(metric))
+        resp = self.service.get(self._base(id)+str(seq)+'/metrics/'+metric+'/')
+        return self.service.decode(schema, resp, many=True)
+
+    def get_test_metric_csv(self, id, seq, metric): # pylint: disable=invalid-name,redefined-builtin
+        """Get a test metric as CSV.  This methods support all test metrics.
+
+        :param id: Result ID as an int.
+        :param seq: TestResult sequence ID as an int.
+        :param id: Metric name as string.
+        :rtype: string
+        """
+        return self.service.get(self._base(id)+str(seq)+'/metrics/'+metric+'/',
+                                params={'format': 'csv'}).text

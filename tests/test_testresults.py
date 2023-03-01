@@ -1,11 +1,13 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
 import pytest
 
 from cdrouter.cdrouter import CDRouterError
+from cdrouter.filters import Field as field
+from cdrouter.metrics import Bandwidth, Latency, ClientBandwidth
 
 from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
@@ -148,3 +150,104 @@ class TestTestResults:
 
         text = c.tests.get_log_plaintext(20220821222306, 1)
         assert 'Started cdrouter-cli' in text
+
+    def test_list_metrics(self, c):
+        import_all_from_file(c, 'tests/testdata/example5.gz')
+
+        r = c.results.get(20230310111705)
+
+        (metrics, links) = c.tests.list_metrics(r.id, 2)
+        assert links.total == 2
+        assert len(metrics) == 2
+
+        assert metrics[0].id == 20230310111705
+        assert metrics[0].seq == 2
+        assert metrics[0].test_name == 'perf_multi_1'
+        assert metrics[0].metric == 'bandwidth'
+        assert metrics[0].filename == 'perf_multi_1_bandwidth_graph.csv'
+        assert metrics[1].id == 20230310111705
+        assert metrics[1].seq == 2
+        assert metrics[1].test_name == 'perf_multi_1'
+        assert metrics[1].metric == 'client_bandwidth'
+        assert metrics[1].filename == 'perf_multi_1_client_bandwidth_details_graph.1.csv'
+
+        (metrics, links) = c.tests.list_metrics(r.id, 2, filter=[field('metric').eq('client_bandwidth')], limit='none')
+        assert links.total == 1
+        assert len(metrics) == 1
+
+        assert metrics[0].id == 20230310111705
+        assert metrics[0].seq == 2
+        assert metrics[0].test_name == 'perf_multi_1'
+        assert metrics[0].metric == 'client_bandwidth'
+        assert metrics[0].filename == 'perf_multi_1_client_bandwidth_details_graph.1.csv'
+
+        with pytest.raises(CDRouterError, match='no such test'):
+            c.tests.list_metrics(999999, 2)
+
+        with pytest.raises(CDRouterError, match='no such test'):
+            c.tests.list_metrics(r.id, 999999)
+
+    def test_get_test_metric(self, c):
+        import_all_from_file(c, 'tests/testdata/example5.gz')
+
+        r = c.results.get(20230310111705)
+
+        metrics = c.tests.get_test_metric(r.id, 2, 'bandwidth')
+        assert len(metrics) == 10
+        assert isinstance(metrics[0], Bandwidth)
+        assert metrics[0].log_file == 'perf_multi_1.txt'
+        assert metrics[0].metric == 'bandwidth'
+        assert metrics[0].bandwidth == 9416.015
+        assert metrics[0].bandwidth_units == 'Mbits/sec'
+        assert metrics[0].result == 'pass'
+        assert metrics[0].client_interface == 'lan.*'
+        assert metrics[0].server_interface == 'wan'
+        assert metrics[0].streams == 10
+        assert metrics[0].protocol == 'TCP'
+        assert metrics[0].direction == 'download'
+        assert metrics[0].loss_percentage == 0.0
+        assert metrics[0].loss_percentage_units == 'Percentage'
+        assert metrics[0].client_device is None
+        assert metrics[0].server_device is None
+
+        metrics = c.tests.get_test_metric(r.id, 2, 'client_bandwidth')
+        assert len(metrics) == 33
+        assert isinstance(metrics[0], ClientBandwidth)
+        assert metrics[0].num_rates == 10
+        assert len(metrics[0].rates) == 10
+        assert metrics[0].rates[0] == 941.608
+
+        import_all_from_file(c, 'tests/testdata/example6.gz')
+
+        r = c.results.get(20230310115215)
+
+        metrics = c.tests.get_test_metric(r.id, 6, 'latency')
+        assert len(metrics) == 1
+        assert isinstance(metrics[0], Latency)
+        assert metrics[0].log_file == 'perf_9.txt'
+        assert metrics[0].metric == 'latency'
+        assert metrics[0].total_latency == 83
+        assert metrics[0].total_latency_units == 'usec'
+        assert metrics[0].result == 'pass'
+        assert metrics[0].interface == 'lan'
+        assert metrics[0].download_latency == 54
+        assert metrics[0].download_latency_units == 'usec'
+        assert metrics[0].upload_latency == 29
+        assert metrics[0].upload_latency_units == 'usec'
+
+        with pytest.raises(ValueError, match='unknown metric invalid'):
+            c.tests.get_test_metric(r.id, 2, 'invalid')
+
+    def test_get_test_metric_csv(self, c):
+        import_all_from_file(c, 'tests/testdata/example5.gz')
+
+        r = c.results.get(20230310111705)
+
+        csv = c.tests.get_test_metric_csv(r.id, 2, 'bandwidth')
+        assert 'perf_multi_1.txt,' in csv
+
+        csv = c.tests.get_test_metric_csv(r.id, 2, 'client_bandwidth')
+        assert '941.608,' in csv
+
+        with pytest.raises(CDRouterError):
+            c.tests.get_test_metric_csv(r.id, 2, 'invalid')
