@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -175,6 +175,54 @@ class TestPackages:
 
         with pytest.raises(CDRouterError, match='no such package'):
             c.packages.get(p2.id)
+
+    def test_lock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        p = c.packages.get_by_name('Cisco E4200 DHCPv4 relay-nofatal')
+        assert p.locked is False
+
+        p = c.packages.lock(p.id)
+        assert p.locked is True
+
+        # locking a locked resource is a no-op, not an error
+        c.packages.lock(p.id)
+        c.packages.lock(p.id)
+        c.packages.lock(p.id)
+
+        p = c.packages.get(p.id)
+        assert p.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked package'):
+            c.packages.delete(p.id)
+
+    def test_unlock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        p = c.packages.get_by_name('Cisco E4200 DHCPv4 relay-nofatal')
+        assert p.locked is False
+
+        p = c.packages.lock(p.id)
+        assert p.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked package'):
+            c.packages.delete(p.id)
+
+        p = c.packages.unlock(p.id)
+        assert p.locked is False
+
+        # unlocking an unlocked resource is a no-op, not an error
+        c.packages.unlock(p.id)
+        c.packages.unlock(p.id)
+        c.packages.unlock(p.id)
+
+        p = c.packages.get(p.id)
+        assert p.locked is False
+
+        c.packages.delete(p.id)
+
+        with pytest.raises(CDRouterError, match='no such package'):
+            c.packages.get(p.id)
 
     def test_get_shares(self, c):
         u = User(

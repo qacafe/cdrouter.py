@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -115,6 +115,7 @@ class Package(object):
     :param description: (optional) Description as a string.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
+    :param locked: (optional) Bool `True` if package is locked.
     :param test_count: (optional) Test count as an int.
     :param testlist: (optional) Testlist as a string list.
     :param extra_cli_args: (optional) Extra CLI args as a string.
@@ -136,6 +137,7 @@ class Package(object):
         self.description = kwargs.get('description', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
+        self.locked = kwargs.get('locked', None)
         self.test_count = kwargs.get('test_count', None)
         self.testlist = kwargs.get('testlist', None)
         self.extra_cli_args = kwargs.get('extra_cli_args', None)
@@ -157,6 +159,7 @@ class PackageSchema(Schema):
     description = fields.Str()
     created = DateTime()
     updated = DateTime()
+    locked = fields.Bool(load_default=False)
     test_count = fields.Int(as_string=True)
     testlist = fields.List(fields.Str(), load_default=None)
     extra_cli_args = fields.Str()
@@ -282,6 +285,28 @@ class PackagesService(object):
         :param id: Package ID as an int.
         """
         return self.service.delete_id(self.base, id)
+
+    def lock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Lock a package.  Locking prevents the package from being modified or deleted until it is unlocked.
+
+        :param id: Package ID as an int.
+        :return: :class:`packages.Package <packages.Package>` object
+        :rtype: packages.Package
+        """
+        schema = PackageSchema()
+        resp = self.service.post(self.base+str(id)+'/lock/')
+        return self.service.decode(schema, resp)
+
+    def unlock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Unlock a package.  Unlocking a locked package allows it to be modified or deleted once again.
+
+        :param id: Package ID as an int.
+        :return: :class:`packages.Package <packages.Package>` object
+        :rtype: packages.Package
+        """
+        schema = PackageSchema()
+        resp = self.service.post(self.base+str(id)+'/unlock/')
+        return self.service.decode(schema, resp)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a package.

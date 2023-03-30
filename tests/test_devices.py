@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -159,6 +159,54 @@ class TestDevices:
 
         with pytest.raises(CDRouterError, match='no such device'):
             c.devices.get(d2.id)
+
+    def test_lock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        d = c.devices.get_by_name('Cisco E4200')
+        assert d.locked is False
+
+        d = c.devices.lock(d.id)
+        assert d.locked is True
+
+        # locking a locked resource is a no-op, not an error
+        c.devices.lock(d.id)
+        c.devices.lock(d.id)
+        c.devices.lock(d.id)
+
+        d = c.devices.get(d.id)
+        assert d.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked device'):
+            c.devices.delete(d.id)
+
+    def test_unlock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        d = c.devices.get_by_name('Cisco E4200')
+        assert d.locked is False
+
+        d = c.devices.lock(d.id)
+        assert d.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked device'):
+            c.devices.delete(d.id)
+
+        d = c.devices.unlock(d.id)
+        assert d.locked is False
+
+        # unlocking an unlocked resource is a no-op, not an error
+        c.devices.unlock(d.id)
+        c.devices.unlock(d.id)
+        c.devices.unlock(d.id)
+
+        d = c.devices.get(d.id)
+        assert d.locked is False
+
+        c.devices.delete(d.id)
+
+        with pytest.raises(CDRouterError, match='no such device'):
+            c.devices.get(d.id)
 
     def test_get_shares(self, c):
         u = User(

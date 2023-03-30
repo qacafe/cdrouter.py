@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -54,6 +54,7 @@ class TestConfigs:
         assert cfg.name == 'Cisco E4200'
         assert cfg.description == 'DHCPv4 and DHCPv6 relay config using ER-X as relay and E4200 as DUT'
         assert 'SECTION "About"' in cfg.contents
+        assert cfg.locked is False
         assert cfg.user_id == u.id
         assert cfg.tags == ['DHCP relay', 'DHCPv6 relay']
         assert 'The interface names on this system' in cfg.note
@@ -143,6 +144,54 @@ class TestConfigs:
         c.configs.delete(cfg.id)
 
         assert len(list(c.configs.iter_list())) == 0
+
+        with pytest.raises(CDRouterError, match='no such config'):
+            c.configs.get(cfg.id)
+
+    def test_lock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        cfg = c.configs.get_by_name('Cisco E4200')
+        assert cfg.locked is False
+
+        cfg = c.configs.lock(cfg.id)
+        assert cfg.locked is True
+
+        # locking a locked resource is a no-op, not an error
+        c.configs.lock(cfg.id)
+        c.configs.lock(cfg.id)
+        c.configs.lock(cfg.id)
+
+        cfg = c.configs.get(cfg.id)
+        assert cfg.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked config'):
+            c.configs.delete(cfg.id)
+
+    def test_unlock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        cfg = c.configs.get_by_name('Cisco E4200')
+        assert cfg.locked is False
+
+        cfg = c.configs.lock(cfg.id)
+        assert cfg.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked config'):
+            c.configs.delete(cfg.id)
+
+        cfg = c.configs.unlock(cfg.id)
+        assert cfg.locked is False
+
+        # unlocking an unlocked resource is a no-op, not an error
+        c.configs.unlock(cfg.id)
+        c.configs.unlock(cfg.id)
+        c.configs.unlock(cfg.id)
+
+        cfg = c.configs.get(cfg.id)
+        assert cfg.locked is False
+
+        c.configs.delete(cfg.id)
 
         with pytest.raises(CDRouterError, match='no such config'):
             c.configs.get(cfg.id)

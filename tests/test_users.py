@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -199,6 +199,64 @@ class TestUsers:
 
         with pytest.raises(CDRouterError, match='no such user'):
             c.users.get(u2.id)
+
+    def test_lock(self, c):
+        u = User(
+            admin=True,
+            name='admin2',
+            description='im an admin',
+            password='mypassword',
+            password_confirm='mypassword'
+        )
+        u = c.users.create(u)
+        assert u.locked is False
+
+        u = c.users.lock(u.id)
+        assert u.locked is True
+
+        # locking a locked resource is a no-op, not an error
+        c.users.lock(u.id)
+        c.users.lock(u.id)
+        c.users.lock(u.id)
+
+        u = c.users.get(u.id)
+        assert u.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked user'):
+            c.users.delete(u.id)
+
+    def test_unlock(self, c):
+        u = User(
+            admin=True,
+            name='admin2',
+            description='im an admin',
+            password='mypassword',
+            password_confirm='mypassword'
+        )
+        u = c.users.create(u)
+        assert u.locked is False
+
+        u = c.users.lock(u.id)
+        assert u.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked user'):
+            c.users.delete(u.id)
+
+        u = c.users.unlock(u.id)
+        assert u.locked is False
+
+        # unlocking an unlocked resource is a no-op, not an error
+        c.users.unlock(u.id)
+        c.users.unlock(u.id)
+        c.users.unlock(u.id)
+
+        u = c.users.get(u.id)
+        assert u.locked is False
+
+        c.users.delete(u.id)
+
+        with pytest.raises(CDRouterError, match='no such user'):
+            c.users.get(u.id)
 
     def test_bulk_copy(self, c):
         u = c.users.get_by_name('admin')

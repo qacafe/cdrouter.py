@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -55,6 +55,7 @@ class Device(object):
     :param name: (optional) Name as string.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
+    :param locked: (optional) Bool `True` if device is locked.
     :param user_id: (optional) User ID as an int.
     :param result_id: (optional) Result ID as an int (if a device snapshot).
     :param attachments_dir: (optional) Filepath for attachments as string.
@@ -91,6 +92,7 @@ class Device(object):
         self.name = kwargs.get('name', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
+        self.locked = kwargs.get('locked', None)
         self.user_id = kwargs.get('user_id', None)
         self.result_id = kwargs.get('result_id', None)
         self.attachments_dir = kwargs.get('attachments_dir', None)
@@ -130,6 +132,7 @@ class DeviceSchema(Schema):
     name = fields.Str()
     created = DateTime()
     updated = DateTime()
+    locked = fields.Bool(load_default=False)
     user_id = fields.Int(as_string=True)
     result_id = fields.Int(as_string=True, load_default=None)
     attachments_dir = fields.Str(load_default=None)
@@ -279,6 +282,28 @@ class DevicesService(object):
         :param id: Device ID as an int.
         """
         return self.service.delete_id(self.base, id)
+
+    def lock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Lock a device.  Locking prevents the device from being modified or deleted until it is unlocked.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.Device <devices.Device>` object
+        :rtype: devices.Device
+        """
+        schema = DeviceSchema()
+        resp = self.service.post(self.base+str(id)+'/lock/')
+        return self.service.decode(schema, resp)
+
+    def unlock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Unlock a device.  Unlocking a locked device allows it to be modified or deleted once again.
+
+        :param id: Device ID as an int.
+        :return: :class:`devices.Device <devices.Device>` object
+        :rtype: devices.Device
+        """
+        schema = DeviceSchema()
+        resp = self.service.post(self.base+str(id)+'/unlock/')
+        return self.service.decode(schema, resp)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a device.
