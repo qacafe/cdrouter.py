@@ -4,7 +4,6 @@
 #
 
 import datetime
-from distutils.util import strtobool
 from os import environ
 from os.path import basename
 import shutil
@@ -23,7 +22,7 @@ class TestSystem:
         if 'LOUNGE_URL' in environ:
             prefs.lounge_url = environ.get('LOUNGE_URL')
         if 'LOUNGE_INSECURE' in environ:
-            prefs.lounge_insecure = bool(strtobool(environ.get('LOUNGE_INSECURE')))
+            prefs.lounge_insecure = environ.get('LOUNGE_INSECURE') == '1'
         c.system.edit_preferences(prefs)
 
         release = c.system.latest_lounge_release()
@@ -44,7 +43,7 @@ class TestSystem:
         if 'LOUNGE_URL' in environ:
             prefs.lounge_url = environ.get('LOUNGE_URL')
         if 'LOUNGE_INSECURE' in environ:
-            prefs.lounge_insecure = bool(strtobool(environ.get('LOUNGE_INSECURE')))
+            prefs.lounge_insecure = environ.get('LOUNGE_INSECURE') == '1'
         c.system.edit_preferences(prefs)
 
         try:
@@ -70,7 +69,7 @@ class TestSystem:
         if 'LOUNGE_URL' in environ:
             prefs.lounge_url = environ.get('LOUNGE_URL')
         if 'LOUNGE_INSECURE' in environ:
-            prefs.lounge_insecure = bool(strtobool(environ.get('LOUNGE_INSECURE')))
+            prefs.lounge_insecure = environ.get('LOUNGE_INSECURE') == '1'
         c.system.edit_preferences(prefs)
 
         try:

@@ -120,13 +120,13 @@ Page
    :members:
 
 PowerCmd
---------
+~~~~~~~~
 
 .. autoclass:: cdrouter.devices.PowerCmd
    :members:
 
 Connection
-----------
+~~~~~~~~~~
 
 .. autoclass:: cdrouter.devices.Connection
    :members:
@@ -329,12 +329,6 @@ AllStats
 .. autoclass:: cdrouter.results.AllStats
    :members:
 
-Metric
-~~~~~~
-
-.. autoclass:: cdrouter.results.Metric
-   :members:
-
 LogDirFile
 ~~~~~~~~~~
 
@@ -354,7 +348,7 @@ Feature
    :members:
 
 Update
-------
+~~~~~~
 
 .. autoclass:: cdrouter.results.Update
    :members:
@@ -482,6 +476,51 @@ Annotation
 .. autoclass:: cdrouter.annotations.Annotation
    :members:
 
+Metrics
+-------
+
+Bandwidth
+~~~~~~~~~
+
+.. autoclass:: cdrouter.metrics.Bandwidth
+   :members:
+
+ClientBandwidth
+~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.metrics.ClientBandwidth
+   :members:
+
+ClientLatency
+~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.metrics.ClientLatency
+   :members:
+
+GraphMetric
+~~~~~~~~~~~
+
+.. autoclass:: cdrouter.metrics.GraphMetric
+   :members:
+
+Latency
+~~~~~~~
+
+.. autoclass:: cdrouter.metrics.Latency
+   :members:
+
+Metric
+~~~~~~
+
+.. autoclass:: cdrouter.metrics.Metric
+   :members:
+
+Page
+~~~~
+
+.. autoclass:: cdrouter.metrics.Page
+   :members:
+
 Captures
 --------
 
@@ -495,78 +534,6 @@ Capture
 ~~~~~~~
 
 .. autoclass:: cdrouter.captures.Capture
-   :members:
-
-Section
-~~~~~~~
-
-.. autoclass:: cdrouter.captures.Section
-   :members:
-
-Structure
-~~~~~~~~~
-
-.. autoclass:: cdrouter.captures.Structure
-   :members:
-
-SummaryPacket
-~~~~~~~~~~~~~
-
-.. autoclass:: cdrouter.captures.SummaryPacket
-   :members:
-
-Summary
-~~~~~~~
-
-.. autoclass:: cdrouter.captures.Summary
-   :members:
-
-Field
-~~~~~
-
-.. autoclass:: cdrouter.captures.Field
-   :members:
-
-Proto
-~~~~~
-
-.. autoclass:: cdrouter.captures.Proto
-   :members:
-
-Packet
-~~~~~~
-
-.. autoclass:: cdrouter.captures.Packet
-   :members:
-
-Decode
-~~~~~~
-
-.. autoclass:: cdrouter.captures.Decode
-   :members:
-
-ASCIIByte
-~~~~~~~~~
-
-.. autoclass:: cdrouter.captures.ASCIIByte
-   :members:
-
-ASCIILine
-~~~~~~~~~
-
-.. autoclass:: cdrouter.captures.ASCIILine
-   :members:
-
-ASCIIFrame
-~~~~~~~~~~
-
-.. autoclass:: cdrouter.captures.ASCIIFrame
-   :members:
-
-ASCII
-~~~~~
-
-.. autoclass:: cdrouter.captures.ASCII
    :members:
 
 CloudShark

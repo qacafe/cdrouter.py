@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -10,7 +10,9 @@ import pytest
 
 from cdrouter.alerts import Alert
 from cdrouter.cdrouter import CDRouterError
+from cdrouter.filters import Field as field
 from cdrouter.jobs import Job
+from cdrouter.metrics import GraphMetric
 from cdrouter.results import Result
 from cdrouter.testresults import TestResult
 from cdrouter.users import User
@@ -625,6 +627,44 @@ buddy::start_proc my_start_proc
         with open(filename, 'wb') as fd:
             shutil.copyfileobj (b, fd)
 
+    def test_list_metrics(self, c):
+        import_all_from_file(c, 'tests/testdata/example5.gz')
+
+        r = c.results.get(20230310111705)
+
+        (metrics, links) = c.results.list_metrics(r.id)
+        assert links.total == 80
+        assert len(metrics) == 25
+
+        assert metrics[0].id == 20230310111705
+        assert metrics[0].seq == 2
+        assert metrics[0].test_name == 'perf_multi_1'
+        assert metrics[0].metric == 'bandwidth'
+        assert metrics[0].filename == 'perf_multi_1_bandwidth_graph.csv'
+        assert metrics[1].id == 20230310111705
+        assert metrics[1].seq == 2
+        assert metrics[1].test_name == 'perf_multi_1'
+        assert metrics[1].metric == 'client_bandwidth'
+        assert metrics[1].filename == 'perf_multi_1_client_bandwidth_details_graph.1.csv'
+
+        (metrics, links) = c.results.list_metrics(r.id, filter=[field('metric').eq('client_bandwidth')], limit='none')
+        assert links.total == 40
+        assert len(metrics) == 40
+
+        assert metrics[0].id == 20230310111705
+        assert metrics[0].seq == 2
+        assert metrics[0].test_name == 'perf_multi_1'
+        assert metrics[0].metric == 'client_bandwidth'
+        assert metrics[0].filename == 'perf_multi_1_client_bandwidth_details_graph.1.csv'
+        assert metrics[1].id == 20230310111705
+        assert metrics[1].seq == 3
+        assert metrics[1].test_name == 'perf_multi_2'
+        assert metrics[1].metric == 'client_bandwidth'
+        assert metrics[1].filename == 'perf_multi_2_client_bandwidth_details_graph.1.csv'
+
+        with pytest.raises(CDRouterError, match='no such result'):
+            c.results.list_metrics(999999)
+
     def test_get_test_metric(self, c):
         import_all_from_file(c, 'tests/testdata/example3.gz')
 
@@ -632,6 +672,7 @@ buddy::start_proc my_start_proc
 
         metrics = c.results.get_test_metric(r.id, 'perf_multi_4', 'bandwidth')
         assert len(metrics) == 23
+        assert isinstance(metrics[0], GraphMetric)
         assert metrics[0].log_file == 'perf_multi_4.txt'
         assert metrics[0].metric == 'bandwidth'
         assert metrics[0].value == 279.455
