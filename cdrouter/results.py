@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -14,6 +14,7 @@ from .cdr_datetime import DateTime
 from .testresults import TestResultSchema
 from .alerts import AlertSchema
 from .configs import InterfacesSchema
+from .metrics import GraphMetric, GraphMetricSchema, Page as MetricPage, MetricSchema as MetricsDotMetricSchema
 
 class TestCount(object):
     """Model for CDRouter Test Counts.
@@ -324,62 +325,12 @@ class AllStatsSchema(Schema):
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return AllStats(**data)
 
-class Metric(object):
-    """Model for CDRouter Metrics.
-
-    :param log_file: (optional) Filepath to logfile as a string.
-    :param timestamp: (optional) Timestamp for metric as a `DateTime`.
-    :param metric: (optional) Metric name as a string.
-    :param value: (optional) First metric value as a float.
-    :param units: (optional) First metric units as a string.
-    :param result: (optional) Metric result as a string.
-    :param interface_1: (optional) First interface as a string.
-    :param interface_2: (optional) Second interface as a string.
-    :param streams: (optional) Stream count as an int.
-    :param protocol: (optional) Protocol as a string.
-    :param direction: (optional) Direction as a string.
-    :param value_2: (optional) Second metric value as a float.
-    :param units_2: (optional) Second metric units as a string.
-    :param device_1: (optional) First device as a string.
-    :param device_2: (optional) Second device as a string.
-    """
-    def __init__(self, **kwargs):
-        self.log_file = kwargs.get('log_file', None)
-        self.timestamp = kwargs.get('timestamp', None)
-        self.metric = kwargs.get('metric', None)
-        self.value = kwargs.get('value', None)
-        self.units = kwargs.get('units', None)
-        self.result = kwargs.get('result', None)
-        self.interface_1 = kwargs.get('interface_1', None)
-        self.interface_2 = kwargs.get('interface_2', None)
-        self.streams = kwargs.get('streams', None)
-        self.protocol = kwargs.get('protocol', None)
-        self.direction = kwargs.get('direction', None)
-        self.value_2 = kwargs.get('value_2', None)
-        self.units_2 = kwargs.get('units_2', None)
-        self.device_1 = kwargs.get('device_1', None)
-        self.device_2 = kwargs.get('device_2', None)
-
-class MetricSchema(Schema):
-    log_file = fields.Str()
-    timestamp = DateTime()
-    metric = fields.Str()
-    value = fields.Float(as_string=True)
-    units = fields.Str()
-    result = fields.Str()
-    interface_1 = fields.Str()
-    interface_2 = fields.Str()
-    streams = fields.Int(as_string=True)
-    protocol = fields.Str()
-    direction = fields.Str()
-    value_2 = fields.Float(as_string=True)
-    units_2 = fields.Str()
-    device_1 = fields.Str()
-    device_2 = fields.Str()
-
-    @post_load
-    def post_load(self, data, **kwargs): # pylint: disable=unused-argument
-        return Metric(**data)
+# type aliases for Metric and MetricSchema types which were moved to
+# metrics.GraphMetric and metrics.GraphMetricSchema in cdrouter.py
+# v0.9.0.  See https://docs.python.org/3/library/typing.html for more
+# info on type aliases which were added in Python 3.5.
+Metric = GraphMetric
+MetricSchema = GraphMetricSchema
 
 class LogDirFile(object):
     """Model for CDRouter Logdir Files.
@@ -918,26 +869,51 @@ class ResultsService(object):
         b.seek(0)
         return (b, self.service.filename(resp))
 
-    def get_test_metric(self, id, name, metric): # pylint: disable=invalid-name,redefined-builtin
-        """Get a test metric.
+    def list_metrics(self, id, filter=None, type=None, sort=None, limit=None, page=None, detailed=None): # pylint: disable=redefined-builtin
+        """Get a list of metrics, using summary representation by default (see
+        ``detailed`` parameter).
 
         :param id: Result ID as an int.
-        :param name: Test name as string.
-        :param metric: Metric name as string.
-        :return: :class:`results.Metric <results.Metric>` object
-        :rtype: results.Metric
+        :param filter: (optional) Filters to apply as a string list.
+        :param type: (optional) `union` or `inter` as string.
+        :param sort: (optional) Sort fields to apply as string list.
+        :param limit: (optional) Limit returned list length.
+        :param page: (optional) Page to return.
+        :param detailed: (optional) Return all fields if Bool `True`.
+        :return: :class:`metrics.Page <metrics.Page>` object
+        :rtype: metrics.Page
         """
-        schema = MetricSchema()
-        resp = self.service.get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/')
+        # metrics.MetricSchema imported as MetricsDotMetricSchema due to
+        # MetricSchema type alias declared above for
+        # backwards-compatibility
+        schema = MetricsDotMetricSchema()
+        resp = self.service.list(self.base+str(id)+'/metrics/', filter, type, sort, limit, page, detailed=detailed)
+        rs, l = self.service.decode(schema, resp, many=True, links=True)
+        return MetricPage(rs, l)
+
+    def get_test_metric(self, id, tname, metric): # pylint: disable=invalid-name,redefined-builtin
+        """Get a test graph metric.  This method is only for getting "bandwidth" or "latency" test metrics.
+
+        This method is DEPRECATED since cdrouter.py v0.9.0, new code
+        should use TestResultsService.get_test_metric instead.
+
+        :param id: Result ID as an int.
+        :param tname: Test name as string.
+        :param metric: Metric name as string.
+        :return: :class:`metrics.GraphMetric <metrics.GraphMetric>` list
+        :rtype: metrics.GraphMetric
+        """
+        schema = GraphMetricSchema()
+        resp = self.service.get(self.base+str(id)+'/metrics/'+tname+'/'+metric+'/')
         return self.service.decode(schema, resp, many=True)
 
-    def get_test_metric_csv(self, id, name, metric): # pylint: disable=invalid-name,redefined-builtin
-        """Get a test metric as CSV.
+    def get_test_metric_csv(self, id, tname, metric): # pylint: disable=invalid-name,redefined-builtin
+        """Get a test metric as CSV.  This method is only for getting "bandwidth" or "latency" test metrics.
 
         :param id: Result ID as an int.
-        :param name: Test name as string.
-        :param id: Metric name as string.
+        :param tname: Test name as string.
+        :param metric: Metric name as string.
         :rtype: string
         """
-        return self.service.get(self.base+str(id)+'/metrics/'+name+'/'+metric+'/',
+        return self.service.get(self.base+str(id)+'/metrics/'+tname+'/'+metric+'/',
                                 params={'format': 'csv'}).text
