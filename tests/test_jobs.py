@@ -1,7 +1,8 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
+import time
 
 import pytest
 
@@ -9,6 +10,7 @@ from marshmallow import Schema, post_load
 
 from cdrouter.cdrouter import CDRouterError
 from cdrouter.cdr_datetime import DateTime
+from cdrouter.configs import Testvar
 from cdrouter.filters import Field as field
 from cdrouter.jobs import Job, Options
 
@@ -107,6 +109,35 @@ class TestJobs:
 
         assert len(list(c.jobs.iter_list())) == 0
 
+        j = c.jobs.launch(Job(
+            package_id=package.id,
+            options=Options(
+                testvars=[
+                    Testvar(group='main', name='foo', value='bar', action='set-testvar'),
+                    Testvar(group='lan2', name='foo2', action='delete-testvar'),
+                    Testvar(group='wan2', action='delete-group'),
+                ]
+            )
+        ))
+
+        while j.result_id is None:
+            time.sleep(1)
+            j = c.jobs.get(j.id)
+
+        r = c.results.get(j.result_id)
+        assert len(r.options.testvars) == 3
+        assert r.options.testvars[0].group == 'main'
+        assert r.options.testvars[0].name == 'foo'
+        assert r.options.testvars[0].value == 'bar'
+        assert r.options.testvars[0].action == 'set-testvar'
+        assert r.options.testvars[1].group == 'lan2'
+        assert r.options.testvars[1].name == 'foo2'
+        assert r.options.testvars[1].action == 'delete-testvar'
+        assert r.options.testvars[2].group == 'wan2'
+        assert r.options.testvars[2].action == 'delete-group'
+
+        assert len(list(c.jobs.iter_list())) == 1
+
         j = c.jobs.launch(Job(package_id=package.id, run_at=self.run_at_year_9999()))
         assert j.id > 0
         assert j.package_id == package.id
@@ -119,7 +150,7 @@ class TestJobs:
         assert j.uses_wireless is False
         assert j.uses_ics is False
 
-        assert len(list(c.jobs.iter_list())) == 1
+        assert len(list(c.jobs.iter_list())) == 2
 
     def test_delete(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
@@ -178,7 +209,15 @@ class TestJobs:
         # given run_at and options job fields
         c.jobs.bulk_launch(_fields=Job(
             run_at=self.run_at_year_9999(),
-            options=Options(tags=['iamatag'], extra_cli_args='-testvar lanIp=1.1.1.1'),
+            options=Options(
+                tags=['iamatag'],
+                extra_cli_args='-testvar lanIp=1.1.1.1',
+                testvars=[
+                    Testvar(group='main', name='foo', value='bar', action='set-testvar'),
+                    Testvar(group='lan2', name='foo2', action='delete-testvar'),
+                    Testvar(group='wan2', action='delete-group'),
+                ],
+            ),
         ), filter=[field('name').eq('example')])
 
         jobs = list(c.jobs.iter_list())
@@ -187,6 +226,16 @@ class TestJobs:
 
         assert j.options.tags == ['iamatag']
         assert j.options.extra_cli_args == '-testvar lanIp=1.1.1.1'
+        assert len(j.options.testvars) == 3
+        assert j.options.testvars[0].group == 'main'
+        assert j.options.testvars[0].name == 'foo'
+        assert j.options.testvars[0].value == 'bar'
+        assert j.options.testvars[0].action == 'set-testvar'
+        assert j.options.testvars[1].group == 'lan2'
+        assert j.options.testvars[1].name == 'foo2'
+        assert j.options.testvars[1].action == 'delete-testvar'
+        assert j.options.testvars[2].group == 'wan2'
+        assert j.options.testvars[2].action == 'delete-group'
 
     def test_bulk_delete(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
