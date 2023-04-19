@@ -9,7 +9,7 @@ from collections import namedtuple
 import io
 
 from requests_toolbelt.downloadutils import stream
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
 from .testresults import TestResultSchema
 from .alerts import AlertSchema
@@ -404,11 +404,11 @@ class FeatureSchema(Schema):
 class UpdateField(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         if 'result' in value and 'status' in value:
-            return ResultSchema().load(value)
+            return ResultSchema().load(value, unknown=EXCLUDE)
         if 'result' in value and 'status' not in value:
-            return TestResultSchema().load(value)
+            return TestResultSchema().load(value, unknown=EXCLUDE)
         if 'sid' in value and 'rev' in value:
-            return AlertSchema().load(value)
+            return AlertSchema().load(value, unknown=EXCLUDE)
         self.fail('invalid')
         return None
 
