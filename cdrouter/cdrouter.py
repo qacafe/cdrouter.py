@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -15,7 +15,7 @@ from requests_toolbelt import sessions
 from requests_toolbelt.utils.user_agent import user_agent
 from requests.packages.urllib3.exceptions import InsecureRequestWarning # pylint: disable=import-error
 from requests.exceptions import HTTPError
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 
 from . import __version__
 from .cdr_error import CDRouterError
@@ -386,7 +386,7 @@ class CDRouter(object):
             try:
                 json = resp.json()
                 resp_schema = ResponseSchema()
-                result = resp_schema.load(json)
+                result = resp_schema.load(json, unknown=EXCLUDE)
                 if result.error is not None:
                     message = result.error
             except HTTPError as he:
@@ -402,12 +402,12 @@ class CDRouter(object):
         if many is True:
             resp_schema = ListResponseSchema()
 
-        result = resp_schema.load(json)
+        result = resp_schema.load(json, unknown=EXCLUDE)
 
         if result.data is None:
             raise CDRouterError('no data field in JSON response!', response=resp)
 
-        data = schema.load(result.data, many=many)
+        data = schema.load(result.data, unknown=EXCLUDE, many=many)
 
         if many is True and links is True and result.links is not None:
             return (data, result.links)

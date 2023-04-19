@@ -1,13 +1,15 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
 from os import environ
 import pytest
+import requests
 from requests.exceptions import SSLError
 
 from cdrouter.cdrouter import CDRouter, CDRouterError
+from cdrouter.configs import ConfigSchema
 
 from .utils import my_cdrouter, my_c, my_c_https, import_all_from_file # pylint: disable=unused-import
 
@@ -123,3 +125,54 @@ class TestCDRouter:
 
         with pytest.raises(SSLError, match='certificate verify failed'):
             c2.system.hostname()
+
+    def test_exclude_unknown_fields_single_response(self, c):
+        resp = requests.models.Response()
+        resp.status_code = 200
+        resp._content = '{"data": {"name": "foo.conf"}}'.encode("utf-8") # pylint: disable=protected-access
+        resp.encoding = "utf-8"
+        schema = ConfigSchema()
+        cfg = c.decode(schema, resp)
+        assert cfg.name == 'foo.conf'
+
+        resp = requests.models.Response()
+        resp.status_code = 200
+        resp._content = '{"data": {"name": "foo.conf", "unknown_field": "unknown_value"}}'.encode("utf-8") # pylint: disable=protected-access
+        resp.encoding = "utf-8"
+        schema = ConfigSchema()
+        cfg = c.decode(schema, resp)
+        assert cfg.name == 'foo.conf'
+
+    def test_exclude_unknown_fields_many_response(self, c):
+        resp = requests.models.Response()
+        resp.status_code = 200
+        resp._content = '{"data": [{"name": "foo.conf"}]}'.encode("utf-8") # pylint: disable=protected-access
+        resp.encoding = "utf-8"
+        schema = ConfigSchema()
+        cfgs = c.decode(schema, resp, many=True)
+        assert len(cfgs) == 1
+        assert cfgs[0].name == 'foo.conf'
+
+        resp = requests.models.Response()
+        resp.status_code = 200
+        resp._content = '{"data": [{"name": "foo.conf", "unknown_field": "unknown_value"}]}'.encode("utf-8") # pylint: disable=protected-access
+        resp.encoding = "utf-8"
+        schema = ConfigSchema()
+        cfgs = c.decode(schema, resp, many=True)
+        assert len(cfgs) == 1
+        assert cfgs[0].name == 'foo.conf'
+
+    def test_exclude_unknown_fields_error_response(self, c):
+        resp = requests.models.Response()
+        resp.status_code = 400
+        resp._content = '{"error": "foobar"}'.encode("utf-8") # pylint: disable=protected-access
+        resp.encoding = "utf-8"
+        with pytest.raises(CDRouterError, match='foobar'):
+            c.raise_for_status(resp)
+
+        resp = requests.models.Response()
+        resp.status_code = 400
+        resp._content = '{"error": "foobar", "unknown_field": "unknown_value"}'.encode("utf-8") # pylint: disable=protected-access
+        resp.encoding = "utf-8"
+        with pytest.raises(CDRouterError, match='foobar'):
+            c.raise_for_status(resp)
