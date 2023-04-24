@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2022 by QA Cafe.
+# Copyright (c) 2020-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -8,7 +8,7 @@
 from collections import namedtuple
 from functools import partial
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
 
 class Alert(object):
@@ -101,6 +101,9 @@ class AlertSchema(Schema):
     src_ip = fields.Str()
     src_port = fields.Int(as_string=True, load_default=None)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Alert(**data)
@@ -121,6 +124,9 @@ class SeverityCountSchema(Schema):
     name = fields.Str()
     severity = fields.Int(as_string=True)
     count = fields.Int(as_string=True)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -143,6 +149,9 @@ class CategoryCountSchema(Schema):
     severity = fields.Int(as_string=True)
     count = fields.Int(as_string=True)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return CategoryCount(**data)
@@ -160,6 +169,9 @@ class RuleSetCount(object):
 class RuleSetCountSchema(Schema):
     name = fields.Str()
     count = fields.Int(as_string=True)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -182,6 +194,9 @@ class SignatureCountSchema(Schema):
     severity = fields.Int(as_string=True)
     count = fields.Int(as_string=True)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return SignatureCount(**data)
@@ -200,6 +215,9 @@ class TestCountSchema(Schema):
     name = fields.Str()
     count = fields.Int(as_string=True)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestCount(**data)
@@ -217,6 +235,9 @@ class AddrCount(object):
 class AddrCountSchema(Schema):
     addr = fields.Str()
     count = fields.Int(as_string=True)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -243,13 +264,16 @@ class AllStats(object):
         self.frequent_destinations = kwargs.get('frequent_destinations', None)
 
 class AllStatsSchema(Schema):
-    severities = fields.Dict(keys=fields.Int(), values=fields.Nested(SeverityCountSchema()))
-    categories = fields.Nested(lambda: CategoryCountSchema(many=True))
-    rule_sets = fields.Nested(lambda: RuleSetCountSchema(many=True))
-    signatures = fields.Nested(lambda: SignatureCountSchema(many=True))
-    tests = fields.Nested(lambda: TestCountSchema(many=True))
-    frequent_sources = fields.Nested(lambda: AddrCountSchema(many=True))
-    frequent_destinations = fields.Nested(lambda: AddrCountSchema(many=True))
+    severities = fields.Dict(keys=fields.Int(), values=fields.Nested(SeverityCountSchema()), unknown=EXCLUDE)
+    categories = fields.Nested(lambda: CategoryCountSchema(many=True), unknown=EXCLUDE)
+    rule_sets = fields.Nested(lambda: RuleSetCountSchema(many=True), unknown=EXCLUDE)
+    signatures = fields.Nested(lambda: SignatureCountSchema(many=True), unknown=EXCLUDE)
+    tests = fields.Nested(lambda: TestCountSchema(many=True), unknown=EXCLUDE)
+    frequent_sources = fields.Nested(lambda: AddrCountSchema(many=True), unknown=EXCLUDE)
+    frequent_destinations = fields.Nested(lambda: AddrCountSchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

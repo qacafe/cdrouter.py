@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
 """Module for accessing CDRouter Testsuites."""
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
 from .configs import InterfacesSchema
 
@@ -28,6 +28,9 @@ class LicenseInfoSchema(Schema):
     expires_date = fields.Str()
     expires_at = DateTime()
     expires_in = fields.Int()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -94,9 +97,12 @@ class InfoSchema(Schema):
     release = fields.Str()
     addons = fields.List(fields.Str())
     all_addons = fields.List(fields.Str())
-    interfaces = fields.Nested(InterfacesSchema, many=True)
+    interfaces = fields.Nested(InterfacesSchema, many=True, unknown=EXCLUDE)
     execute_instances = fields.Int()
-    license_info = fields.Nested(LicenseInfoSchema, load_default=None)
+    license_info = fields.Nested(LicenseInfoSchema, load_default=None, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -124,6 +130,9 @@ class GroupSchema(Schema):
     index = fields.Int()
     test_count = fields.Int()
     modules = fields.List(fields.Str())
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -163,6 +172,9 @@ class ModuleSchema(Schema):
     tests = fields.List(fields.Str())
     labels = fields.List(fields.Str())
     aliases = fields.List(fields.Str())
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -214,6 +226,9 @@ class TestSchema(Schema):
     skip_name = fields.Str(load_default=None)
     skip_reason = fields.Str(load_default=None)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Test(**data)
@@ -247,6 +262,9 @@ class LabelSchema(Schema):
     modules = fields.List(fields.Str())
     tests = fields.List(fields.Str())
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Label(**data)
@@ -270,6 +288,9 @@ class ErrorSchema(Schema):
     name = fields.Str()
     index = fields.Int()
     description = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -352,6 +373,9 @@ class TestvarSchema(Schema):
     children = fields.List(fields.Str())
     tests = fields.List(fields.Str())
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Testvar(**data)
@@ -375,12 +399,15 @@ class Search(object):
         self.testvars = kwargs.get('testvars', None)
 
 class SearchSchema(Schema):
-    addons = fields.Nested(lambda: GroupSchema(many=True), load_default=None)
-    modules = fields.Nested(lambda: ModuleSchema(many=True), load_default=None)
-    tests = fields.Nested(lambda: TestSchema(many=True), load_default=None)
-    reasons = fields.Nested(lambda: LabelSchema(many=True), load_default=None)
-    errors = fields.Nested(lambda: ErrorSchema(many=True), load_default=None)
-    testvars = fields.Nested(lambda: TestvarSchema(many=True), load_default=None)
+    addons = fields.Nested(lambda: GroupSchema(many=True), load_default=None, unknown=EXCLUDE)
+    modules = fields.Nested(lambda: ModuleSchema(many=True), load_default=None, unknown=EXCLUDE)
+    tests = fields.Nested(lambda: TestSchema(many=True), load_default=None, unknown=EXCLUDE)
+    reasons = fields.Nested(lambda: LabelSchema(many=True), load_default=None, unknown=EXCLUDE)
+    errors = fields.Nested(lambda: ErrorSchema(many=True), load_default=None, unknown=EXCLUDE)
+    testvars = fields.Nested(lambda: TestvarSchema(many=True), load_default=None, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
