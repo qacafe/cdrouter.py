@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -7,7 +7,7 @@
 
 from collections import namedtuple
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
 from .filters import Field as field
@@ -50,6 +50,9 @@ class UserSchema(Schema):
 
     password = fields.Str()
     password_confirm = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

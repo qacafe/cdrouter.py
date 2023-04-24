@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -8,7 +8,7 @@
 import io
 
 from requests_toolbelt.downloadutils import stream
-from marshmallow import Schema, post_load
+from marshmallow import Schema, post_load, EXCLUDE
 from marshmallow import fields as mfields
 
 class Capture(object):
@@ -34,6 +34,9 @@ class CaptureSchema(Schema):
     interface = mfields.Str()
     filename = mfields.Str()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Capture(**data)
@@ -48,6 +51,9 @@ class CloudShark(object):
 
 class CloudSharkSchema(Schema):
     url = mfields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

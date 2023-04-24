@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
 """Module for accessing CDRouter Annotations."""
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 
 class Annotation(object):
     """Model for CDRouter Annotations.
@@ -27,6 +27,9 @@ class AnnotationSchema(Schema):
     seq = fields.Int(as_string=True)
     line = fields.Int(as_string=True)
     comment = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

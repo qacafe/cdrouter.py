@@ -68,6 +68,9 @@ class LinksSchema(Schema):
     next = fields.Int(load_default=None)
     prev = fields.Int(load_default=None)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Links(**data)
@@ -84,13 +87,19 @@ class ResponseSchema(Schema):
     error = fields.Str(load_default=None)
     data = fields.Dict(load_default=None)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Response(**data)
 
 class ListResponseSchema(ResponseSchema):
     data = fields.List(fields.Dict(), load_default=None)
-    links = fields.Nested(LinksSchema(), load_default=None)
+    links = fields.Nested(LinksSchema(), load_default=None, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -115,6 +124,9 @@ class ShareSchema(Schema):
     read = fields.Bool()
     write = fields.Bool()
     execute = fields.Bool()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

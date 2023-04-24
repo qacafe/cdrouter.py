@@ -8,7 +8,7 @@
 from collections import namedtuple
 from functools import partial
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
 from .metrics import BandwidthSchema, ClientBandwidthSchema, ClientLatencySchema, LatencySchema, MetricSchema, Page as MetricPage
 
@@ -34,6 +34,9 @@ class SummarySchema(Schema):
     passes = fields.Int()
     warnings = fields.Int()
     alerts = fields.Int()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -142,7 +145,10 @@ class LineSchema(Schema):
     alert_sid = fields.Int(as_string=True, load_default=None)
     alert_rev = fields.Int(as_string=True, load_default=None)
 
-    summary = fields.Nested(SummarySchema)
+    summary = fields.Nested(SummarySchema, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -167,9 +173,12 @@ class Log(object):
 class LogSchema(Schema):
     offset = fields.Int()
     limit = fields.Int()
-    lines = fields.Nested(lambda: LineSchema(many=True))
+    lines = fields.Nested(lambda: LineSchema(many=True), unknown=EXCLUDE)
     total = fields.Int()
     more = fields.Bool(load_default=None)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -233,6 +242,9 @@ class TestResultSchema(Schema):
     log = fields.Str()
     keylog = fields.Str(load_default=None)
     note = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
