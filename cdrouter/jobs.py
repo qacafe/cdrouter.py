@@ -34,7 +34,7 @@ class OptionsSchema(Schema):
     skip_tests = fields.List(fields.Str(), load_default=None)
     begin_at = fields.Str()
     end_at = fields.Str()
-    testvars = fields.Nested(TestvarSchema, many=True, load_default=None)
+    testvars = fields.Nested(TestvarSchema, many=True, load_default=None, unknown=EXCLUDE)
     extra_cli_args = fields.Str()
 
     class Meta:
