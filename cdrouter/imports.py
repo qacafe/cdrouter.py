@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
 """Module for accessing CDRouter Imports."""
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
 
 class Import(object):
@@ -43,6 +43,9 @@ class ImportSchema(Schema):
     insecure = fields.Bool()
     size = fields.Int()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Import(**data)
@@ -67,6 +70,9 @@ class ResponseSchema(Schema):
     name = fields.Str(load_default=None)
     message = fields.Str(load_default=None)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Response(**data)
@@ -89,7 +95,10 @@ class ResourceSchema(Schema):
     name = fields.Str(load_default=None)
     should_import = fields.Bool(attribute='should_import', data_key='import')
     existing_id = fields.Int(as_string=True, load_default=None)
-    response = fields.Nested(ResponseSchema(), load_default=None)
+    response = fields.Nested(ResponseSchema(), load_default=None, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -118,12 +127,15 @@ class Request(object):
 class RequestSchema(Schema):
     replace_existing = fields.Bool()
 
-    configs = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()))
-    devices = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()))
-    packages = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()))
-    results = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()))
+    configs = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()), unknown=EXCLUDE)
+    devices = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()), unknown=EXCLUDE)
+    packages = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()), unknown=EXCLUDE)
+    results = fields.Dict(keys=fields.Str(), values=fields.Nested(ResourceSchema()), unknown=EXCLUDE)
 
     tags = fields.List(fields.Str(), load_default=None)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

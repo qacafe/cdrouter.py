@@ -1,13 +1,14 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
 import shutil
 import pytest
+import requests
 
 from cdrouter.cdrouter import CDRouterError
-from cdrouter.packages import Package, Options, Schedule
+from cdrouter.packages import Package, Options, Schedule, PackageSchema
 from cdrouter.filters import Field as field
 from cdrouter.users import User
 
@@ -418,3 +419,11 @@ class TestPackages:
             c.packages.get(p4.id)
         with pytest.raises(CDRouterError, match='no such package'):
             c.packages.get(p5.id)
+    def test_exclude_unknown_fields_in_nested_fields(self, c):
+        resp = requests.models.Response()
+        resp.status_code = 200
+        resp._content = '{"data": {"name": "foo", "options": {"unknown": []}, "schedule": {"options": {"unknown": []}}}}'.encode("utf-8") # pylint: disable=protected-access
+        resp.encoding = "utf-8"
+        schema = PackageSchema()
+        p = c.decode(schema, resp)
+        assert p.name == 'foo'

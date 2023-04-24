@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -7,7 +7,7 @@
 
 from collections import namedtuple
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_error import CDRouterError
 from .results import OptionsSchema as ResultOptionsSchema
 from .testsuites import TestSchema
@@ -33,7 +33,10 @@ class AnalysisSchema(Schema):
     total_count = fields.Int()
     run_count = fields.Int()
     skipped_count = fields.Int()
-    skipped_tests = fields.Nested(lambda: TestSchema(many=True))
+    skipped_tests = fields.Nested(lambda: TestSchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -82,6 +85,9 @@ class OptionsSchema(Schema):
     rdelay = fields.Int(as_string=True)
     sync = fields.Bool()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Options(**data)
@@ -101,7 +107,10 @@ class Schedule(object):
 class ScheduleSchema(Schema):
     enabled = fields.Bool()
     spec = fields.Str()
-    options = fields.Nested(ResultOptionsSchema)
+    options = fields.Nested(ResultOptionsSchema, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -165,12 +174,15 @@ class PackageSchema(Schema):
     config_id = fields.Int(as_string=True)
     result_id = fields.Int(as_string=True, load_default=None)
     device_id = fields.Int(as_string=True)
-    options = fields.Nested(OptionsSchema)
+    options = fields.Nested(OptionsSchema, unknown=EXCLUDE)
     tags = fields.List(fields.Str())
     use_as_testlist = fields.Bool()
     note = fields.Str(load_default=None)
-    schedule = fields.Nested(ScheduleSchema)
-    interfaces = fields.Nested(InterfacesSchema, many=True)
+    schedule = fields.Nested(ScheduleSchema, unknown=EXCLUDE)
+    interfaces = fields.Nested(InterfacesSchema, many=True, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
