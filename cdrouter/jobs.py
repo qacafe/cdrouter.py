@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -7,7 +7,7 @@
 
 from collections import namedtuple
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
 from .configs import InterfacesSchema
 
@@ -33,6 +33,9 @@ class OptionsSchema(Schema):
     begin_at = fields.Str()
     end_at = fields.Str()
     extra_cli_args = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -88,7 +91,7 @@ class JobSchema(Schema):
     id = fields.Int(as_string=True)
     active = fields.Bool()
     status = fields.Str()
-    options = fields.Nested(OptionsSchema)
+    options = fields.Nested(OptionsSchema, unknown=EXCLUDE)
     package_id = fields.Int(as_string=True)
     package_name = fields.Str()
     config_id = fields.Int(as_string=True)
@@ -101,10 +104,13 @@ class JobSchema(Schema):
     updated = DateTime()
     automatic = fields.Bool()
     run_at = DateTime()
-    interfaces = fields.Nested(InterfacesSchema, many=True)
+    interfaces = fields.Nested(InterfacesSchema, many=True, unknown=EXCLUDE)
     interface_names = fields.List(fields.Str())
     uses_wireless = fields.Bool()
     uses_ics = fields.Bool()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -7,7 +7,7 @@
 
 import io
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from requests_toolbelt.downloadutils import stream
 
 class Version(object):
@@ -30,6 +30,9 @@ class VersionSchema(Schema):
     minor = fields.Int()
     build = fields.Int()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Version(**data)
@@ -47,9 +50,12 @@ class ReleaseLatest(object):
         self.newer = kwargs.get('newer', None)
 
 class ReleaseLatestSchema(Schema):
-    latest = fields.Nested(VersionSchema)
-    current = fields.Nested(VersionSchema)
+    latest = fields.Nested(VersionSchema, unknown=EXCLUDE)
+    current = fields.Nested(VersionSchema, unknown=EXCLUDE)
     newer = fields.Bool()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -68,6 +74,9 @@ class Testsuite(object):
 class TestsuiteSchema(Schema):
     shortname = fields.Str()
     name = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -92,9 +101,12 @@ class Release(object):
 class ReleaseSchema(Schema):
     build_date = fields.Str()
     filename = fields.Str()
-    version = fields.Nested(VersionSchema)
-    testsuite = fields.Nested(TestsuiteSchema)
+    version = fields.Nested(VersionSchema, unknown=EXCLUDE)
+    testsuite = fields.Nested(TestsuiteSchema, unknown=EXCLUDE)
     nonce = fields.Str(load_default=None)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -119,6 +131,9 @@ class UpgradeSchema(Schema):
     installer_path = fields.Str(load_default=None)
     output = fields.Str(load_default=None)
     error = fields.Str(load_default=None)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -147,6 +162,9 @@ class InterfaceFlagsSchema(Schema):
     point_to_point = fields.Bool()
     multicast = fields.Bool()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return InterfaceFlags(**data)
@@ -164,6 +182,9 @@ class InterfaceAddr(object):
 class InterfaceAddrSchema(Schema):
     network = fields.Str()
     address = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -194,9 +215,12 @@ class InterfaceSchema(Schema):
     mtu = fields.Int(as_string=True)
     name = fields.Str()
     hardware_addr = fields.Str()
-    flags = fields.Nested(InterfaceFlagsSchema)
-    addresses = fields.Nested(lambda: InterfaceAddrSchema(many=True), load_default=None)
-    multicast_addresses = fields.Nested(lambda: InterfaceAddrSchema(many=True), load_default=None)
+    flags = fields.Nested(InterfaceFlagsSchema, unknown=EXCLUDE)
+    addresses = fields.Nested(lambda: InterfaceAddrSchema(many=True), load_default=None, unknown=EXCLUDE)
+    multicast_addresses = fields.Nested(lambda: InterfaceAddrSchema(many=True), load_default=None, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -219,6 +243,9 @@ class InUseInterfaceFlagsSchema(Schema):
     is_wireless = fields.Bool()
     is_ics = fields.Bool()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return InUseInterfaceFlags(**data)
@@ -235,7 +262,10 @@ class InUseInterface(object):
 
 class InUseInterfaceSchema(Schema):
     name = fields.Str()
-    flags = fields.Nested(InUseInterfaceFlagsSchema)
+    flags = fields.Nested(InUseInterfaceFlagsSchema, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -303,6 +333,9 @@ class PreferencesSchema(Schema):
     lounge_url = fields.Str()
     lounge_insecure = fields.Bool()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Preferences(**data)
@@ -332,6 +365,9 @@ class SpaceSchema(Schema):
     size = fields.Int()
     unit = fields.Str()
     used = fields.Int()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

@@ -30,6 +30,9 @@ class TestCountSchema(Schema):
     name = fields.Str()
     count = fields.Int(as_string=True)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestCount(**data)
@@ -47,6 +50,9 @@ class TestDuration(object):
 class TestDurationSchema(Schema):
     name = fields.Str()
     duration = fields.Int(as_string=True)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -72,6 +78,9 @@ class ResultBreakdownSchema(Schema):
     skipped = fields.Int(as_string=True)
     alerted = fields.Int(as_string=True)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return ResultBreakdown(**data)
@@ -89,6 +98,9 @@ class TimeBreakdown(object):
 class TimeBreakdownSchema(Schema):
     passed = fields.Int(as_string=True)
     failed = fields.Int(as_string=True)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -109,10 +121,13 @@ class SetStats(object):
         self.time_breakdown = kwargs.get('time_breakdown', None)
 
 class SetStatsSchema(Schema):
-    frequent_failures = fields.Nested(lambda: TestCountSchema(many=True))
-    longest_tests = fields.Nested(lambda: TestDurationSchema(many=True))
-    result_breakdown = fields.Nested(ResultBreakdownSchema)
-    time_breakdown = fields.Nested(TimeBreakdownSchema)
+    frequent_failures = fields.Nested(lambda: TestCountSchema(many=True), unknown=EXCLUDE)
+    longest_tests = fields.Nested(lambda: TestDurationSchema(many=True), unknown=EXCLUDE)
+    result_breakdown = fields.Nested(ResultBreakdownSchema, unknown=EXCLUDE)
+    time_breakdown = fields.Nested(TimeBreakdownSchema, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -150,6 +165,9 @@ class TestResultSummarySchema(Schema):
     name = fields.Str()
     description = fields.Str()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return TestResultSummary(**data)
@@ -166,7 +184,10 @@ class TestResultDiff(object):
 
 class TestResultDiffSchema(Schema):
     name = fields.Str()
-    summaries = fields.Nested(lambda: TestResultSummarySchema(many=True))
+    summaries = fields.Nested(lambda: TestResultSummarySchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -181,7 +202,10 @@ class DiffStats(object):
         self.tests = kwargs.get('tests', None)
 
 class DiffStatsSchema(Schema):
-    tests = fields.Nested(lambda: TestResultDiffSchema(many=True))
+    tests = fields.Nested(lambda: TestResultDiffSchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -198,8 +222,11 @@ class TestResultBreakdown(object):
         self.passed_every_time = kwargs.get('passed_every_time', None)
 
 class TestResultBreakdownSchema(Schema):
-    failed_at_least_once = fields.Nested(lambda: TestCountSchema(many=True))
-    passed_every_time = fields.Nested(lambda: TestCountSchema(many=True))
+    failed_at_least_once = fields.Nested(lambda: TestCountSchema(many=True), unknown=EXCLUDE)
+    passed_every_time = fields.Nested(lambda: TestCountSchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -225,6 +252,9 @@ class ProgressSchema(Schema):
     progress = fields.Int()
     unit = fields.Str()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Progress(**data)
@@ -240,8 +270,11 @@ class SingleStats(object):
         self.progress = kwargs.get('progress', None)
 
 class SingleStatsSchema(Schema):
-    result_breakdown = fields.Nested(TestResultBreakdownSchema)
-    progress = fields.Nested(ProgressSchema)
+    result_breakdown = fields.Nested(TestResultBreakdownSchema, unknown=EXCLUDE)
+    progress = fields.Nested(ProgressSchema, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -258,8 +291,11 @@ class SummaryStats(object):
         self.test_summaries = kwargs.get('test_summaries', None)
 
 class SummaryStatsSchema(Schema):
-    result_breakdown = fields.Nested(ResultBreakdownSchema)
-    test_summaries = fields.Nested(lambda: TestResultSchema(many=True), load_default=None)
+    result_breakdown = fields.Nested(ResultBreakdownSchema, unknown=EXCLUDE)
+    test_summaries = fields.Nested(lambda: TestResultSchema(many=True), load_default=None, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -279,6 +315,9 @@ class PackageCountSchema(Schema):
     package_name = fields.Str()
     count = fields.Int(as_string=True, load_default=None)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return PackageCount(**data)
@@ -296,6 +335,9 @@ class DeviceCount(object):
 class DeviceCountSchema(Schema):
     device_name = fields.Str()
     count = fields.Int(as_string=True, load_default=None)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -316,10 +358,13 @@ class AllStats(object):
         self.device_names = kwargs.get('device_names', None)
 
 class AllStatsSchema(Schema):
-    frequent_packages = fields.Nested(lambda: PackageCountSchema(many=True))
-    package_names = fields.Nested(lambda: PackageCountSchema(many=True))
-    frequent_devices = fields.Nested(lambda: DeviceCountSchema(many=True))
-    device_names = fields.Nested(lambda: DeviceCountSchema(many=True))
+    frequent_packages = fields.Nested(lambda: PackageCountSchema(many=True), unknown=EXCLUDE)
+    package_names = fields.Nested(lambda: PackageCountSchema(many=True), unknown=EXCLUDE)
+    frequent_devices = fields.Nested(lambda: DeviceCountSchema(many=True), unknown=EXCLUDE)
+    device_names = fields.Nested(lambda: DeviceCountSchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -349,6 +394,9 @@ class LogDirFileSchema(Schema):
     size = fields.Int()
     modified = DateTime()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return LogDirFile(**data)
@@ -376,6 +424,9 @@ class OptionsSchema(Schema):
     end_at = fields.Str()
     extra_cli_args = fields.Str()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Options(**data)
@@ -396,6 +447,9 @@ class FeatureSchema(Schema):
     feature = fields.Str()
     enabled = fields.Bool()
     reason = fields.Str(load_default=None)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -431,9 +485,12 @@ class Update(object):
 class UpdateSchema(Schema):
     id = fields.Int(as_string=True)
     timestamp = DateTime()
-    progress = fields.Nested(ProgressSchema(), load_default=None)
-    running = fields.Nested(TestResultSchema(), load_default=None)
+    progress = fields.Nested(ProgressSchema(), load_default=None, unknown=EXCLUDE)
+    running = fields.Nested(TestResultSchema(), load_default=None, unknown=EXCLUDE)
     updates = fields.List(UpdateField, load_default=None)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -539,9 +596,12 @@ class ResultSchema(Schema):
     build_info = fields.Str(load_default=None)
     tags = fields.List(fields.Str())
     testcases = fields.List(fields.Str(), load_default=None)
-    options = fields.Nested(OptionsSchema)
-    features = fields.Dict(keys=fields.Str(), values=fields.Nested(FeatureSchema()))
-    interfaces = fields.Nested(InterfacesSchema, many=True)
+    options = fields.Nested(OptionsSchema, unknown=EXCLUDE)
+    features = fields.Dict(keys=fields.Str(), values=fields.Nested(FeatureSchema()), unknown=EXCLUDE)
+    interfaces = fields.Nested(InterfacesSchema, many=True, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
