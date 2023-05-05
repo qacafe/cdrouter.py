@@ -138,6 +138,7 @@ class Testvar(object):
     :param default: (optional) Testvar default value as string.
     :param isdefault: (optional) Bool `True` if testvar is set to default value.
     :param line: (optional) Config file line number as int.
+    :param action: (optional) Action to perform on the testvar or group as string.  Must be `set-testvar`, `delete-testvar`, `create-group` or `delete-group`.  If not specified, defaults to `set-testvar`.
     """
     def __init__(self, **kwargs):
         self.group = kwargs.get('group', None)
@@ -146,6 +147,7 @@ class Testvar(object):
         self.default = kwargs.get('default', None)
         self.isdefault = kwargs.get('isdefault', None)
         self.line = kwargs.get('line', None)
+        self.action = kwargs.get('action', None)
 
 class TestvarSchema(Schema):
     group = fields.Str()
@@ -154,6 +156,7 @@ class TestvarSchema(Schema):
     default = fields.Str()
     isdefault = fields.Bool()
     line = fields.Int()
+    action = fields.Str(load_default=None)
 
     class Meta:
         unknown = EXCLUDE
@@ -519,6 +522,26 @@ class ConfigsService(object):
         :param group: (optional) Testvar group as string.
         """
         return self.service.delete(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
+
+    def create_testvar_group(self, id, group): # pylint: disable=invalid-name,redefined-builtin
+        """Create a testvar group in a config. Creating a testvar
+        group is equivalent to removing the IGNORE keyword from the
+        group in the config.
+
+        :param id: Config ID as an int.
+        :param group: Testvar group as string.
+        """
+        return self.service.post(self.base+str(id)+'/testvars/', params={'group': group})
+
+    def delete_testvar_group(self, id, group): # pylint: disable=invalid-name,redefined-builtin
+        """Delete a testvar group in a config. Deleting a testvar
+        group is equivalent to adding the IGNORE keyword to the group
+        in the config.
+
+        :param id: Config ID as an int.
+        :param group: Testvar group as string.
+        """
+        return self.service.delete(self.base+str(id)+'/testvars/', params={'group': group})
 
     def bulk_edit_testvars(self, id, testvars): # pylint: disable=invalid-name,redefined-builtin
         """Bulk edit a config's testvars.
