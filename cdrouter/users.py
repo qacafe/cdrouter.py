@@ -22,6 +22,7 @@ class User(object):
     :param description: (optional) User description as string.
     :param created: (optional) User creation time as `DateTime`.
     :param updated: (optional) User last-updated time as `DateTime`.
+    :param locked: (optional) Bool `True` if user is locked.
     :param token: (optional) User's API token as string.
     """
     def __init__(self, **kwargs):
@@ -32,6 +33,7 @@ class User(object):
         self.description = kwargs.get('description', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
+        self.locked = kwargs.get('locked', None)
         self.token = kwargs.get('token', None)
 
         # only needed for create & change_password
@@ -46,6 +48,7 @@ class UserSchema(Schema):
     description = fields.Str()
     created = DateTime()
     updated = DateTime()
+    locked = fields.Bool(load_default=False)
     token = fields.Str()
 
     password = fields.Str()
@@ -191,6 +194,28 @@ class UsersService(object):
         :param id: User ID as an int.
         """
         return self.service.delete_id(self.base, id)
+
+    def lock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Lock a user.  Locking prevents the user from being modified or deleted until it is unlocked.
+
+        :param id: User ID as an int.
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
+        schema = UserSchema()
+        resp = self.service.post(self.base+str(id)+'/lock/')
+        return self.service.decode(schema, resp)
+
+    def unlock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Unlock a user.  Unlocking a locked user allows it to be modified or deleted once again.
+
+        :param id: User ID as an int.
+        :return: :class:`users.User <users.User>` object
+        :rtype: users.User
+        """
+        schema = UserSchema()
+        resp = self.service.post(self.base+str(id)+'/unlock/')
+        return self.service.decode(schema, resp)
 
     def bulk_copy(self, ids):
         """Bulk copy a set of users.

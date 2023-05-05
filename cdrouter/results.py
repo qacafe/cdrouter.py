@@ -505,6 +505,7 @@ class Result(object):
     :param id: (optional) Result ID as an int.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
+    :param locked: (optional) Bool `True` if result is locked.
     :param result: (optional) Result as a string.
     :param active: (optional) Bool `True` if status is 'running' or 'paused'.
     :param status: (optional) Status as a string.
@@ -539,6 +540,7 @@ class Result(object):
         self.id = kwargs.get('id', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
+        self.locked = kwargs.get('locked', None)
         self.result = kwargs.get('result', None)
         self.active = kwargs.get('active', None)
         self.status = kwargs.get('status', None)
@@ -573,6 +575,7 @@ class ResultSchema(Schema):
     id = fields.Int(as_string=True)
     created = DateTime()
     updated = DateTime()
+    locked = fields.Bool(load_default=False)
     result = fields.Str()
     active = fields.Bool()
     status = fields.Str()
@@ -768,6 +771,28 @@ class ResultsService(object):
         :param id: Result ID as an int.
         """
         return self.service.delete_id(self.base, id)
+
+    def lock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Lock a result.  Locking prevents the result from being modified or deleted until it is unlocked.
+
+        :param id: Result ID as an int.
+        :return: :class:`results.Result <results.Result>` object
+        :rtype: results.Result
+        """
+        schema = ResultSchema()
+        resp = self.service.post(self.base+str(id)+'/lock/')
+        return self.service.decode(schema, resp)
+
+    def unlock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Unlock a result.  Unlocking a locked result allows it to be modified or deleted once again.
+
+        :param id: Result ID as an int.
+        :return: :class:`results.Result <results.Result>` object
+        :rtype: results.Result
+        """
+        schema = ResultSchema()
+        resp = self.service.post(self.base+str(id)+'/unlock/')
+        return self.service.decode(schema, resp)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a result.

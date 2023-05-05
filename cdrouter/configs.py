@@ -173,6 +173,7 @@ class Config(object):
     :param description: (optional) Config description as string.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
+    :param locked: (optional) Bool `True` if config is locked.
     :param contents: (optional) Config contents as string.
     :param user_id: (optional) User ID as an int.
     :param result_id: (optional) Result ID as an int (if a config snapshot).
@@ -186,6 +187,7 @@ class Config(object):
         self.description = kwargs.get('description', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
+        self.locked = kwargs.get('locked', None)
         self.contents = kwargs.get('contents', None)
         self.user_id = kwargs.get('user_id', None)
         self.result_id = kwargs.get('result_id', None)
@@ -199,6 +201,7 @@ class ConfigSchema(Schema):
     description = fields.Str()
     created = DateTime()
     updated = DateTime()
+    locked = fields.Bool(load_default=False)
     contents = fields.Str()
     user_id = fields.Int(as_string=True)
     result_id = fields.Int(as_string=True, load_default=None)
@@ -339,6 +342,28 @@ class ConfigsService(object):
         :param id: Config ID as an int.
         """
         return self.service.delete_id(self.base, id)
+
+    def lock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Lock a config.  Locking prevents the config from being modified or deleted until it is unlocked.
+
+        :param id: Config ID as an int.
+        :return: :class:`configs.Config <configs.Config>` object
+        :rtype: configs.Config
+        """
+        schema = self.GET_SCHEMA
+        resp = self.service.post(self.base+str(id)+'/lock/')
+        return self.service.decode(schema, resp)
+
+    def unlock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Unlock a config.  Unlocking a locked config allows it to be modified or deleted once again.
+
+        :param id: Config ID as an int.
+        :return: :class:`configs.Config <configs.Config>` object
+        :rtype: configs.Config
+        """
+        schema = self.GET_SCHEMA
+        resp = self.service.post(self.base+str(id)+'/unlock/')
+        return self.service.decode(schema, resp)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a config.

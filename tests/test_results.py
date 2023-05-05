@@ -360,6 +360,56 @@ buddy::start_proc my_start_proc
         with pytest.raises(CDRouterError, match='no such result'):
             c.results.get(r.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="lock endpoint added in 13.14.1")
+    def test_lock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        r = c.results.get(20220821222306)
+        assert r.locked is False
+
+        r = c.results.lock(r.id)
+        assert r.locked is True
+
+        # locking a locked resource is a no-op, not an error
+        c.results.lock(r.id)
+        c.results.lock(r.id)
+        c.results.lock(r.id)
+
+        r = c.results.get(r.id)
+        assert r.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked result'):
+            c.results.delete(r.id)
+
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="unlock endpoint added in 13.14.1")
+    def test_unlock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        r = c.results.get(20220821222306)
+        assert r.locked is False
+
+        r = c.results.lock(r.id)
+        assert r.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked result'):
+            c.results.delete(r.id)
+
+        r = c.results.unlock(r.id)
+        assert r.locked is False
+
+        # unlocking an unlocked resource is a no-op, not an error
+        c.results.unlock(r.id)
+        c.results.unlock(r.id)
+        c.results.unlock(r.id)
+
+        r = c.results.get(r.id)
+        assert r.locked is False
+
+        c.results.delete(r.id)
+
+        with pytest.raises(CDRouterError, match='no such result'):
+            c.results.get(r.id)
+
     def test_get_shares(self, c):
         u = User(
             admin=True,
