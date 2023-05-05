@@ -9,7 +9,7 @@ from cdrouter.cdrouter import CDRouter, CDRouterError
 from cdrouter.filters import Field as field
 from cdrouter.users import User
 
-from .utils import my_cdrouter, my_c # pylint: disable=unused-import
+from .utils import cdrouter_version, my_cdrouter, my_c # pylint: disable=unused-import
 
 class TestUsers:
     def test_list(self, c):
@@ -200,6 +200,7 @@ class TestUsers:
         with pytest.raises(CDRouterError, match='no such user'):
             c.users.get(u2.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="lock endpoint added in 13.14.1")
     def test_lock(self, c):
         u = User(
             admin=True,
@@ -225,6 +226,7 @@ class TestUsers:
         with pytest.raises(CDRouterError, match='cannot delete locked user'):
             c.users.delete(u.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="unlock endpoint added in 13.14.1")
     def test_unlock(self, c):
         u = User(
             admin=True,

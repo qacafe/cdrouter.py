@@ -54,7 +54,9 @@ class TestConfigs:
         assert cfg.name == 'Cisco E4200'
         assert cfg.description == 'DHCPv4 and DHCPv6 relay config using ER-X as relay and E4200 as DUT'
         assert 'SECTION "About"' in cfg.contents
-        assert cfg.locked is False
+        # locked field added in 13.14.1
+        if cdrouter_version() >= (13, 14, 1):
+            assert cfg.locked is False
         assert cfg.user_id == u.id
         assert cfg.tags == ['DHCP relay', 'DHCPv6 relay']
         assert 'The interface names on this system' in cfg.note
@@ -148,6 +150,7 @@ class TestConfigs:
         with pytest.raises(CDRouterError, match='no such config'):
             c.configs.get(cfg.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="lock endpoint added in 13.14.1")
     def test_lock(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
@@ -168,6 +171,7 @@ class TestConfigs:
         with pytest.raises(CDRouterError, match='cannot delete locked config'):
             c.configs.delete(cfg.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="unlock endpoint added in 13.14.1")
     def test_unlock(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 

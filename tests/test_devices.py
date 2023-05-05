@@ -160,6 +160,7 @@ class TestDevices:
         with pytest.raises(CDRouterError, match='no such device'):
             c.devices.get(d2.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="lock endpoint added in 13.14.1")
     def test_lock(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
@@ -180,6 +181,7 @@ class TestDevices:
         with pytest.raises(CDRouterError, match='cannot delete locked device'):
             c.devices.delete(d.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="unlock endpoint added in 13.14.1")
     def test_unlock(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 

@@ -11,7 +11,7 @@ from cdrouter.packages import Package, Options, Schedule
 from cdrouter.filters import Field as field
 from cdrouter.users import User
 
-from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
+from .utils import cdrouter_version, my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
 class TestPackages:
     def test_list(self, c):
@@ -176,6 +176,7 @@ class TestPackages:
         with pytest.raises(CDRouterError, match='no such package'):
             c.packages.get(p2.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="lock endpoint added in 13.14.1")
     def test_lock(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
@@ -196,6 +197,7 @@ class TestPackages:
         with pytest.raises(CDRouterError, match='cannot delete locked package'):
             c.packages.delete(p.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="unlock endpoint added in 13.14.1")
     def test_unlock(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 

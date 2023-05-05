@@ -17,7 +17,7 @@ from cdrouter.results import Result
 from cdrouter.testresults import TestResult
 from cdrouter.users import User
 
-from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
+from .utils import cdrouter_version, my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
 class TestResults:
     def test_list(self, c):
@@ -360,6 +360,7 @@ buddy::start_proc my_start_proc
         with pytest.raises(CDRouterError, match='no such result'):
             c.results.get(r.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="lock endpoint added in 13.14.1")
     def test_lock(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
@@ -380,6 +381,7 @@ buddy::start_proc my_start_proc
         with pytest.raises(CDRouterError, match='cannot delete locked result'):
             c.results.delete(r.id)
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="unlock endpoint added in 13.14.1")
     def test_unlock(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
