@@ -531,6 +531,7 @@ class TestConfigs:
         assert testvar.value == old
         assert testvar.isdefault is True
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="create testvar group endpoint added in 13.14.1")
     def test_create_testvar_group(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
@@ -545,6 +546,7 @@ class TestConfigs:
         testvar = c.configs.get_testvar(cfg.id, 'lanMode', group=group)
         assert testvar.value == 'DHCP'
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="delete testvar group endpoint added in 13.14.1")
     def test_delete_testvar_group(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
