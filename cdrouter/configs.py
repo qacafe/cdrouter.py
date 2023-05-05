@@ -7,7 +7,7 @@
 
 from collections import namedtuple
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_error import CDRouterError
 from .cdr_datetime import DateTime
 from .filters import Field as field
@@ -26,6 +26,9 @@ class ConfigErrorSchema(Schema):
     lines = fields.List(fields.Str())
     error = fields.Str()
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return ConfigError(**data)
@@ -39,7 +42,10 @@ class CheckConfig(object):
         self.errors = kwargs.get('errors', None)
 
 class CheckConfigSchema(Schema):
-    errors = fields.Nested(lambda: ConfigErrorSchema(many=True))
+    errors = fields.Nested(lambda: ConfigErrorSchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -58,6 +64,9 @@ class UpgradeConfig(object):
 class UpgradeConfigSchema(Schema):
     success = fields.Bool()
     output = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -84,7 +93,10 @@ class NetworksSchema(Schema):
     type = fields.Str()
     side = fields.Str()
     title = fields.Str(load_default=None)
-    children = fields.Nested(lambda: NetworksSchema(many=True))
+    children = fields.Nested(lambda: NetworksSchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -109,6 +121,9 @@ class InterfacesSchema(Schema):
     value = fields.Str()
     is_wireless = fields.Bool()
     is_ics = fields.Bool()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -139,6 +154,9 @@ class TestvarSchema(Schema):
     default = fields.Str()
     isdefault = fields.Bool()
     line = fields.Int()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -186,7 +204,10 @@ class ConfigSchema(Schema):
     result_id = fields.Int(as_string=True, load_default=None)
     tags = fields.List(fields.Str())
     note = fields.Str()
-    interfaces = fields.Nested(InterfacesSchema, many=True)
+    interfaces = fields.Nested(InterfacesSchema, many=True, unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

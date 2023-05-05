@@ -7,7 +7,7 @@
 
 from collections import namedtuple
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
 
 class Metric(object):
@@ -38,6 +38,9 @@ class MetricSchema(Schema):
     test_name = fields.Str()
     metric = fields.Str()
     filename = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -96,6 +99,9 @@ class BandwidthSchema(Schema):
     client_device = fields.Str(load_default=None)
     server_device = fields.Str(load_default=None)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Bandwidth(**data)
@@ -141,6 +147,9 @@ class LatencySchema(Schema):
     upload_latency = fields.Int(load_default=None)
     upload_latency_units = fields.Str(load_default=None)
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return Latency(**data)
@@ -162,6 +171,9 @@ class ClientBandwidthSchema(Schema):
     num_rates = fields.Int()
     rates = fields.List(fields.Float())
 
+    class Meta:
+        unknown = EXCLUDE
+
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
         return ClientBandwidth(**data)
@@ -182,6 +194,9 @@ class ClientLatencySchema(Schema):
     timestamp = DateTime()
     num_rates = fields.Int()
     rates = fields.List(fields.Int())
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -239,6 +254,9 @@ class GraphMetricSchema(Schema):
     units_2 = fields.Str()
     device_1 = fields.Str()
     device_2 = fields.Str()
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument

@@ -1,11 +1,11 @@
 #
-# Copyright (c) 2017-2022 by QA Cafe.
+# Copyright (c) 2017-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
 """Module for accessing CDRouter Tags."""
 
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, EXCLUDE
 
 class ResourceTags(object):
     """Model for CDRouter Resource Tags.
@@ -23,6 +23,9 @@ class ResourceTagsSchema(Schema):
     id = fields.Str()
     name = fields.Str()
     tags = fields.List(fields.Str())
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
@@ -60,10 +63,13 @@ class TagSchema(Schema):
     count = fields.Int()
     tags = fields.List(fields.Str())
 
-    configs = fields.Nested(lambda: ResourceTagsSchema(many=True))
-    devices = fields.Nested(lambda: ResourceTagsSchema(many=True))
-    packages = fields.Nested(lambda: ResourceTagsSchema(many=True))
-    results = fields.Nested(lambda: ResourceTagsSchema(many=True))
+    configs = fields.Nested(lambda: ResourceTagsSchema(many=True), unknown=EXCLUDE)
+    devices = fields.Nested(lambda: ResourceTagsSchema(many=True), unknown=EXCLUDE)
+    packages = fields.Nested(lambda: ResourceTagsSchema(many=True), unknown=EXCLUDE)
+    results = fields.Nested(lambda: ResourceTagsSchema(many=True), unknown=EXCLUDE)
+
+    class Meta:
+        unknown = EXCLUDE
 
     @post_load
     def post_load(self, data, **kwargs): # pylint: disable=unused-argument
