@@ -677,6 +677,7 @@ buddy::start_proc my_start_proc
         with open(filename, 'wb') as fd:
             shutil.copyfileobj (b, fd)
 
+    @pytest.mark.skipif(cdrouter_version() <= (13, 14, 1), reason="list metrics endpoint broken in 13.14.1")
     def test_list_metrics(self, c):
         import_all_from_file(c, 'tests/testdata/example5.gz')
 
