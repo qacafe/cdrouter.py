@@ -13,7 +13,7 @@ from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
 from .testresults import TestResultSchema
 from .alerts import AlertSchema
-from .configs import InterfacesSchema
+from .configs import InterfacesSchema, TestvarSchema
 from .metrics import GraphMetric, GraphMetricSchema, Page as MetricPage, MetricSchema as MetricsDotMetricSchema
 
 class TestCount(object):
@@ -408,6 +408,7 @@ class Options(object):
     :param skip_tests: (optional) Tests to skip as string list.
     :param begin_at: (optional) Test name to begin testing at as string.
     :param end_at: (optional) Test name to end testing at as string.
+    :param testvars: (optional) Extra testvars to set as a :class:`configs.Testvar <configs.Testvar>` list.
     :param extra_cli_args: (optional) Extra `cdrouter-cli` arguments as string.
     """
     def __init__(self, **kwargs):
@@ -415,6 +416,7 @@ class Options(object):
         self.skip_tests = kwargs.get('skip_tests', None)
         self.begin_at = kwargs.get('begin_at', None)
         self.end_at = kwargs.get('end_at', None)
+        self.testvars = kwargs.get('testvars', None)
         self.extra_cli_args = kwargs.get('extra_cli_args', None)
 
 class OptionsSchema(Schema):
@@ -422,6 +424,7 @@ class OptionsSchema(Schema):
     skip_tests = fields.List(fields.Str(), load_default=None)
     begin_at = fields.Str()
     end_at = fields.Str()
+    testvars = fields.Nested(TestvarSchema, many=True, load_default=None, unknown=EXCLUDE)
     extra_cli_args = fields.Str()
 
     class Meta:
@@ -502,6 +505,7 @@ class Result(object):
     :param id: (optional) Result ID as an int.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
+    :param locked: (optional) Bool `True` if result is locked.
     :param result: (optional) Result as a string.
     :param active: (optional) Bool `True` if status is 'running' or 'paused'.
     :param status: (optional) Status as a string.
@@ -536,6 +540,7 @@ class Result(object):
         self.id = kwargs.get('id', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
+        self.locked = kwargs.get('locked', None)
         self.result = kwargs.get('result', None)
         self.active = kwargs.get('active', None)
         self.status = kwargs.get('status', None)
@@ -570,6 +575,7 @@ class ResultSchema(Schema):
     id = fields.Int(as_string=True)
     created = DateTime()
     updated = DateTime()
+    locked = fields.Bool(load_default=False)
     result = fields.Str()
     active = fields.Bool()
     status = fields.Str()
@@ -765,6 +771,28 @@ class ResultsService(object):
         :param id: Result ID as an int.
         """
         return self.service.delete_id(self.base, id)
+
+    def lock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Lock a result.  Locking prevents the result from being modified or deleted until it is unlocked.
+
+        :param id: Result ID as an int.
+        :return: :class:`results.Result <results.Result>` object
+        :rtype: results.Result
+        """
+        schema = ResultSchema()
+        resp = self.service.post(self.base+str(id)+'/lock/')
+        return self.service.decode(schema, resp)
+
+    def unlock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Unlock a result.  Unlocking a locked result allows it to be modified or deleted once again.
+
+        :param id: Result ID as an int.
+        :return: :class:`results.Result <results.Result>` object
+        :rtype: results.Result
+        """
+        schema = ResultSchema()
+        resp = self.service.post(self.base+str(id)+'/unlock/')
+        return self.service.decode(schema, resp)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a result.

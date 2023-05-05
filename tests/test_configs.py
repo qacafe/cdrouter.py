@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 by QA Cafe.
+# Copyright (c) 2022-2023 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -54,6 +54,9 @@ class TestConfigs:
         assert cfg.name == 'Cisco E4200'
         assert cfg.description == 'DHCPv4 and DHCPv6 relay config using ER-X as relay and E4200 as DUT'
         assert 'SECTION "About"' in cfg.contents
+        # locked field added in 13.14.1
+        if cdrouter_version() >= (13, 14, 1):
+            assert cfg.locked is False
         assert cfg.user_id == u.id
         assert cfg.tags == ['DHCP relay', 'DHCPv6 relay']
         assert 'The interface names on this system' in cfg.note
@@ -143,6 +146,56 @@ class TestConfigs:
         c.configs.delete(cfg.id)
 
         assert len(list(c.configs.iter_list())) == 0
+
+        with pytest.raises(CDRouterError, match='no such config'):
+            c.configs.get(cfg.id)
+
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="lock endpoint added in 13.14.1")
+    def test_lock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        cfg = c.configs.get_by_name('Cisco E4200')
+        assert cfg.locked is False
+
+        cfg = c.configs.lock(cfg.id)
+        assert cfg.locked is True
+
+        # locking a locked resource is a no-op, not an error
+        c.configs.lock(cfg.id)
+        c.configs.lock(cfg.id)
+        c.configs.lock(cfg.id)
+
+        cfg = c.configs.get(cfg.id)
+        assert cfg.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked config'):
+            c.configs.delete(cfg.id)
+
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="unlock endpoint added in 13.14.1")
+    def test_unlock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        cfg = c.configs.get_by_name('Cisco E4200')
+        assert cfg.locked is False
+
+        cfg = c.configs.lock(cfg.id)
+        assert cfg.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked config'):
+            c.configs.delete(cfg.id)
+
+        cfg = c.configs.unlock(cfg.id)
+        assert cfg.locked is False
+
+        # unlocking an unlocked resource is a no-op, not an error
+        c.configs.unlock(cfg.id)
+        c.configs.unlock(cfg.id)
+        c.configs.unlock(cfg.id)
+
+        cfg = c.configs.get(cfg.id)
+        assert cfg.locked is False
+
+        c.configs.delete(cfg.id)
 
         with pytest.raises(CDRouterError, match='no such config'):
             c.configs.get(cfg.id)
@@ -531,6 +584,38 @@ class TestConfigs:
         assert testvar.value == old
         assert testvar.isdefault is True
 
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="create testvar group endpoint added in 13.14.1")
+    def test_create_testvar_group(self, c):
+        import_all_from_file(c, 'tests/testdata/example2.gz')
+
+        cfg = c.configs.get_by_name('example.conf')
+
+        group = 'i-do-not-exist-yet'
+        with pytest.raises(CDRouterError, match='no such testvar'):
+            c.configs.get_testvar(cfg.id, 'lanMode', group=group)
+
+        c.configs.create_testvar_group(cfg.id, group)
+
+        testvar = c.configs.get_testvar(cfg.id, 'lanMode', group=group)
+        assert testvar.value == 'DHCP'
+
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="delete testvar group endpoint added in 13.14.1")
+    def test_delete_testvar_group(self, c):
+        import_all_from_file(c, 'tests/testdata/example2.gz')
+
+        cfg = c.configs.get_by_name('example.conf')
+
+        group = 'i-do-not-exist-yet'
+        c.configs.create_testvar_group(cfg.id, group)
+
+        testvar = c.configs.get_testvar(cfg.id, 'lanMode', group=group)
+        assert testvar.value == 'DHCP'
+
+        c.configs.delete_testvar_group(cfg.id, group)
+
+        with pytest.raises(CDRouterError, match='no such testvar'):
+            c.configs.get_testvar(cfg.id, 'lanMode', group=group)
+
     def test_bulk_edit_testvars(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
 
@@ -538,12 +623,37 @@ class TestConfigs:
         assert c.configs.get_testvar(cfg.id, 'lanIp').value == '192.168.1.1'
         assert c.configs.get_testvar(cfg.id, 'lanInterface').value == 'none'
 
+        c.configs.edit_testvar(cfg.id, Testvar(group='fakeGroup', name='lanMode', value='foobar'))
+        testvar = c.configs.get_testvar(cfg.id, 'lanMode', group='fakeGroup')
+        assert testvar.value == 'foobar'
+
+        group = 'empty-group'
+        group2 = 'empty-group2'
+
+        with pytest.raises(CDRouterError, match='no such testvar'):
+            c.configs.get_testvar(cfg.id, 'lanMode', group=group)
+
+        c.configs.create_testvar_group(cfg.id, group)
+
+        testvar = c.configs.get_testvar(cfg.id, 'lanMode', group=group)
+        assert testvar.value == 'DHCP'
+
         testvars = [
             Testvar(name='lanIp', value='1.2.3.4'),
-            Testvar(name='lanInterface', value='eth0')
+            Testvar(name='lanInterface', value='eth0', action='set-testvar'),
+            Testvar(group='fakeGroup', name='lanMode', action='delete-testvar'),
+            Testvar(group=group, action='delete-group'),
+            Testvar(group=group2, action='create-group')
         ]
 
         testvars = c.configs.bulk_edit_testvars(cfg.id, testvars)
         assert len(testvars) > 0
         assert c.configs.get_testvar(cfg.id, 'lanIp').value == '1.2.3.4'
         assert c.configs.get_testvar(cfg.id, 'lanInterface').value == 'eth0'
+
+        assert c.configs.get_testvar(cfg.id, 'lanMode', group='fakeGroup').value == 'DHCP'
+
+        with pytest.raises(CDRouterError, match='no such testvar'):
+            c.configs.get_testvar(cfg.id, 'lanMode', group=group)
+
+        assert c.configs.get_testvar(cfg.id, 'lanMode', group=group2).value == 'DHCP'

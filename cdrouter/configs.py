@@ -138,6 +138,7 @@ class Testvar(object):
     :param default: (optional) Testvar default value as string.
     :param isdefault: (optional) Bool `True` if testvar is set to default value.
     :param line: (optional) Config file line number as int.
+    :param action: (optional) Action to perform on the testvar or group as string.  Must be `set-testvar`, `delete-testvar`, `create-group` or `delete-group`.  If not specified, defaults to `set-testvar`.
     """
     def __init__(self, **kwargs):
         self.group = kwargs.get('group', None)
@@ -146,6 +147,7 @@ class Testvar(object):
         self.default = kwargs.get('default', None)
         self.isdefault = kwargs.get('isdefault', None)
         self.line = kwargs.get('line', None)
+        self.action = kwargs.get('action', None)
 
 class TestvarSchema(Schema):
     group = fields.Str()
@@ -154,6 +156,7 @@ class TestvarSchema(Schema):
     default = fields.Str()
     isdefault = fields.Bool()
     line = fields.Int()
+    action = fields.Str(load_default=None)
 
     class Meta:
         unknown = EXCLUDE
@@ -170,6 +173,7 @@ class Config(object):
     :param description: (optional) Config description as string.
     :param created: (optional) Creation time as `DateTime`.
     :param updated: (optional) Last-updated time as `DateTime`.
+    :param locked: (optional) Bool `True` if config is locked.
     :param contents: (optional) Config contents as string.
     :param user_id: (optional) User ID as an int.
     :param result_id: (optional) Result ID as an int (if a config snapshot).
@@ -183,6 +187,7 @@ class Config(object):
         self.description = kwargs.get('description', None)
         self.created = kwargs.get('created', None)
         self.updated = kwargs.get('updated', None)
+        self.locked = kwargs.get('locked', None)
         self.contents = kwargs.get('contents', None)
         self.user_id = kwargs.get('user_id', None)
         self.result_id = kwargs.get('result_id', None)
@@ -196,6 +201,7 @@ class ConfigSchema(Schema):
     description = fields.Str()
     created = DateTime()
     updated = DateTime()
+    locked = fields.Bool(load_default=False)
     contents = fields.Str()
     user_id = fields.Int(as_string=True)
     result_id = fields.Int(as_string=True, load_default=None)
@@ -336,6 +342,28 @@ class ConfigsService(object):
         :param id: Config ID as an int.
         """
         return self.service.delete_id(self.base, id)
+
+    def lock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Lock a config.  Locking prevents the config from being modified or deleted until it is unlocked.
+
+        :param id: Config ID as an int.
+        :return: :class:`configs.Config <configs.Config>` object
+        :rtype: configs.Config
+        """
+        schema = self.GET_SCHEMA
+        resp = self.service.post(self.base+str(id)+'/lock/')
+        return self.service.decode(schema, resp)
+
+    def unlock(self, id): # pylint: disable=invalid-name,redefined-builtin
+        """Unlock a config.  Unlocking a locked config allows it to be modified or deleted once again.
+
+        :param id: Config ID as an int.
+        :return: :class:`configs.Config <configs.Config>` object
+        :rtype: configs.Config
+        """
+        schema = self.GET_SCHEMA
+        resp = self.service.post(self.base+str(id)+'/unlock/')
+        return self.service.decode(schema, resp)
 
     def get_shares(self, id): # pylint: disable=invalid-name,redefined-builtin
         """Get shares for a config.
@@ -519,6 +547,26 @@ class ConfigsService(object):
         :param group: (optional) Testvar group as string.
         """
         return self.service.delete(self.base+str(id)+'/testvars/'+name+'/', params={'group': group})
+
+    def create_testvar_group(self, id, group): # pylint: disable=invalid-name,redefined-builtin
+        """Create a testvar group in a config. Creating a testvar
+        group is equivalent to removing the IGNORE keyword from the
+        group in the config.
+
+        :param id: Config ID as an int.
+        :param group: Testvar group as string.
+        """
+        return self.service.post(self.base+str(id)+'/testvars/', params={'group': group})
+
+    def delete_testvar_group(self, id, group): # pylint: disable=invalid-name,redefined-builtin
+        """Delete a testvar group in a config. Deleting a testvar
+        group is equivalent to adding the IGNORE keyword to the group
+        in the config.
+
+        :param id: Config ID as an int.
+        :param group: Testvar group as string.
+        """
+        return self.service.delete(self.base+str(id)+'/testvars/', params={'group': group})
 
     def bulk_edit_testvars(self, id, testvars): # pylint: disable=invalid-name,redefined-builtin
         """Bulk edit a config's testvars.

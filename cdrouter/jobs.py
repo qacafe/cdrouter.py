@@ -9,7 +9,7 @@ from collections import namedtuple
 
 from marshmallow import Schema, fields, post_load, EXCLUDE
 from .cdr_datetime import DateTime
-from .configs import InterfacesSchema
+from .configs import InterfacesSchema, TestvarSchema
 
 class Options(object):
     """Model for CDRouter Job Options.
@@ -18,6 +18,7 @@ class Options(object):
     :param skip_tests: (optional) Tests to skip as string list.
     :param begin_at: (optional) Test name to begin testing at as string.
     :param end_at: (optional) Test name to end testing at as string.
+    :param testvars: (optional) Extra testvars to set as a :class:`configs.Testvar <configs.Testvar>` list.
     :param extra_cli_args: (optional) Extra `cdrouter-cli` arguments as string.
     """
     def __init__(self, **kwargs):
@@ -25,6 +26,7 @@ class Options(object):
         self.skip_tests = kwargs.get('skip_tests', None)
         self.begin_at = kwargs.get('begin_at', None)
         self.end_at = kwargs.get('end_at', None)
+        self.testvars = kwargs.get('testvars', None)
         self.extra_cli_args = kwargs.get('extra_cli_args', None)
 
 class OptionsSchema(Schema):
@@ -32,6 +34,7 @@ class OptionsSchema(Schema):
     skip_tests = fields.List(fields.Str(), load_default=None)
     begin_at = fields.Str()
     end_at = fields.Str()
+    testvars = fields.Nested(TestvarSchema, many=True, load_default=None, unknown=EXCLUDE)
     extra_cli_args = fields.Str()
 
     class Meta:

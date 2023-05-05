@@ -12,7 +12,7 @@ from cdrouter.packages import Package, Options, Schedule, PackageSchema
 from cdrouter.filters import Field as field
 from cdrouter.users import User
 
-from .utils import my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
+from .utils import cdrouter_version, my_cdrouter, my_c, import_all_from_file # pylint: disable=unused-import
 
 class TestPackages:
     def test_list(self, c):
@@ -176,6 +176,56 @@ class TestPackages:
 
         with pytest.raises(CDRouterError, match='no such package'):
             c.packages.get(p2.id)
+
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="lock endpoint added in 13.14.1")
+    def test_lock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        p = c.packages.get_by_name('Cisco E4200 DHCPv4 relay-nofatal')
+        assert p.locked is False
+
+        p = c.packages.lock(p.id)
+        assert p.locked is True
+
+        # locking a locked resource is a no-op, not an error
+        c.packages.lock(p.id)
+        c.packages.lock(p.id)
+        c.packages.lock(p.id)
+
+        p = c.packages.get(p.id)
+        assert p.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked package'):
+            c.packages.delete(p.id)
+
+    @pytest.mark.skipif(cdrouter_version() < (13, 14, 1), reason="unlock endpoint added in 13.14.1")
+    def test_unlock(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        p = c.packages.get_by_name('Cisco E4200 DHCPv4 relay-nofatal')
+        assert p.locked is False
+
+        p = c.packages.lock(p.id)
+        assert p.locked is True
+
+        with pytest.raises(CDRouterError, match='cannot delete locked package'):
+            c.packages.delete(p.id)
+
+        p = c.packages.unlock(p.id)
+        assert p.locked is False
+
+        # unlocking an unlocked resource is a no-op, not an error
+        c.packages.unlock(p.id)
+        c.packages.unlock(p.id)
+        c.packages.unlock(p.id)
+
+        p = c.packages.get(p.id)
+        assert p.locked is False
+
+        c.packages.delete(p.id)
+
+        with pytest.raises(CDRouterError, match='no such package'):
+            c.packages.get(p.id)
 
     def test_get_shares(self, c):
         u = User(
