@@ -67,6 +67,7 @@ class Job(object):
     :param interface_names: (optional) Job interface names as string list.
     :param uses_wireless: (optional) Bool `True` if job uses any wireless interfaces.
     :param uses_ics: (optional) Bool `True` if job uses any ICS interfaces.
+    :param ics_interface_name: (optional) If uses_ics is `True`, ICS interface name as string.
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -89,6 +90,7 @@ class Job(object):
         self.interface_names = kwargs.get('interface_names', None)
         self.uses_wireless = kwargs.get('uses_wireless', None)
         self.uses_ics = kwargs.get('uses_ics', None)
+        self.ics_interface_name = kwargs.get('ics_interface_name', None)
 
 class JobSchema(Schema):
     id = fields.Int(as_string=True)
@@ -111,6 +113,7 @@ class JobSchema(Schema):
     interface_names = fields.List(fields.Str())
     uses_wireless = fields.Bool()
     uses_ics = fields.Bool()
+    ics_interface_name = fields.Str(load_default=None)
 
     class Meta:
         unknown = EXCLUDE
@@ -184,7 +187,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
-        schema = JobSchema(exclude=('id', 'active', 'status', 'options', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'run_at', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
+        schema = JobSchema(exclude=('id', 'active', 'status', 'options', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'run_at', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics', 'ics_interface_name'))
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
@@ -198,7 +201,7 @@ class JobsService(object):
         :return: :class:`jobs.Job <jobs.Job>` object
         :rtype: jobs.Job
         """
-        schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
+        schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics', 'ics_interface_name'))
         json = self.service.encode(schema, resource)
 
         schema = JobSchema()
@@ -218,7 +221,7 @@ class JobsService(object):
         :param resource: :class:`jobs.Job <jobs.Job>` object
         :return: :class:`configs.Interfaces <configs.Interfaces>` list
         """
-        schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
+        schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics', 'ics_interface_name'))
         json = self.service.encode(schema, resource)
 
         schema = InterfacesSchema()
@@ -242,7 +245,7 @@ class JobsService(object):
             jobs_json = self.service.encode(schema, jobs, many=True)
             json[self.RESOURCE] = jobs_json
         elif _fields is not None:
-            schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics'))
+            schema = JobSchema(exclude=('id', 'active', 'status', 'package_name', 'config_name', 'device_name', 'result_id', 'user_id', 'created', 'updated', 'automatic', 'interfaces', 'interface_names', 'uses_wireless', 'uses_ics', 'ics_interface_name'))
             jobs_json = self.service.encode(schema, _fields)
             json['fields'] = jobs_json
 
