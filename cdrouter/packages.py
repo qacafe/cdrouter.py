@@ -50,6 +50,7 @@ class Options(object):
     :param repeat: (optional) Repeat count as an int.
     :param maxfail: (optional) Max fail count as an int.
     :param duration: (optional) Max testing time duration as an int.
+    :param duration_units: (optional) Units for max testing time duration as string.  Must be `seconds`, `minutes`, `hours` or `days`.
     :param duration_interrupt: (optional) Bool `True` if max testing time duration elapsing should interrupt currently running test.
     :param duration_no_error: (optional) Bool `True` if max testing time duration elapsing should not be considered an error.
     :param wait: (optional) Wait between tests duration as an int.
@@ -65,6 +66,7 @@ class Options(object):
         self.repeat = kwargs.get('repeat', None)
         self.maxfail = kwargs.get('maxfail', None)
         self.duration = kwargs.get('duration', None)
+        self.duration_units = kwargs.get('duration_units', None)
         self.duration_interrupt = kwargs.get('duration_interrupt', None)
         self.duration_no_error = kwargs.get('duration_no_error', None)
         self.wait = kwargs.get('wait', None)
@@ -81,6 +83,7 @@ class OptionsSchema(Schema):
     repeat = fields.Int(as_string=True)
     maxfail = fields.Int(as_string=True)
     duration = fields.Int(as_string=True)
+    duration_units = fields.Str(load_default='seconds')
     duration_interrupt = fields.Bool(load_default=False)
     duration_no_error = fields.Bool(load_default=False)
     wait = fields.Int(as_string=True)
