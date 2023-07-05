@@ -67,7 +67,7 @@ test:
     - apk add python3 curl
     - curl -s https://bootstrap.pypa.io/pip/get-pip.py | python3
     - pip3 install tox
-    - tox -p
+    - tox -p --parallel-no-spinner
   interruptible: true
   artifacts:
     name: "cdrouter.py-coverage-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}"
