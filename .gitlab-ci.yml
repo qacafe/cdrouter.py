@@ -64,10 +64,10 @@ test:
       export CDR_DOCKER_IMAGE=$CI_REGISTRY/qacafe/cdrouter/cdrouter/cdrouter:$CDR_DOCKER_VER
     - echo $CDR_DOCKER_IMAGE
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add python3 curl
+    - apk add python3 curl gcc python3-dev musl-dev linux-headers
     - curl -s https://bootstrap.pypa.io/pip/get-pip.py | python3
     - pip3 install tox
-    - tox -p
+    - tox -p --parallel-no-spinner
   interruptible: true
   artifacts:
     name: "cdrouter.py-coverage-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}"
