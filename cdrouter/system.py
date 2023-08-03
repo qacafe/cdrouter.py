@@ -116,7 +116,7 @@ class Upgrade(object):
     """Model for CDRouter Upgrades.
 
     :param success: (optional) Bool `True` if successful.
-    :param installer: (optional) Installer filename as string.
+    :param installer_path: (optional) Installer filename as string.
     :param output: (optional) Output as string.
     :param error: (optional) Error output as string.
     """

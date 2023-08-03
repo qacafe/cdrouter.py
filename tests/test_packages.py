@@ -66,6 +66,9 @@ class TestPackages:
         assert p.options.repeat == 0
         assert p.options.maxfail == 0
         assert p.options.duration == 0
+        assert p.options.duration_units == 'seconds'
+        assert p.options.duration_interrupt is False
+        assert p.options.duration_no_error is False
         assert p.options.wait == 0
         assert p.options.pause is False
         assert p.options.shuffle is False
