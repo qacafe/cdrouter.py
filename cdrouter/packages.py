@@ -66,7 +66,7 @@ class Options(object):
         self.repeat = kwargs.get('repeat', None)
         self.maxfail = kwargs.get('maxfail', None)
         self.duration = kwargs.get('duration', None)
-        self.duration_units = kwargs.get('duration_units', None)
+        self.duration_units = kwargs.get('duration_units', 'seconds')
         self.duration_interrupt = kwargs.get('duration_interrupt', None)
         self.duration_no_error = kwargs.get('duration_no_error', None)
         self.wait = kwargs.get('wait', None)

@@ -65,6 +65,7 @@ class TestJobs:
         assert j.interface_names == ['eth0']
         assert j.uses_wireless is False
         assert j.uses_ics is False
+        assert j.ics_interface_name == ''
 
         with pytest.raises(CDRouterError, match='no such Job'):
             c.jobs.get(9999)
@@ -149,6 +150,7 @@ class TestJobs:
         assert j.interface_names == ['eth0']
         assert j.uses_wireless is False
         assert j.uses_ics is False
+        assert j.ics_interface_name == ''
 
         assert len(list(c.jobs.iter_list())) == 2
 
