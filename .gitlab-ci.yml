@@ -54,6 +54,9 @@ test:
       ref: $UPSTREAM_REF
       artifacts: true
   script:
+    - apk add curl
+    - |
+      export CDR_DOCKER_LICENSE=$(curl -Ls -H "Authorization: Bearer $LOUNGE_API_TOKEN" 'https://admin-lounge.corp.qacafe.com/api/licenses/1864?format=download&ci=true' | base64 - | tr -d '\n')
     - |
       if [ "$UPSTREAM_REF" = "master" ]; then
          CDR_DOCKER_VER=latest
