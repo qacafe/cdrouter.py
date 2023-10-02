@@ -20,6 +20,7 @@ class Metric(object):
     :param test_name: (optional) Test name as a string.
     :param metric: (optional) Metric name as a string.
     :param filename: (optional) Filename as a string.
+    :param log_file: (optional) Log file as a string.
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -29,6 +30,7 @@ class Metric(object):
         self.test_name = kwargs.get('test_name', None)
         self.metric = kwargs.get('metric', None)
         self.filename = kwargs.get('filename', None)
+        self.log_file = kwargs.get('log_file', None)
 
 class MetricSchema(Schema):
     id = fields.Int(as_string=True)
@@ -38,6 +40,7 @@ class MetricSchema(Schema):
     test_name = fields.Str()
     metric = fields.Str()
     filename = fields.Str()
+    log_file = fields.Str(load_default=None)
 
     class Meta:
         unknown = EXCLUDE
@@ -64,6 +67,7 @@ class Bandwidth(object):
     :param loss_percentage_units: (optional) Loss percentage units as a string.
     :param client_device: (optional) Client device as a string.
     :param server_device: (optional) Server device as a string.
+    :param seq: (optional) TestResult sequence ID as an int.
     """
     def __init__(self, **kwargs):
         self.log_file = kwargs.get('log_file', None)
@@ -81,6 +85,7 @@ class Bandwidth(object):
         self.loss_percentage_units = kwargs.get('loss_percentage_units', None)
         self.client_device = kwargs.get('client_device', None)
         self.server_device = kwargs.get('server_device', None)
+        self.seq = kwargs.get('seq', None)
 
 class BandwidthSchema(Schema):
     log_file = fields.Str()
@@ -98,6 +103,7 @@ class BandwidthSchema(Schema):
     loss_percentage_units = fields.Str(load_default=None)
     client_device = fields.Str(load_default=None)
     server_device = fields.Str(load_default=None)
+    seq = fields.Int(as_string=True, load_default=None)
 
     class Meta:
         unknown = EXCLUDE
@@ -120,6 +126,7 @@ class Latency(object):
     :param download_latency_units: (optional) Download latency units as a string.
     :param upload_latency: (optional) Upload latency as an int.
     :param upload_latency_units: (optional) Upload latency units as a string.
+    :param seq: (optional) TestResult sequence ID as an int.
     """
     def __init__(self, **kwargs):
         self.log_file = kwargs.get('log_file', None)
@@ -133,6 +140,7 @@ class Latency(object):
         self.download_latency_units = kwargs.get('download_latency_units', None)
         self.upload_latency = kwargs.get('upload_latency', None)
         self.upload_latency_units = kwargs.get('upload_latency_units', None)
+        self.seq = kwargs.get('seq', None)
 
 class LatencySchema(Schema):
     log_file = fields.Str()
@@ -146,6 +154,7 @@ class LatencySchema(Schema):
     download_latency_units = fields.Str(load_default=None)
     upload_latency = fields.Int(load_default=None)
     upload_latency_units = fields.Str(load_default=None)
+    seq = fields.Int(as_string=True, load_default=None)
 
     class Meta:
         unknown = EXCLUDE
@@ -220,6 +229,7 @@ class GraphMetric(object):
     :param units_2: (optional) Second metric units as a string.
     :param device_1: (optional) First device as a string.
     :param device_2: (optional) Second device as a string.
+    :param seq: (optional) TestResult sequence ID as an int.
     """
     def __init__(self, **kwargs):
         self.log_file = kwargs.get('log_file', None)
@@ -237,6 +247,7 @@ class GraphMetric(object):
         self.units_2 = kwargs.get('units_2', None)
         self.device_1 = kwargs.get('device_1', None)
         self.device_2 = kwargs.get('device_2', None)
+        self.seq = kwargs.get('seq', None)
 
 class GraphMetricSchema(Schema):
     log_file = fields.Str()
@@ -254,6 +265,7 @@ class GraphMetricSchema(Schema):
     units_2 = fields.Str()
     device_1 = fields.Str()
     device_2 = fields.Str()
+    seq = fields.Int(as_string=True, load_default=None)
 
     class Meta:
         unknown = EXCLUDE
