@@ -212,7 +212,7 @@ class TestTestResults:
         assert metrics[0].loss_percentage_units == 'Percentage'
         assert metrics[0].client_device is None
         assert metrics[0].server_device is None
-        assert metrics[0].seq is None
+        assert metrics[0].seq == 0
 
         metrics = c.tests.get_test_metric(r.id, 2, 'client_bandwidth')
         assert len(metrics) == 33
@@ -238,7 +238,7 @@ class TestTestResults:
         assert metrics[0].download_latency_units == 'usec'
         assert metrics[0].upload_latency == 29
         assert metrics[0].upload_latency_units == 'usec'
-        assert metrics[0].seq is None
+        assert metrics[0].seq == 0
 
         with pytest.raises(ValueError, match='unknown metric invalid'):
             c.tests.get_test_metric(r.id, 2, 'invalid')
