@@ -692,11 +692,13 @@ buddy::start_proc my_start_proc
         assert metrics[0].test_name == 'perf_multi_1'
         assert metrics[0].metric == 'bandwidth'
         assert metrics[0].filename == 'perf_multi_1_bandwidth_graph.csv'
+        assert metrics[0].log_file is None
         assert metrics[1].id == 20230310111705
         assert metrics[1].seq == 2
         assert metrics[1].test_name == 'perf_multi_1'
         assert metrics[1].metric == 'client_bandwidth'
         assert metrics[1].filename == 'perf_multi_1_client_bandwidth_details_graph.1.csv'
+        assert metrics[1].log_file is None
 
         (metrics, links) = c.results.list_metrics(r.id, filter=[field('metric').eq('client_bandwidth')], limit='none')
         assert links.total == 40
@@ -707,11 +709,13 @@ buddy::start_proc my_start_proc
         assert metrics[0].test_name == 'perf_multi_1'
         assert metrics[0].metric == 'client_bandwidth'
         assert metrics[0].filename == 'perf_multi_1_client_bandwidth_details_graph.1.csv'
+        assert metrics[0].log_file is None
         assert metrics[1].id == 20230310111705
         assert metrics[1].seq == 3
         assert metrics[1].test_name == 'perf_multi_2'
         assert metrics[1].metric == 'client_bandwidth'
         assert metrics[1].filename == 'perf_multi_2_client_bandwidth_details_graph.1.csv'
+        assert metrics[1].log_file is None
 
         with pytest.raises(CDRouterError, match='no such result'):
             c.results.list_metrics(999999)
@@ -738,6 +742,7 @@ buddy::start_proc my_start_proc
         assert metrics[0].units_2 == 'Percentage'
         assert metrics[0].device_1 == '0'
         assert metrics[0].device_2 == '0'
+        assert metrics[0].seq is None
 
         with pytest.raises(CDRouterError, match='no such metric'):
             c.results.get_test_metric(r.id, 'invalid', 'bandwidth')
