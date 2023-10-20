@@ -165,11 +165,13 @@ class TestTestResults:
         assert metrics[0].test_name == 'perf_multi_1'
         assert metrics[0].metric == 'bandwidth'
         assert metrics[0].filename == 'perf_multi_1_bandwidth_graph.csv'
+        assert metrics[0].log_file is None
         assert metrics[1].id == 20230310111705
         assert metrics[1].seq == 2
         assert metrics[1].test_name == 'perf_multi_1'
         assert metrics[1].metric == 'client_bandwidth'
         assert metrics[1].filename == 'perf_multi_1_client_bandwidth_details_graph.1.csv'
+        assert metrics[1].log_file is None
 
         (metrics, links) = c.tests.list_metrics(r.id, 2, filter=[field('metric').eq('client_bandwidth')], limit='none')
         assert links.total == 1
@@ -180,6 +182,7 @@ class TestTestResults:
         assert metrics[0].test_name == 'perf_multi_1'
         assert metrics[0].metric == 'client_bandwidth'
         assert metrics[0].filename == 'perf_multi_1_client_bandwidth_details_graph.1.csv'
+        assert metrics[0].log_file is None
 
         with pytest.raises(CDRouterError, match='no such test'):
             c.tests.list_metrics(999999, 2)
@@ -209,6 +212,7 @@ class TestTestResults:
         assert metrics[0].loss_percentage_units == 'Percentage'
         assert metrics[0].client_device is None
         assert metrics[0].server_device is None
+        assert metrics[0].seq == 0
 
         metrics = c.tests.get_test_metric(r.id, 2, 'client_bandwidth')
         assert len(metrics) == 33
@@ -234,6 +238,7 @@ class TestTestResults:
         assert metrics[0].download_latency_units == 'usec'
         assert metrics[0].upload_latency == 29
         assert metrics[0].upload_latency_units == 'usec'
+        assert metrics[0].seq == 0
 
         with pytest.raises(ValueError, match='unknown metric invalid'):
             c.tests.get_test_metric(r.id, 2, 'invalid')
