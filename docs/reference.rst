@@ -353,12 +353,6 @@ Update
 .. autoclass:: cdrouter.results.Update
    :members:
 
-Result
-~~~~~~
-
-.. autoclass:: cdrouter.results.Result
-   :members:
-
 Alerts
 ------
 
