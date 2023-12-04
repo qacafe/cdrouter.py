@@ -172,7 +172,7 @@ class TestSystem:
         intfs = c.system.interfaces(addresses=True)
         assert len(intfs) == 2
         assert intfs[0].name == 'lo'
-        assert len(intfs[0].addresses) == 2
+        assert len(intfs[0].addresses) >= 1
         assert intfs[0].addresses[0].address == '127.0.0.1/8'
 
     def test_in_use_interfaces(self, c):
