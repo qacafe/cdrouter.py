@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2023 by QA Cafe.
+# Copyright (c) 2017-2024 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -341,7 +341,7 @@ class TestResultsService(object):
         resp = self.service.edit(self._base(resource.id), resource.seq, json)
         return self.service.decode(schema, resp)
 
-    def list_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, timestamp_format=None): # pylint: disable=invalid-name,redefined-builtin
+    def list_log(self, id, seq, offset=None, limit=None, filter=None, packets=None, warnings=None, timestamp_format=None): # pylint: disable=invalid-name,redefined-builtin
         """Get a test result's log.
 
         :param id: Result ID as an int.
@@ -350,6 +350,7 @@ class TestResultsService(object):
         :param limit: (optional) Limit returned list length.
         :param filter: (optional) Filters to apply as a string list.
         :param packets: (optional) Set to bool `False` to omit packet logs.
+        :param warnings: (optional) Set to bool `False` to omit warning logs.
         :param timestamp_format: (optional) Timestamp format to use, must be string `long` or `short`.
         :return: :class:`testresults.Log <testresults.Log>` object
         :rtype: testresults.Log
@@ -357,7 +358,7 @@ class TestResultsService(object):
         schema = LogSchema()
         resp = self.service.get(self._base(id)+str(seq)+'/log/',
                                 params={'offset': offset, 'limit': limit, 'filter': filter,
-                                        'packets': packets, 'timestamp_format': timestamp_format, 'format': 'json'})
+                                        'packets': packets, 'warnings': warnings, 'timestamp_format': timestamp_format, 'format': 'json'})
         return self.service.decode(schema, resp)
 
     def iter_list_log(self, id, seq, *args, **kwargs): # pylint: disable=invalid-name,redefined-builtin
