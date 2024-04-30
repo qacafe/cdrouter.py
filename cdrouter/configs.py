@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2023 by QA Cafe.
+# Copyright (c) 2017-2024 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -56,14 +56,17 @@ class UpgradeConfig(object):
 
     :param success: (optional) Bool `True` if successful.
     :param output: (optional) Output as string.
+    :param nta_platform: (optional) If config was migrated, the config's new NTA platform.
     """
     def __init__(self, **kwargs):
         self.success = kwargs.get('success', None)
         self.output = kwargs.get('output', None)
+        self.nta_platform = kwargs.get('nta_platform', None)
 
 class UpgradeConfigSchema(Schema):
     success = fields.Bool()
     output = fields.Str()
+    nta_platform = fields.Str(load_default=None)
 
     class Meta:
         unknown = EXCLUDE
@@ -180,6 +183,7 @@ class Config(object):
     :param tags: (optional) Tags as string list.
     :param note: (optional) Note as string.
     :param interfaces: (optional) :class:`configs.Interfaces <configs.Interfaces>` list (if a config snapshot).
+    :param nta_platform: (optional) Config NTA platform as string.
     """
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -194,6 +198,7 @@ class Config(object):
         self.tags = kwargs.get('tags', None)
         self.note = kwargs.get('note', None)
         self.interfaces = kwargs.get('interfaces', None)
+        self.nta_platform = kwargs.get('nta_platform', None)
 
 class ConfigSchema(Schema):
     id = fields.Int(as_string=True)
@@ -208,6 +213,7 @@ class ConfigSchema(Schema):
     tags = fields.List(fields.Str())
     note = fields.Str()
     interfaces = fields.Nested(InterfacesSchema, many=True, unknown=EXCLUDE)
+    nta_platform = fields.Str(load_default=None)
 
     class Meta:
         unknown = EXCLUDE
@@ -402,16 +408,18 @@ class ConfigsService(object):
                                  params={'process': 'check'}, json={'contents': contents})
         return self.service.decode(schema, resp)
 
-    def upgrade_config(self, contents):
-        """Process config contents with cdrouter-cli -upgrade-config.
+    def upgrade_config(self, contents, nta_platform=None, migrate=None):
+        """Process config contents with cdrouter-cli -upgrade-config or -migrate-config.
 
         :param contents: Config contents as string.
+        :param nta_platform: (optional) The config's NTA platform as string.
+        :param migrate: (optional) Migrate the config in addition to upgrading it if bool `True`.
         :return: :class:`configs.UpgradeConfig <configs.UpgradeConfig>` object
         :rtype: configs.UpgradeConfig
         """
         schema = UpgradeConfigSchema()
         resp = self.service.post(self.base,
-                                 params={'process': 'upgrade'}, json={'contents': contents})
+                                 params={'process': 'upgrade', 'migrate': migrate}, json={'contents': contents, 'nta_platform': nta_platform})
         return self.service.decode(schema, resp)
 
     def get_networks(self, contents):
@@ -473,20 +481,21 @@ class ConfigsService(object):
         return self.service.bulk_edit(self.base, self.RESOURCE,
                                       _fields, ids=ids, filter=filter, type=type, all=all, testvars=testvars)
 
-    def bulk_upgrade(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_upgrade(self, ids=None, filter=None, type=None, all=False, migrate=None): # pylint: disable=redefined-builtin
         """Bulk upgrade a set of configs.
 
         :param ids: (optional) Int list of config IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
+        :param migrate: (optional) Migrate configs in addition to upgrading them if bool `True`.
         """
         json = {}
         if ids is not None:
             json[self.RESOURCE] = [{'id': str(x)} for x in ids]
 
         return self.service.post(self.base,
-                                 params={'bulk': 'upgrade', 'filter': filter, 'type': type, 'all': all}, json=json)
+                                 params={'bulk': 'upgrade', 'filter': filter, 'type': type, 'all': all, 'migrate': migrate}, json=json)
 
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of configs.

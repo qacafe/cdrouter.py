@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2023 by QA Cafe.
+# Copyright (c) 2017-2024 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -49,6 +49,7 @@ class Info(object):
     :param nag: (optional) Bool `True` if should nag leading up to license expiration.
     :param os: (optional) OS name as string.
     :param os_type: (optional) OS type as string.
+    :param nta_platform: (optional) NTA platform as string.
     :param serial_number: (optional) NTA serial number as string.
     :param system_id: (optional) CDRouter system ID as string.
     :param testsuite: (optional) CDRouter testsuite name as string.
@@ -70,6 +71,7 @@ class Info(object):
         self.nag = kwargs.get('nag', None)
         self.os = kwargs.get('os', None)
         self.os_type = kwargs.get('os_type', None)
+        self.nta_platform = kwargs.get('nta_platform', None)
         self.serial_number = kwargs.get('serial_number', None)
         self.system_id = kwargs.get('system_id', None)
         self.testsuite = kwargs.get('testsuite', None)
@@ -91,6 +93,7 @@ class InfoSchema(Schema):
     nag = fields.Bool(load_default=None)
     os = fields.Str()
     os_type = fields.Str(load_default=None)
+    nta_platform = fields.Str(load_default=None)
     serial_number = fields.Str()
     system_id = fields.Str()
     testsuite = fields.Str()
