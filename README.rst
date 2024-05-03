@@ -25,6 +25,79 @@ Documentation
 
 See http://cdrouterpy.readthedocs.io/.
 
+Publishing a New Release
+========================
+
+To publish a new release of cdrouter.py, first ensure you have met the
+following prerequisites:
+
+- You have Docker installed and running
+  (https://docs.docker.com/engine/install/).
+
+- You have SSH keys in ``~/.ssh`` which allow you to push changes to
+  this repository.
+
+- You have your Git ``user.name`` and ``user.email`` config parameters
+  set appropriately.  If you have not already done so, set them by
+  running:
+
+  .. code-block:: bash
+
+      $ git config --global user.name "Your Name"
+      $ git config --global user.email you@qacafe.com
+
+- You have installed a PyPI (https://pypi.org/) token which gives you
+  permission to upload packages for https://pypi.org/project/cdrouter/
+  in your ``~/.pypirc``.  Your ``~/.pypirc`` file should have the
+  following ``[pypi]`` section (see
+  https://packaging.python.org/en/latest/specifications/pypirc/#using-a-pypi-token):
+
+  .. code-block::
+
+      [pypi]
+      username = __token__
+      password = <insert-PyPI-token-here>
+
+- You have the ``master`` branch checked out and are up to date with
+  ``origin``.
+
+Once you have met the above prerequisites, from the root of this
+repository run ``./docker.sh /bin/bash``:
+
+.. code-block:: bash
+
+    $ ./docker.sh /bin/bash
+
+This will mount your local repository in an ephemeral Docker
+container, install cdrouter.py into the container and drop you into a
+``/bin/bash`` shell.  To publish a new release, run ``./manage.sh
+publish`` from within the container:
+
+.. code-block:: bash
+
+    $ ./manage.sh publish
+
+You will be prompted for the version number ``<version>`` to use for
+the new release.  Enter it without any leading ``v`` (for example,
+enter ``1.2.3``, not ``v1.2.3``) and press ``<Enter>``.  After release
+has been built, you will be asked to confirm one last time.  Press
+``Ctrl+C`` to abort, otherwise press ``<Enter>`` to publish the
+release.  Publishing the release will do the following:
+
+- ``__version__`` in ``cdrouter/__init__.py`` will be set to
+  ``<version>`` and these changes will be pushed to ``origin/master``.
+
+- A new ``v<version>`` tag will be created (for example, if
+  ``<version>`` is ``1.2.3``, a ``v1.2.3`` tag will be created) and
+  the new tag will be pushed to ``origin``.
+
+- A new ``<version>`` release of cdrouter
+  (https://pypi.org/project/cdrouter) will be uploaded to PyPI.
+
+Assuming there are no errors, congratulations!  You have published a
+new release of cdrouter.  Run ``exit`` or type ``Ctrl-D`` to exit out
+of the ephemeral Docker container and return to your normal prompt.
+
 Unit Tests
 ==========
 
