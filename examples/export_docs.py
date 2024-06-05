@@ -10,8 +10,6 @@ def usage():
     print()
     print('usage: <base_url> <token> <extension>')
     print()
-    print('Print test case descriptions in CSV format')
-    print()
     print('extensions:')
     print('  "Apple HomeKit", BBF.069, CDRouter, DOCSIS, IKE, IPv6,')
     print('  Multiport, Performance, SNMP, Security, Storage,')
