@@ -63,39 +63,43 @@ def my_cdrouter():
         volumes=container_volumes)
     container.start()
 
-    info = docker.APIClient().inspect_container(container.id)
+    try:
+        info = docker.APIClient().inspect_container(container.id)
 
-    ip = info['NetworkSettings']['Gateway']
-    port = info['NetworkSettings']['Ports']['80/tcp'][0]['HostPort']
-    base = 'http://{}:{}'.format(ip, port)
-    c = CDRouter(base)
-    port_https = info['NetworkSettings']['Ports']['443/tcp'][0]['HostPort']
-    base_https = 'https://{}:{}'.format(ip, port_https)
-    c_https = CDRouter(base_https, insecure=True)
+        ip = info['NetworkSettings']['Gateway']
+        port = info['NetworkSettings']['Ports']['80/tcp'][0]['HostPort']
+        base = 'http://{}:{}'.format(ip, port)
+        c = CDRouter(base)
+        port_https = info['NetworkSettings']['Ports']['443/tcp'][0]['HostPort']
+        base_https = 'https://{}:{}'.format(ip, port_https)
+        c_https = CDRouter(base_https, insecure=True)
 
-    ok = False
-    exit_code = 3
-    timeout = time() + 30
-    while ok is False and time() < timeout:
-        (exit_code, _) = container.exec_run(['/usr/cdrouter/etc/cdrouter.sh', 'status'])
-        if exit_code == 0:
-            ok = True
-            break
-        sleep(0.5)
-    if ok is False:
-        raise ValueError('unable to start cdrouter')
-
-    ok = False
-    timeout = time() + 30
-    while ok is False and time() < timeout:
-        try:
-            c.system.time()
-            ok = True
-            break
-        except: # pylint: disable=bare-except
+        ok = False
+        exit_code = 3
+        timeout = time() + 30
+        while ok is False and time() < timeout:
+            (exit_code, _) = container.exec_run(['/usr/cdrouter/etc/cdrouter.sh', 'status'])
+            if exit_code == 0:
+                ok = True
+                break
             sleep(0.5)
-    if ok is False:
-        raise ValueError('unable to connect to cdrouter')
+        if ok is False:
+            raise ValueError('unable to start cdrouter')
+
+        ok = False
+        timeout = time() + 30
+        while ok is False and time() < timeout:
+            try:
+                c.system.time()
+                ok = True
+                break
+            except: # pylint: disable=bare-except
+                sleep(0.5)
+        if ok is False:
+            raise ValueError('unable to connect to cdrouter')
+    except:
+        container.stop(timeout=0)
+        raise
 
     yield {
         'container':  container,
