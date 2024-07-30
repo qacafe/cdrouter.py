@@ -21,3 +21,4 @@ them or modify them to suit your needs.
 | **[result_diff.py](result_diff.py)**                       | Run the *"Diff Results"* tool against several results and print results
 | **[validate_package.py](validate_package.py)**             | Check whether a test package will run without config errors or skipped tests
 | **[export_docs.py](export_docs.py)**                       | Print test case descriptions in CSV format
+| **[cdrouter-transfer.py](cdrouter-transfer.py)**           | Transfer resources from remote CDRouter system to local system
