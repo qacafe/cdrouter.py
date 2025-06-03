@@ -6,6 +6,7 @@
 """Module for accessing CDRouter Results."""
 
 from collections import namedtuple
+from warnings import deprecated
 import io
 
 from requests_toolbelt.downloadutils import stream
@@ -979,6 +980,7 @@ class ResultsService(object):
         rs, l = self.service.decode(schema, resp, many=True, links=True)
         return MetricPage(rs, l)
 
+    @deprecated("use TestResultsService.get_test_metric instead")
     def get_test_metric(self, id, tname, metric): # pylint: disable=invalid-name,redefined-builtin
         """Get a test graph metric.  This method is only for getting "bandwidth" or "latency" test metrics.
 
