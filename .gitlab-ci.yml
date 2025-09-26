@@ -1,7 +1,7 @@
 variables:
   GIT_DEPTH: 1
   UPSTREAM_REF:
-    value: master
+    value: development
     description: "Name of upstream (cdrouter) branch. Variable used by test job."
 
 stages:
