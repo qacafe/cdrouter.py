@@ -50,7 +50,7 @@ test:
   stage: build
   needs:
     - project: qacafe/cdrouter/cdrouter
-      job: releases
+      job: docker
       ref: $UPSTREAM_REF
       artifacts: true
   script:
@@ -58,12 +58,6 @@ test:
     - |
       export CDR_DOCKER_LICENSE=$(curl -Ls -H "Authorization: Bearer $LOUNGE_API_TOKEN" 'https://admin-lounge.corp.qacafe.com/api/licenses/2073?format=download&ci=true' | base64 - | tr -d '\n')
     - |
-      if [ "$UPSTREAM_REF" = "master" ]; then
-         CDR_DOCKER_VER=latest
-      else
-         CDR_RELEASE=$(find out/releases -type f -regex .\*/cdrouter-[0-9].\* -print)
-         CDR_DOCKER_VER=$(basename $CDR_RELEASE | sed -e 's/cdrouter-\(.*\)\.qacafe\.x86_64.rpm/\1/')
-      fi
       export CDR_DOCKER_IMAGE=$CI_REGISTRY/qacafe/cdrouter/cdrouter/cdrouter:$CDR_DOCKER_VER
     - echo $CDR_DOCKER_IMAGE
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
