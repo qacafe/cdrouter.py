@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2023 by QA Cafe.
+# Copyright (c) 2022-2025 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -69,7 +69,7 @@ class TestResults:
         assert r.package_name == 'Cisco E4200 DHCPv4 relay-nofatal'
         assert r.device_name == 'Cisco E4200'
         assert r.config_name == 'Cisco E4200'
-        assert r.package_id == 19
+        assert r.package_id == 20
         assert r.device_id == 2
         assert r.config_id == 2
         assert r.note == ''
