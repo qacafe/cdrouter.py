@@ -103,7 +103,7 @@ class TestImports:
         assert len(impreq.packages) == 1
         assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].name == ''
         assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].should_import is False
-        assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].existing_id == 19
+        assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].existing_id == 21
         assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].response.imported is False
         assert len(impreq.results) == 1
         assert impreq.results['20220821222306'].name is None
@@ -127,7 +127,7 @@ class TestImports:
         assert impreq.devices['Cisco E4200'].response.message is None
         assert len(impreq.packages) == 1
         assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].response.imported is True
-        assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].response.id == 19
+        assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].response.id == 21
         assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].response.name == 'Cisco E4200 DHCPv4 relay-nofatal'
         assert impreq.packages['Cisco E4200 DHCPv4 relay-nofatal'].response.message is None
         assert len(impreq.results) == 1

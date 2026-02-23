@@ -11,13 +11,13 @@ class TestHistory:
 
         (history, links) = c.history.list()
         assert links.current == 1
-        assert len(history) == 18
+        assert len(history) == 20
 
         import_all_from_file(c, 'tests/testdata/example.gz')
 
         (history, links) = c.history.list()
         assert links.current == 1
-        assert len(history) == 22
+        assert len(history) == 24
         assert history[0].user_id == u.id
         assert history[0].resource == 'result'
         assert history[0].id == 20220821222306
@@ -28,12 +28,12 @@ class TestHistory:
     def test_iter_list(self, c):
         u = c.users.get_by_name('admin')
 
-        assert len(list(c.history.iter_list(limit=1))) == 18
+        assert len(list(c.history.iter_list(limit=1))) == 20
 
         import_all_from_file(c, 'tests/testdata/example.gz')
 
         history = list(c.history.iter_list(limit=1))
-        assert len(history) == 22
+        assert len(history) == 24
         assert history[0].user_id == u.id
         assert history[0].resource == 'result'
         assert history[0].id == 20220821222306
