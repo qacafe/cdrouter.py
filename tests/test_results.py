@@ -69,7 +69,7 @@ class TestResults:
         assert r.package_name == 'Cisco E4200 DHCPv4 relay-nofatal'
         assert r.device_name == 'Cisco E4200'
         assert r.config_name == 'Cisco E4200'
-        assert r.package_id == 20
+        assert r.package_id == 22
         assert r.device_id == 2
         assert r.config_id == 2
         assert r.note == ''
