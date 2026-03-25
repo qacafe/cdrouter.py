@@ -197,3 +197,14 @@ class TestSystem:
         assert prefs.lounge_url == new
         prefs = c.system.get_preferences()
         assert prefs.lounge_url == new
+
+    def test_show_hostname_in_title(self, c):
+        prefs = c.system.get_preferences()
+        original = prefs.show_hostname_in_title
+        prefs.show_hostname_in_title = not original
+        prefs = c.system.edit_preferences(prefs)
+        assert prefs.show_hostname_in_title == (not original)
+        prefs = c.system.get_preferences()
+        assert prefs.show_hostname_in_title == (not original)
+        prefs.show_hostname_in_title = original
+        c.system.edit_preferences(prefs)

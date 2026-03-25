@@ -283,6 +283,7 @@ class Preferences(object):
     :param cloudshark_appliance_url: (optional) CloudShark Appliance URL as a string.
     :param cloudshark_appliance_username: (optional) CloudShark Appliance username as a string.
     :param hostname: (optional) CDRouter system's hostname as a string.
+    :param show_hostname_in_title: (optional) Bool `True` if the hostname is shown in the browser title.
     :param migrated: (optional) Migrated resources as a string list.
     :param port: (optional) CDRouter's HTTP port as an int.
     :param https: (optional) CDRouter's HTTPS port as an int.
@@ -303,6 +304,7 @@ class Preferences(object):
         self.cloudshark_appliance_url = kwargs.get('cloudshark_appliance_url', None)
         self.cloudshark_appliance_username = kwargs.get('cloudshark_appliance_username', None)
         self.hostname = kwargs.get('hostname', None)
+        self.show_hostname_in_title = kwargs.get('show_hostname_in_title', None)
         self.migrated = kwargs.get('migrated', None)
         self.port = kwargs.get('port', None)
         self.https = kwargs.get('https', None)
@@ -323,6 +325,7 @@ class PreferencesSchema(Schema):
     cloudshark_appliance_url = fields.Str()
     cloudshark_appliance_username = fields.Str()
     hostname = fields.Str()
+    show_hostname_in_title = fields.Bool()
     migrated = fields.List(fields.Str())
     port = fields.Int()
     https = fields.Int()
