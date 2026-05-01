@@ -17,8 +17,8 @@ from .utils import cdrouter_version, my_cdrouter, my_c, import_all_from_file # p
 class TestPackages:
     def test_list(self, c):
         (packages, links) = c.packages.list()
-        assert links.total == 20
-        assert len(packages) == 20
+        assert links.total == 21
+        assert len(packages) == 21
 
         for ii in range(1, 6):
             p = Package(
@@ -27,11 +27,11 @@ class TestPackages:
             c.packages.create(p)
 
         (packages, links) = c.packages.list(limit=1)
-        assert links.total == 25
-        assert links.last == 25
+        assert links.total == 26
+        assert links.last == 26
 
     def test_iter_list(self, c):
-        assert len(list(c.packages.iter_list(limit=1))) == 20
+        assert len(list(c.packages.iter_list(limit=1))) == 21
 
         for ii in range(1, 6):
             p = Package(
@@ -39,7 +39,7 @@ class TestPackages:
             )
             c.packages.create(p)
 
-        assert len(list(c.packages.iter_list(limit=1))) == 25
+        assert len(list(c.packages.iter_list(limit=1))) == 26
 
     def test_get(self, c):
         u = c.users.get_by_name('admin')
@@ -164,18 +164,18 @@ class TestPackages:
         assert p.testlist == new_testlist
 
     def test_delete(self, c):
-        assert len(list(c.packages.iter_list())) == 20
+        assert len(list(c.packages.iter_list())) == 21
 
         p = Package(
             name='My package',
         )
         p2 = c.packages.create(p)
 
-        assert len(list(c.packages.iter_list())) == 21
+        assert len(list(c.packages.iter_list())) == 22
 
         c.packages.delete(p2.id)
 
-        assert len(list(c.packages.iter_list())) == 20
+        assert len(list(c.packages.iter_list())) == 21
 
         with pytest.raises(CDRouterError, match='no such package'):
             c.packages.get(p2.id)
