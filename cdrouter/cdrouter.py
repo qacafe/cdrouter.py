@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2023 by QA Cafe.
+# Copyright (c) 2017-2026 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -9,6 +9,7 @@ import io
 import os
 import re
 from threading import Lock
+from urllib.parse import unquote
 import requests
 from requests_toolbelt.downloadutils import stream
 from requests_toolbelt import sessions
@@ -34,6 +35,7 @@ from .highlights import HighlightsService
 from .imports import ImportsService
 from .exports import ExportsService
 from .history import HistoryService
+from .customfiles import CustomFilesService
 from .system import SystemService
 from .tags import TagsService
 from .testsuites import TestsuitesService
@@ -258,6 +260,8 @@ class CDRouter(object):
         self.exports = ExportsService(self)
         #: :class:`history.HistoryService <history.HistoryService>` object
         self.history = HistoryService(self)
+        #: :class:`customfiles.CustomFilesService <customfiles.CustomFilesService>` object
+        self.custom_files = CustomFilesService(self)
         #: :class:`system.SystemService <system.SystemService>` object
         self.system = SystemService(self)
         #: :class:`tags.TagsService <tags.TagsService>` object
@@ -337,9 +341,13 @@ class CDRouter(object):
 
     def filename(self, resp, filename=None):
         if 'content-disposition' in resp.headers:
-            m = re.search('filename="([^"]+)"', resp.headers['content-disposition'])
+            m = re.search(r"filename\*=UTF-8''([^\s;]+)", resp.headers['content-disposition'])
             if m is not None:
-                filename = m.group(1)
+                filename = unquote(m.group(1))
+            else:
+                m = re.search(r'filename="([^"]+)"', resp.headers['content-disposition'])
+                if m is not None:
+                    filename = m.group(1)
         return filename
 
     def export(self, base, id, format='gz', params=None): # pylint: disable=invalid-name,redefined-builtin

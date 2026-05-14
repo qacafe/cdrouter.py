@@ -614,6 +614,21 @@ Page
 .. autoclass:: cdrouter.history.Page
    :members:
 
+Custom Files
+------------
+
+CustomFilesService
+~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cdrouter.customfiles.CustomFilesService
+   :members:
+
+FileInfo
+~~~~~~~~
+
+.. autoclass:: cdrouter.customfiles.FileInfo
+   :members:
+
 System
 ------
 
