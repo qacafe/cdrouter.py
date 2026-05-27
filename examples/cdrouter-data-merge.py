@@ -15,6 +15,11 @@ package import) do not block subsequent packages.
 With --force, packages are imported and existing configs/devices are
 overwritten in place, unless any of the three (package, config, device)
 is locked. Add --force-locked to also overwrite locked items.
+
+Remote resources are iterated lazily — list metadata is fetched on demand
+in pages rather than materialised up front — so the tool's memory
+footprint stays bounded even when the remote system holds many thousands
+of results.
 """
 
 import argparse
@@ -39,7 +44,7 @@ except ImportError:
 
 LOCAL_URL = "http://localhost"
 NEW_USER_PASSWORD = "cdrouter"
-DISK_HEADROOM_BYTES = 1 * 1024 ** 3  # 1 GB fixed headroom
+DISK_HEADROOM_BYTES = 5 * 1024 ** 3  # 5 GB fixed headroom
 TEMP_BASE_DIR = "/tmp"
 
 IMPORT_ORDER = ["users", "packages", "configs", "devices", "results"]
@@ -56,14 +61,18 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  Merge all assets from a remote system (add -r and -l to skip login prompts)
+  Merge all assets from a remote system (add -r and -l to skip login prompts).
+  By default, original resource ownership is preserved from the remote system:
     cdrouter-data-merge.py https://remote.example.com
 
   Proceed without user confirmation
     cdrouter-data-merge.py https://remote.example.com --yes
 
-  Preserve original resource ownership:
-    cdrouter-data-merge.py https://remote.example.com --preserve-ownership
+  Assign all imported resources to a specific local user:
+    cdrouter-data-merge.py https://remote.example.com --owner alice
+
+  Allow connections to systems with self-signed/invalid TLS certificates:
+    cdrouter-data-merge.py https://remote.example.com --insecure
 
   Overwrite existing assets (but skip locked ones):
     cdrouter-data-merge.py https://remote.example.com --force
@@ -96,11 +105,19 @@ Examples:
     )
 
     parser.add_argument(
-        "--preserve-ownership",
+        "--owner",
+        default=None,
+        metavar="USERNAME",
+        help=("Assign all imported resources to the given local user. The "
+              "username must already exist on the local system. When omitted, "
+              "original ownership from the remote system is preserved")
+    )
+
+    parser.add_argument(
+        "--insecure",
         action="store_true",
-        help=("Preserve original resource ownership from the remote system. "
-              "Owners that don't exist on the local system will be created "
-              "as new users")
+        help=("Allow connections to CDRouter systems with self-signed or "
+              "otherwise invalid TLS certificates")
     )
 
     parser.add_argument(
@@ -119,27 +136,32 @@ Examples:
     parser.add_argument(
         "--force-locked",
         action="store_true",
-        help=("With --force, also overwrite locked assets. Has no effect "
-              "without --force")
+        help="With --force, also overwrite locked assets. Requires --force."
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.force_locked and not args.force:
+        parser.error("--force-locked requires --force")
+    return args
 
 
 # ---------------------------------------------------------------------------
 # Connection
 # ---------------------------------------------------------------------------
 
-def connect(url, token, label):
+def connect(url, token, label, insecure=False):
     """Connect to a CDRouter system. The cdrouter library will prompt for
     credentials interactively if no token is supplied.
+
+    `insecure` disables TLS certificate verification — only set it when
+    the user has explicitly opted in via --insecure.
 
     Returns (client, hostname). hostname is the value reported by the
     remote system itself via system.hostname() — used for display.
     """
     print(f"Connecting to {label} system: {url}")
     try:
-        c = CDRouter(url, token=token, insecure=True)
+        c = CDRouter(url, token=token, insecure=insecure)
         hostname = c.system.hostname()
         print(f"  Connected to {label} system: {url} ('{hostname}')")
         return c, hostname
@@ -150,60 +172,114 @@ def connect(url, token, label):
 
 
 # ---------------------------------------------------------------------------
-# Remote resource fetch
+# Remote resource counts and sizes (lazy)
 # ---------------------------------------------------------------------------
 
-def fetch_remote_resources(remote, remote_hostname):
-    """Fetch all assets from the remote system."""
-    print(f"\nFetching resources from remote system '{remote_hostname}'...")
-    services = {
-        "users":    remote.users,
-        "packages": remote.packages,
-        "configs":  remote.configs,
-        "devices":  remote.devices,
-        "results":  remote.results,
+def _resource_services(client):
+    """Map of asset_type -> service for the five asset types we handle."""
+    return {
+        "users":    client.users,
+        "packages": client.packages,
+        "configs":  client.configs,
+        "devices":  client.devices,
+        "results":  client.results,
     }
-    resources = {}
-    for asset_type, service in services.items():
-        print(f"  Fetching {asset_type:9}...", end="", flush=True)
+
+
+def fetch_remote_counts(remote, remote_hostname):
+    """Fetch the per-asset-type counts from the remote system using a
+    single one-element page request per type. Returns a dict keyed by
+    asset_type. Items themselves are not materialised — the import
+    functions iterate lazily later.
+    """
+    print(f"\nFetching resource counts from remote system "
+          f"'{remote_hostname}'...")
+    counts = {}
+    for asset_type, service in _resource_services(remote).items():
+        print(f"  Counting {asset_type:9}...", end="", flush=True)
         try:
-            items = list(service.iter_list(detailed=True))
-            resources[asset_type] = items
-            print(f" {len(items):4} found")
+            page = service.list(limit=1, page=1)
+            if page.links is not None and page.links.total is not None:
+                count = page.links.total
+            else:
+                count = len(page.data)
+            counts[asset_type] = count
+            print(f" {count:4} found")
         except CDRouterError as e:
-            print(f"\n  Error fetching {asset_type}: {e}", file=sys.stderr)
+            print(f"\n  Error counting {asset_type}: {e}", file=sys.stderr)
             sys.exit(1)
-    return resources
+    return counts
+
+
+def compute_total_result_size(remote):
+    """Sum size_on_disk across all remote results. Iterates result metadata
+    lazily (non-detailed list) without materialising the full set; only a
+    running total is kept.
+    """
+    total = 0
+    try:
+        for r in remote.results.iter_list():
+            total += getattr(r, "size_on_disk", 0) or 0
+    except CDRouterError as e:
+        print(f"Warning: Could not compute total result size: {e}",
+              file=sys.stderr)
+        return None
+    return total
 
 
 # ---------------------------------------------------------------------------
 # Local lookup helpers
 # ---------------------------------------------------------------------------
 
+def _is_not_found(e):
+    """True if a CDRouterError represents a missing resource rather than a
+    real API failure.
+
+    The cdrouter library reports "not found" in two distinct ways:
+      * via HTTP 404 on get-by-id paths (the CDRouterError carries the
+        underlying response), and
+      * via the literal message "no such <type>" raised by get_by_name
+        when the filtered list comes back empty.
+    """
+    resp = getattr(e, "response", None)
+    if resp is not None and getattr(resp, "status_code", None) == 404:
+        return True
+    return str(e).startswith("no such ")
+
+
 def get_local_resource_by_name(local, asset_type, name):
-    """Look up a resource on the local system by name. None if not found."""
+    """Look up a resource on the local system by name. Returns None if
+    the resource does not exist. Re-raises CDRouterError on real API
+    failures so they don't get silently swallowed.
+    """
     if not name:
         return None
     try:
         return getattr(local, asset_type).get_by_name(name)
-    except CDRouterError:
-        return None
+    except CDRouterError as e:
+        if _is_not_found(e):
+            return None
+        raise
 
 
 def get_local_user_by_name(local, username):
     """Look up a user on the local system by name. None if not found."""
     try:
         return local.users.get_by_name(username)
-    except CDRouterError:
-        return None
+    except CDRouterError as e:
+        if _is_not_found(e):
+            return None
+        raise
 
 
 def get_local_result_by_id(local, result_id):
     """Look up a result on the local system by ID. None if not found."""
     try:
         return local.results.get(result_id)
-    except CDRouterError:
-        return None
+    except CDRouterError as e:
+        if _is_not_found(e):
+            return None
+        raise
 
 
 def is_locked(resource):
@@ -215,22 +291,22 @@ def is_locked(resource):
 # Disk space check
 # ---------------------------------------------------------------------------
 
-def check_disk_space(local, results):
+def check_disk_space(local, total_result_size):
     """Check whether the local system has enough disk space for all results,
-    plus a fixed 1 GB of headroom.
+    plus the fixed DISK_HEADROOM_BYTES of headroom.
 
-    Returns (ok, total_result_size, available_space). available_space is
-    None if the disk-space query fails (proceed with a warning).
+    Returns (ok, available_space). available_space is None if the
+    disk-space query fails (proceed with a warning).
     """
-    total_size = sum(getattr(r, "size_on_disk", 0) or 0 for r in results)
+    size = total_result_size or 0
     try:
         available = local.system.space().avail
     except CDRouterError as e:
         print(f"Warning: Could not determine local disk space: {e}",
               file=sys.stderr)
-        return True, total_size, None
-    required = total_size + DISK_HEADROOM_BYTES
-    return available >= required, total_size, available
+        return True, None
+    required = size + DISK_HEADROOM_BYTES
+    return available >= required, available
 
 
 # ---------------------------------------------------------------------------
@@ -248,21 +324,31 @@ def format_bytes(n):
     return f"{n:.2f} PB"
 
 
-def print_preflight_summary(args, resources, total_result_size, available_space):
+def print_preflight_summary(args, counts, total_result_size, available_space,
+                            remote_hostname, local_hostname):
     """Print a summary of what is about to be imported."""
     print("\n" + "=" * 60)
     print("MERGE SUMMARY")
     print("=" * 60)
-    print(f"  Remote system     : {args.remote_url}")
-    print(f"  Local system      : {LOCAL_URL}")
-    print(f"  Force             : {'Yes' if args.force else 'No'}")
-    print(f"  Force locked      : {'Yes' if args.force_locked else 'No'}")
-    print(f"  Preserve ownership: {'Yes' if args.preserve_ownership else 'No'}")
+    print(f"  Remote system : {args.remote_url} ('{remote_hostname}')")
+    print(f"  Local system  : {LOCAL_URL} ('{local_hostname}')")
+    print(f"  Insecure TLS  : {'Yes' if args.insecure else 'No'}")
+    print(f"  Force         : {'Yes' if args.force else 'No'}")
+    print(f"  Force locked  : {'Yes' if args.force_locked else 'No'}")
+    print(f"  Owner         : "
+          f"{args.owner if args.owner else '(preserve original)'}")
     print()
     print("  Resources to import:")
     for asset_type in IMPORT_ORDER:
-        count = len(resources.get(asset_type, []))
+        count = counts.get(asset_type, 0)
         print(f"    {asset_type.capitalize():<9}: {count}")
+    print()
+    if args.owner:
+        print(f"  Ownership: all imported resources will be owned by "
+              f"'{args.owner}'.")
+    else:
+        print("  Ownership: all imported resources will be owned by their "
+              "original users.")
     print()
     print(f"  New users will be created with default password: "
           f"'{NEW_USER_PASSWORD}'")
@@ -275,7 +361,7 @@ def print_preflight_summary(args, resources, total_result_size, available_space)
     print("    * The --force and --force-locked options overwrite any")
     print("      existing config or device imported with a package.")
     print()
-    if resources.get("results"):
+    if counts.get("results"):
         print(f"  Total result size to transfer : "
               f"{format_bytes(total_result_size)}")
         if available_space is not None:
@@ -289,22 +375,38 @@ def print_preflight_summary(args, resources, total_result_size, available_space)
 # ---------------------------------------------------------------------------
 
 def make_temp_dir():
-    """Create a unique temp subdirectory under TEMP_BASE_DIR."""
+    """Create a single per-run temp subdirectory under TEMP_BASE_DIR. The
+    caller is responsible for removing it at the end of the run (typically
+    via shutil.rmtree in a finally block in main()).
+    """
     temp_dir = os.path.join(TEMP_BASE_DIR, str(uuid.uuid4()))
     os.makedirs(temp_dir, exist_ok=True)
     return temp_dir
 
 
 def export_and_stage(remote_service, resource_id, local, temp_dir):
-    """Export a resource from the remote, save to temp_dir, and stage on
-    the local system. Returns the staged import Response.
+    """Export a resource from the remote, save into temp_dir, and stage on
+    the local system. The same temp_dir is reused across the whole run;
+    each export is written under a unique filename so they don't collide.
+    Returns the staged import Response.
     """
     data, filename = remote_service.export(resource_id)
     safe_filename = re.sub(r"[^\w.\-]", "_", filename)
-    filepath = os.path.join(temp_dir, safe_filename)
-    with open(filepath, "wb") as f:
-        f.write(data.read())
-    return local.imports.stage_import_from_filesystem(filepath)
+    # Prefix with a uuid to guarantee uniqueness within the shared temp_dir.
+    unique_filename = f"{uuid.uuid4().hex}_{safe_filename}"
+    filepath = os.path.join(temp_dir, unique_filename)
+    try:
+        with open(filepath, "wb") as f:
+            f.write(data.read())
+        return local.imports.stage_import_from_filesystem(filepath)
+    finally:
+        # Drop the staged file as soon as it's been handed to the local
+        # imports service — keeps the shared temp_dir from accumulating
+        # gigabytes of result archives across the run.
+        try:
+            os.remove(filepath)
+        except OSError:
+            pass
 
 
 def commit(local, staged, mode):
@@ -416,19 +518,35 @@ def snapshot_originals(local):
 
 
 # ---------------------------------------------------------------------------
+# Skip-line formatting
+# ---------------------------------------------------------------------------
+
+def _format_skip_line(prefix, name):
+    """Pad `prefix` with two spaces of breathing room before `name`. The
+    resulting line layout is "  <prefix><gap><name>" where <gap> grows
+    with the prefix so all names are visually offset, but we no longer
+    rely on a hard-coded column number tied to specific message wording.
+    """
+    return f"{prefix}  {name}"
+
+
+# ---------------------------------------------------------------------------
 # Import: Users
 # ---------------------------------------------------------------------------
 
-def import_users(remote, local, users, args, stats):
+def import_users(remote, local, total, args, stats):
     """Import users from remote to local. New users get a fixed default
     password ('cdrouter'). Existing local users are never modified.
     The 'admin' user is always skipped.
-    """
-    if not users:
-        return
-    print(f"\n[Users] Importing {len(users)} user(s)...")
 
-    for user in users:
+    Users are iterated lazily from the remote — at most one page of user
+    metadata is held in memory at a time.
+    """
+    if not total:
+        return
+    print(f"\n[Users] Importing {total} user(s)...")
+
+    for user in remote.users.iter_list():
         if user.name == "admin":
             stats["users"]["skipped"] += 1
             continue
@@ -460,8 +578,10 @@ def _resolve_remote_name(service, resource_id):
         return None
     try:
         return service.get(resource_id).name
-    except CDRouterError:
-        return None
+    except CDRouterError as e:
+        if _is_not_found(e):
+            return None
+        raise
 
 
 def _build_skip_reasons(package, config_name, device_name, local_package,
@@ -509,22 +629,7 @@ def _build_skip_reasons(package, config_name, device_name, local_package,
     return reasons
 
 
-# Width to which the prefix of a skip line is padded so the resource name
-# starts at the same column for every package skip line and its sub-bullets.
-# 34 chars accommodates "Skipping package, already exists: ".
-_PKG_NAME_COL = 34
-
-# Same for the config/device main lines (they fit "Skipping config, "
-# rather than "Skipping package, ").
-_CFG_DEV_NAME_COL = 33
-
-
-def _format_skip_line(prefix, name, name_col):
-    """Pad `prefix` with spaces so `name` starts at column `name_col`+1."""
-    return f"{prefix:<{name_col}}{name}"
-
-
-def import_packages(remote, local, packages, originals, args, stats):
+def import_packages(remote, local, total, originals, args, stats, temp_dir):
     """Import packages from remote to local with snapshot-based skip logic.
 
     For each remote package, decide whether to skip based on whether the
@@ -532,12 +637,14 @@ def import_packages(remote, local, packages, originals, args, stats):
     snapshot time (subject to --force / --force-locked). If we proceed,
     delegate to commit() in 'package' mode, which always imports the
     bundled config and device (Solution 1).
-    """
-    if not packages:
-        return
-    print(f"\n[Packages] Importing {len(packages)} package(s)...")
 
-    for package in packages:
+    Packages are iterated lazily from the remote.
+    """
+    if not total:
+        return
+    print(f"\n[Packages] Importing {total} package(s)...")
+
+    for package in remote.packages.iter_list(detailed=True):
         try:
             config_name = _resolve_remote_name(remote.configs, package.config_id)
             device_name = _resolve_remote_name(remote.devices, package.device_id)
@@ -555,25 +662,15 @@ def import_packages(remote, local, packages, originals, args, stats):
                 sub_reasons = [r for r in reasons if r[0] != "package"]
 
                 if pkg_reasons:
-                    # Main line carries the package-level reason; remaining
-                    # config/device reasons (if any) become sub-bullets.
                     _, pkg_reason = pkg_reasons[0]
                     main = f"Skipping package, {pkg_reason}:"
-                    print("  " + _format_skip_line(main, package.name, _PKG_NAME_COL))
-                    for subject, reason in sub_reasons:
-                        sub = f"    - {subject} {reason}:"
-                        sub_name = config_name if subject == "config" else device_name
-                        print("  " + _format_skip_line(sub, sub_name, _PKG_NAME_COL))
                 else:
-                    # Only config/device reasons — main line has no reason
-                    # phrase, just the package name; sub-bullets carry the
-                    # actual reasons.
                     main = "Skipping package:"
-                    print("  " + _format_skip_line(main, package.name, _PKG_NAME_COL))
-                    for subject, reason in sub_reasons:
-                        sub = f"    - {subject} {reason}:"
-                        sub_name = config_name if subject == "config" else device_name
-                        print("  " + _format_skip_line(sub, sub_name, _PKG_NAME_COL))
+                print("  " + _format_skip_line(main, package.name))
+                for subject, reason in sub_reasons:
+                    sub = f"    - {subject} {reason}:"
+                    sub_name = config_name if subject == "config" else device_name
+                    print("  " + _format_skip_line(sub, sub_name))
 
                 stats["packages"]["skipped"] += 1
                 continue
@@ -587,7 +684,6 @@ def import_packages(remote, local, packages, originals, args, stats):
             if device_name and device_name in originals["devices"]:
                 unlock(local.devices, originals["devices"][device_name])
 
-            temp_dir = make_temp_dir()
             try:
                 staged = export_and_stage(remote.packages, package.id,
                                           local, temp_dir)
@@ -596,12 +692,18 @@ def import_packages(remote, local, packages, originals, args, stats):
                 print(f"  {action} package '{package.name}' "
                       f"(config: '{config_name}', device: '{device_name}')")
                 stats["packages"]["imported"] += 1
+                stats["packages"]["imported_keys"].add(package.name)
+                # The bundled config and device were also (re)written as
+                # part of this package import — record them so that
+                # apply_ownership treats them as imported, not skipped.
+                if config_name:
+                    stats["configs"]["imported_keys"].add(config_name)
+                if device_name:
+                    stats["devices"]["imported_keys"].add(device_name)
             except CDRouterError as e:
                 print(f"  Error importing package '{package.name}': {e}",
                       file=sys.stderr)
                 stats["packages"]["errors"] += 1
-            finally:
-                shutil.rmtree(temp_dir, ignore_errors=True)
 
         except CDRouterError as e:
             print(f"  Error processing package '{package.name}': {e}",
@@ -613,7 +715,7 @@ def import_packages(remote, local, packages, originals, args, stats):
 # Import: Configs / Devices (standalone)
 # ---------------------------------------------------------------------------
 
-def import_simple(asset_type, remote, local, items, args, stats):
+def import_simple(asset_type, remote, local, total, args, stats, temp_dir):
     """Import standalone configs or devices.
 
     For each remote resource, skip if it exists locally; with --force,
@@ -629,34 +731,31 @@ def import_simple(asset_type, remote, local, items, args, stats):
     and "locked" are true, "is locked" wins because it requires a different
     flag to override.
     """
-    if not items:
+    if not total:
         return
     singular = asset_type[:-1]
     label = asset_type.capitalize()
-    print(f"\n[{label}] Importing {len(items)} {singular}(s)...")
+    print(f"\n[{label}] Importing {total} {singular}(s)...")
 
     remote_service = getattr(remote, asset_type)
     local_service  = getattr(local,  asset_type)
 
-    for resource in items:
+    for resource in remote_service.iter_list(detailed=True):
         try:
             existing = get_local_resource_by_name(local, asset_type, resource.name)
 
             if existing:
                 if is_locked(existing) and not args.force_locked:
                     main = f"Skipping {singular}, locked:"
-                    print("  " + _format_skip_line(main, resource.name,
-                                                   _CFG_DEV_NAME_COL))
+                    print("  " + _format_skip_line(main, resource.name))
                     stats[asset_type]["skipped"] += 1
                     continue
                 if not args.force:
                     main = f"Skipping {singular}, already exists:"
-                    print("  " + _format_skip_line(main, resource.name,
-                                                   _CFG_DEV_NAME_COL))
+                    print("  " + _format_skip_line(main, resource.name))
                     stats[asset_type]["skipped"] += 1
                     continue
 
-            temp_dir = make_temp_dir()
             try:
                 if existing:
                     unlock(local_service, existing)
@@ -666,12 +765,11 @@ def import_simple(asset_type, remote, local, items, args, stats):
                 action = "Updated" if existing else "Created"
                 print(f"  {action} {singular} '{resource.name}'")
                 stats[asset_type]["imported"] += 1
+                stats[asset_type]["imported_keys"].add(resource.name)
             except CDRouterError as e:
                 print(f"  Error importing {singular} '{resource.name}': {e}",
                       file=sys.stderr)
                 stats[asset_type]["errors"] += 1
-            finally:
-                shutil.rmtree(temp_dir, ignore_errors=True)
 
         except CDRouterError as e:
             print(f"  Error processing {singular} '{resource.name}': {e}",
@@ -683,20 +781,41 @@ def import_simple(asset_type, remote, local, items, args, stats):
 # Import: Results
 # ---------------------------------------------------------------------------
 
-def import_results(remote, local, results, args, stats):
+def _results_look_identical(remote_result, local_result):
+    """Best-effort check that two results sharing an ID actually refer to
+    the same test run. Compares package_name and duration — if either
+    differs, treat them as unrelated and let the caller decide.
+    """
+    rpkg = getattr(remote_result, "package_name", None)
+    lpkg = getattr(local_result,  "package_name", None)
+    rdur = getattr(remote_result, "duration", None)
+    ldur = getattr(local_result,  "duration", None)
+    return rpkg == lpkg and rdur == ldur
+
+
+def import_results(remote, local, total, args, stats, temp_dir):
     """Import results from remote to local. The bundled config, device,
     and package in each result archive are suppressed (they were already
     handled in earlier steps).
 
+    Results are iterated lazily from the remote.
+
+    Result IDs are preserved on import — so the same numeric ID can
+    coincidentally exist on both systems for completely unrelated test
+    runs. With --force, we therefore compare package_name and duration
+    before overwriting; a mismatch is flagged and the import is skipped
+    so the user can resolve the collision manually. (CDRouter does not
+    allow importing a result under a different ID.)
+
     If the remote result has archived=True, the flag is restored on the
     local result after import (the CDRouter import process resets it).
     """
-    if not results:
+    if not total:
         return
-    print(f"\n[Results] Importing {len(results)} result(s)...")
+    print(f"\n[Results] Importing {total} result(s)...")
     print(f"  [A] = archived result")
 
-    for result in results:
+    for result in remote.results.iter_list(detailed=True):
         archived = getattr(result, "archived", False)
         tag = " [A]" if archived else "    "
         existing = get_local_result_by_id(local, result.id)
@@ -704,14 +823,23 @@ def import_results(remote, local, results, args, stats):
         if existing:
             if is_locked(existing) and not args.force_locked:
                 main = "Skipping result, locked:"
-                print("  " + _format_skip_line(main, f"id={result.id}",
-                                               _CFG_DEV_NAME_COL))
+                print("  " + _format_skip_line(main, f"id={result.id}"))
                 stats["results"]["skipped"] += 1
                 continue
             if not args.force:
                 main = "Skipping result, already exists:"
-                print("  " + _format_skip_line(main, f"id={result.id}",
-                                               _CFG_DEV_NAME_COL))
+                print("  " + _format_skip_line(main, f"id={result.id}"))
+                stats["results"]["skipped"] += 1
+                continue
+            # --force is set: refuse to overwrite if the local result
+            # looks like a different test run (ID collision).
+            if not _results_look_identical(result, existing):
+                main = "Skipping result, id collision (different run):"
+                print("  " + _format_skip_line(main, f"id={result.id}"))
+                print(f"    remote: package='{getattr(result, 'package_name', None)}', "
+                      f"duration={getattr(result, 'duration', None)}")
+                print(f"    local : package='{getattr(existing, 'package_name', None)}', "
+                      f"duration={getattr(existing, 'duration', None)}")
                 stats["results"]["skipped"] += 1
                 continue
 
@@ -721,101 +849,133 @@ def import_results(remote, local, results, args, stats):
         print(f"  Importing result id={result.id}{tag} "
               f"(package: '{pkg}', size: {size_str})...")
 
-        temp_dir = make_temp_dir()
+        if existing:
+            unlock(local.results, existing)
         try:
-            if existing:
-                unlock(local.results, existing)
+            staged = export_and_stage(remote.results, result.id, local, temp_dir)
+        except Exception as e:
+            print(f"  Error importing result id={result.id}{tag}: "
+                  f"failed to save export to local temp file: {e}",
+                  file=sys.stderr)
+            stats["results"]["errors"] += 1
+            continue
+
+        try:
+            commit(local, staged, mode="result")
+        except Exception as e:
+            print(f"  Error importing result id={result.id}{tag}: "
+                  f"failed to commit import on local system: {e}",
+                  file=sys.stderr)
+            stats["results"]["errors"] += 1
+            continue
+
+        if archived:
             try:
-                staged = export_and_stage(remote.results, result.id, local, temp_dir)
-            except Exception as e:
-                print(f"  Error importing result id={result.id}{tag}: "
-                      f"failed to save export to local temp file: {e}",
-                      file=sys.stderr)
-                stats["results"]["errors"] += 1
-                continue
+                imported = local.results.get(result.id)
+                imported.archived = True
+                local.results.edit(imported)
+            except CDRouterError as e:
+                print(f"  Warning: Could not restore archived flag on "
+                      f"result id={result.id}: {e}", file=sys.stderr)
 
-            try:
-                commit(local, staged, mode="result")
-            except Exception as e:
-                print(f"  Error importing result id={result.id}{tag}: "
-                      f"failed to commit import on local system: {e}",
-                      file=sys.stderr)
-                stats["results"]["errors"] += 1
-                continue
-
-            if archived:
-                try:
-                    imported = local.results.get(result.id)
-                    imported.archived = True
-                    local.results.edit(imported)
-                except CDRouterError as e:
-                    print(f"  Warning: Could not restore archived flag on "
-                          f"result id={result.id}: {e}", file=sys.stderr)
-
-            stats["results"]["imported"] += 1
-            stats["results"]["bytes"] += getattr(result, "size_on_disk", 0) or 0
-
-        finally:
-            shutil.rmtree(temp_dir, ignore_errors=True)
+        stats["results"]["imported"] += 1
+        stats["results"]["bytes"] += getattr(result, "size_on_disk", 0) or 0
+        stats["results"]["imported_keys"].add(result.id)
 
 
 # ---------------------------------------------------------------------------
 # Ownership
 # ---------------------------------------------------------------------------
 
-def apply_ownership(remote, local, resources, args, stats):
-    """Apply original resource ownership from remote to the imported local
-    resources. For each non-user asset, look up the remote owner's username,
-    find that user on the local system, and set the local resource's owner
-    accordingly.
+def apply_ownership(remote, local, args, stats, override_user=None):
+    """Set ownership on imported local resources.
+
+    Two modes:
+
+      * `override_user is None` (default behavior, no --owner flag):
+        preserve original ownership from the remote. For each non-user
+        asset, look up the remote owner's username, find that user on
+        the local system, and set the local resource's owner accordingly.
+
+      * `override_user is a local User`: assign every imported resource
+        to that single user. No remote owner lookup is performed.
+
+    Only resources that were actually imported by this run are touched.
+    Pre-existing local resources that were skipped during import keep
+    their existing ownership — `stats[type]["imported_keys"]` is the
+    authoritative record of what got written.
+
+    Non-result resources are matched to the local system by name, since
+    their IDs change on import. Results keep their remote ID, so they are
+    matched by ID.
     """
-    print("\n[Ownership] Applying original resource ownership...")
+    if override_user is not None:
+        print(f"\n[Ownership] Assigning all imported resources to "
+              f"'{override_user.name}'...")
+    else:
+        print("\n[Ownership] Applying original resource ownership...")
 
-    service_map = {
-        "configs":  local.configs,
-        "devices":  local.devices,
-        "packages": local.packages,
-        "results":  local.results,
-    }
+    plans = [
+        ("configs",  remote.configs,  local.configs,  "name"),
+        ("devices",  remote.devices,  local.devices,  "name"),
+        ("packages", remote.packages, local.packages, "name"),
+        ("results",  remote.results,  local.results,  "id"),
+    ]
 
-    for asset_type, service in service_map.items():
-        for resource in resources.get(asset_type, []):
-            owner_id = (getattr(resource, "user_id", None)
-                        or getattr(resource, "admin", None))
-            if not owner_id:
+    for asset_type, remote_service, local_service, key in plans:
+        imported_keys = stats[asset_type]["imported_keys"]
+        if not imported_keys:
+            continue
+        for resource in remote_service.iter_list(detailed=True):
+            resource_key = resource.name if key == "name" else resource.id
+            if resource_key not in imported_keys:
+                # This resource was skipped (already existed locally) or
+                # errored during import — don't touch its ownership.
                 continue
+
+            label = getattr(resource, "name", None) or f"id={resource.id}"
+
+            if override_user is not None:
+                target_user_id = override_user.id
+                owner_display  = override_user.name
+            else:
+                owner_id = getattr(resource, "user_id", None)
+                if not owner_id:
+                    continue
+                try:
+                    owner_name = remote.users.get(owner_id).name
+                except CDRouterError:
+                    print(f"  Warning: Could not resolve owner id={owner_id} "
+                          f"for {asset_type} '{label}'", file=sys.stderr)
+                    continue
+                local_user = get_local_user_by_name(local, owner_name)
+                if not local_user:
+                    print(f"  Warning: Owner '{owner_name}' not found on local "
+                          f"system; skipping ownership for {asset_type} "
+                          f"'{label}'", file=sys.stderr)
+                    continue
+                target_user_id = local_user.id
+                owner_display  = owner_name
 
             try:
-                owner_name = remote.users.get(owner_id).name
-            except CDRouterError:
-                print(f"  Warning: Could not resolve owner id={owner_id} "
-                      f"for {asset_type} "
-                      f"'{getattr(resource, 'name', resource.id)}'",
-                      file=sys.stderr)
-                continue
+                if key == "name":
+                    local_resource = get_local_resource_by_name(
+                        local, asset_type, resource.name)
+                else:  # "id"
+                    local_resource = get_local_result_by_id(local, resource.id)
 
-            local_user = get_local_user_by_name(local, owner_name)
-            if not local_user:
-                print(f"  Warning: Owner '{owner_name}' not found on local "
-                      f"system; skipping ownership for {asset_type} "
-                      f"'{getattr(resource, 'name', resource.id)}'",
-                      file=sys.stderr)
-                continue
+                if local_resource is None:
+                    # Resource wasn't imported (skipped, errored, or never
+                    # made it to the local system) — nothing to update.
+                    continue
 
-            try:
-                local_resource = service.get(resource.id)
-                if hasattr(local_resource, "user_id"):
-                    local_resource.user_id = local_user.id
-                if hasattr(local_resource, "admin"):
-                    local_resource.admin = local_user.name
-                service.edit(local_resource)
-                print(f"  Set owner of {asset_type} "
-                      f"'{getattr(resource, 'name', resource.id)}' "
-                      f"to '{owner_name}'")
+                local_resource.user_id = target_user_id
+                local_service.edit(local_resource)
+                print(f"  Set owner of {asset_type} '{label}' "
+                      f"to '{owner_display}'")
             except CDRouterError as e:
                 print(f"  Warning: Could not set ownership for {asset_type} "
-                      f"'{getattr(resource, 'name', resource.id)}': {e}",
-                      file=sys.stderr)
+                      f"'{label}': {e}", file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------
@@ -823,10 +983,21 @@ def apply_ownership(remote, local, resources, args, stats):
 # ---------------------------------------------------------------------------
 
 def make_stats():
-    """Initialize the stats dict."""
-    s = {a: {"imported": 0, "skipped": 0, "errors": 0}
+    """Initialize the stats dict.
+
+    Each per-type entry includes an `imported_keys` set listing the keys
+    of resources that were actually written by this run (created or
+    overwritten). `apply_ownership` consults this set so that resources
+    skipped because they already existed locally are NOT re-owned.
+
+    Key convention:
+      * configs / devices / packages : the resource name (string)
+      * results                      : the resource id (int)
+    """
+    s = {a: {"imported": 0, "skipped": 0, "errors": 0, "imported_keys": set()}
          for a in ("users", "packages", "configs", "devices")}
-    s["results"] = {"imported": 0, "skipped": 0, "errors": 0, "bytes": 0}
+    s["results"] = {"imported": 0, "skipped": 0, "errors": 0, "bytes": 0,
+                    "imported_keys": set()}
     return s
 
 
@@ -862,17 +1033,35 @@ def main():
     args = parse_args()
 
     print()
-    remote, remote_hostname = connect(args.remote_url, args.remote_token, "remote")
+    remote, remote_hostname = connect(args.remote_url, args.remote_token,
+                                      "remote", insecure=args.insecure)
     print()
-    local,  local_hostname  = connect(LOCAL_URL,       args.local_token,  "local")
+    local,  local_hostname  = connect(LOCAL_URL, args.local_token,
+                                      "local",  insecure=args.insecure)
 
-    resources = fetch_remote_resources(remote, remote_hostname)
+    # If --owner was given, the user must already exist on the local system.
+    # Resolve it now so we fail fast (before any pre-flight or import work).
+    override_user = None
+    if args.owner is not None:
+        override_user = get_local_user_by_name(local, args.owner)
+        if override_user is None:
+            print(f"Error: --owner user '{args.owner}' does not exist on the "
+                  f"local system.", file=sys.stderr)
+            sys.exit(1)
 
-    disk_ok, total_result_size, available_space = check_disk_space(
-        local, resources.get("results", []))
+    counts = fetch_remote_counts(remote, remote_hostname)
+
+    if counts.get("results"):
+        print(f"\nComputing total size of {counts['results']} remote result(s)...")
+        total_result_size = compute_total_result_size(remote)
+    else:
+        total_result_size = 0
+
+    disk_ok, available_space = check_disk_space(local, total_result_size)
 
     print(f"\n\nMerging resources into local system '{local_hostname}'...")
-    print_preflight_summary(args, resources, total_result_size, available_space)
+    print_preflight_summary(args, counts, total_result_size, available_space,
+                            remote_hostname, local_hostname)
 
     if not disk_ok:
         print("\nError: Insufficient disk space on local system.",
@@ -896,29 +1085,35 @@ def main():
             sys.exit(0)
 
     stats = make_stats()
+    temp_dir = make_temp_dir()
+    try:
+        # 1. Users (must come first so apply_ownership can find them later)
+        import_users(remote, local, counts["users"], args, stats)
 
-    # 1. Users (must come first so apply_ownership can find them later)
-    import_users(remote, local, resources["users"], args, stats)
+        # 2. Snapshot local configs/devices BEFORE any package imports.
+        originals = snapshot_originals(local)
 
-    # 2. Snapshot local configs/devices BEFORE any package imports.
-    originals = snapshot_originals(local)
+        # 3. Packages (with snapshot-based skip logic; bundled configs/devices
+        #    are imported as part of each package via Solution 1).
+        import_packages(remote, local, counts["packages"], originals,
+                        args, stats, temp_dir)
 
-    # 3. Packages (with snapshot-based skip logic; bundled configs/devices
-    #    are imported as part of each package via Solution 1).
-    import_packages(remote, local, resources["packages"], originals,
-                    args, stats)
+        # 4. Standalone configs and devices (most will be skipped because they
+        #    were already brought in by package imports).
+        import_simple("configs", remote, local, counts["configs"],
+                      args, stats, temp_dir)
+        import_simple("devices", remote, local, counts["devices"],
+                      args, stats, temp_dir)
 
-    # 4. Standalone configs and devices (most will be skipped because they
-    #    were already brought in by package imports).
-    import_simple("configs", remote, local, resources["configs"], args, stats)
-    import_simple("devices", remote, local, resources["devices"], args, stats)
+        # 5. Results
+        import_results(remote, local, counts["results"], args, stats, temp_dir)
 
-    # 5. Results
-    import_results(remote, local, resources["results"], args, stats)
-
-    # 6. Apply ownership if requested
-    if args.preserve_ownership:
-        apply_ownership(remote, local, resources, args, stats)
+        # 6. Ownership — always applied. With --owner, all imported resources
+        #    are assigned to the named user; otherwise original ownership
+        #    from the remote system is preserved.
+        apply_ownership(remote, local, args, stats, override_user=override_user)
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
     print_summary_report(stats, local, total_result_size)
 
