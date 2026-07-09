@@ -2,7 +2,7 @@ variables:
   GIT_DEPTH: 1
   UPSTREAM_REF:
     value: development
-    description: "Name of upstream (cdrouter) branch. Variable used by test job."
+    description: "Name of upstream (cdrouter) branch to pull CDRouter build from. Use `refs/merge-requests/<id>/head` to reference an MR pipeline"
 
 stages:
   - build
