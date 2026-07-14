@@ -324,7 +324,7 @@ class TestConfigs:
 
     @pytest.mark.flaky(reruns=5)
     def test_get_networks(self, c):
-        import_all_from_file(c, 'tests/testdata/example2.gz')
+        import_all_from_file(c, 'tests/testdata/example7.gz')
 
         cfg = c.configs.get_by_name('example.conf')
 
