@@ -343,7 +343,7 @@ class TestConfigs:
         assert networks.children[1].type == 'ethernet-interface'
         assert networks.children[1].side == 'wan'
         assert networks.children[1].title == 'wanMode: DHCP | TR-069, Multicast, RADIUS interface'
-        assert len(networks.children[1].children) == 13
+        assert len(networks.children[1].children) == 12
 
     def test_get_interfaces(self, c):
         import_all_from_file(c, 'tests/testdata/example2.gz')
