@@ -182,6 +182,12 @@ class TestSystem:
         assert intfs[0].flags.in_use is False
         assert intfs[0].flags.is_wireless is False
         assert intfs[0].flags.is_ics is False
+        assert isinstance(intfs[0].driver, str)
+        assert intfs[0].firmware is None
+        assert intfs[0].ethernet_speeds is None
+        assert intfs[0].wifi_modes is None
+        assert intfs[0].wifi_bands is None
+        assert intfs[0].max_clients is None
 
     def test_get_preferences(self, c):
         prefs = c.system.get_preferences()

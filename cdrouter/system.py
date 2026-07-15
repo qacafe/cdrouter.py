@@ -255,14 +255,32 @@ class InUseInterface(object):
 
     :param name: (optional) Interface name as a string.
     :param flags: (optional) :class:`system.InUseInterfaceFlags <system.InUseInterfaceFlags>` object
+    :param driver: (optional) Interface driver as a string.
+    :param firmware: (optional) Interface firmware as a string.
+    :param ethernet_speeds: (optional) Ethernet interface speeds as an int list.
+    :param wifi_modes: (optional) WiFi interface modes as a string list.
+    :param wifi_bands: (optional) WiFi interface bands as a string list.
+    :param max_clients: (optional) Max virtual clients as an int.
     """
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', None)
         self.flags = kwargs.get('flags', None)
+        self.driver = kwargs.get('driver', None)
+        self.firmware = kwargs.get('firmware', None)
+        self.ethernet_speeds = kwargs.get('ethernet_speeds', None)
+        self.wifi_modes = kwargs.get('wifi_modes', None)
+        self.wifi_bands = kwargs.get('wifi_bands', None)
+        self.max_clients = kwargs.get('max_clients', None)
 
 class InUseInterfaceSchema(Schema):
     name = fields.Str()
     flags = fields.Nested(InUseInterfaceFlagsSchema, unknown=EXCLUDE)
+    driver = fields.Str()
+    firmware = fields.Str()
+    ethernet_speeds = fields.List(fields.Int())
+    wifi_modes = fields.List(fields.Str())
+    wifi_bands = fields.List(fields.Str())
+    max_clients = fields.Int()
 
     class Meta:
         unknown = EXCLUDE
