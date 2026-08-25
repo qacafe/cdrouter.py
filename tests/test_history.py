@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2025 by QA Cafe.
+# Copyright (c) 2022-2026 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -11,13 +11,13 @@ class TestHistory:
 
         (history, links) = c.history.list()
         assert links.current == 1
-        assert len(history) == 21
+        assert len(history) == 22
 
         import_all_from_file(c, 'tests/testdata/example.gz')
 
         (history, links) = c.history.list()
         assert links.current == 1
-        assert len(history) == 25
+        assert len(history) == 26
         assert history[0].user_id == u.id
         assert history[0].resource == 'result'
         assert history[0].id == 20220821222306
@@ -28,12 +28,12 @@ class TestHistory:
     def test_iter_list(self, c):
         u = c.users.get_by_name('admin')
 
-        assert len(list(c.history.iter_list(limit=1))) == 21
+        assert len(list(c.history.iter_list(limit=1))) == 22
 
         import_all_from_file(c, 'tests/testdata/example.gz')
 
         history = list(c.history.iter_list(limit=1))
-        assert len(history) == 25
+        assert len(history) == 26
         assert history[0].user_id == u.id
         assert history[0].resource == 'result'
         assert history[0].id == 20220821222306
