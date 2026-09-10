@@ -48,6 +48,7 @@ docker:
 test:
   image: docker:19.03.12-git
   stage: build
+  timeout: 20m
   needs:
     - project: qacafe/cdrouter/cdrouter
       job: docker

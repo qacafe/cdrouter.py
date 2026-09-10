@@ -87,7 +87,7 @@ def my_cdrouter():
             raise ValueError('unable to start cdrouter')
 
         ok = False
-        timeout = time() + 30
+        timeout = time() + 60
         while ok is False and time() < timeout:
             try:
                 c.system.time()
