@@ -24,3 +24,4 @@ them or modify them to suit your needs.
 | **[cdrouter-transfer.py](cdrouter-transfer.py)**           | Transfer remote CDRouter database to local system (erases original database!)
 | **[cdrouter-data-merge.py](cdrouter-data-merge.py)**       | Copy and merge remote data and results with local data (preserves original data)
 | **[config_search.py](config_search.py)**                   | Search config files for a specific testvar
+| **[custom_files.py](custom_files.py)**                     | Upload and manage files
