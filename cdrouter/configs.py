@@ -462,24 +462,28 @@ class ConfigsService(object):
         schema = self.GET_SCHEMA
         return self.service.bulk_copy(self.base, self.RESOURCE, ids, schema)
 
-    def bulk_edit(self, _fields, ids=None, filter=None, type=None, all=False, testvars=None): # pylint: disable=redefined-builtin
+    def bulk_edit(self, _fields=None, ids=None, filter=None, type=None, all=False, testvars=None, add_tags=None, remove_tags=None): # pylint: disable=redefined-builtin
         """Bulk edit a set of configs.
 
-        :param _fields: :class:`configs.Config <configs.Config>` object
+        :param _fields: (optional) :class:`configs.Config <configs.Config>` object
         :param ids: (optional) Int list of config IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
         :param testvars: (optional) :class:`configs.ConfigTestvars <configs.ConfigTestvars>` list
+        :param add_tags: (optional) String list of tags to add to each config.
+        :param remove_tags: (optional) String list of tags to remove from each config.
         """
         schema = self.EDIT_SCHEMA
-        _fields = self.service.encode(schema, _fields, skip_none=True)
+        if _fields is not None:
+            _fields = self.service.encode(schema, _fields, skip_none=True)
         if testvars is not None:
             schema = TestvarSchema()
             testvars = self.service.encode(schema, testvars, many=True)
 
         return self.service.bulk_edit(self.base, self.RESOURCE,
-                                      _fields, ids=ids, filter=filter, type=type, all=all, testvars=testvars)
+                                      _fields, ids=ids, filter=filter, type=type, all=all, testvars=testvars,
+                                      add_tags=add_tags, remove_tags=remove_tags)
 
     def bulk_upgrade(self, ids=None, filter=None, type=None, all=False, migrate=None): # pylint: disable=redefined-builtin
         """Bulk upgrade a set of configs.

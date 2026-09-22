@@ -433,6 +433,24 @@ class TestPackages:
         for p in packages:
             assert c.packages.get(p.id).testlist == new
 
+    def test_bulk_edit_tags(self, c):
+        packages = []
+        for ii in range(1, 4):
+            p = c.packages.create(Package(name='My package {}'.format(ii), testlist=['cdrouter_basic_1'], tags=['foo']))
+            packages.append(p)
+        ids = [p.id for p in packages]
+
+        c.packages.bulk_edit(ids=ids, add_tags=['bar', 'buz'])
+        for p in packages:
+            assert sorted(c.packages.get(p.id).tags) == ['bar', 'buz', 'foo']
+
+        c.packages.bulk_edit(ids=ids, add_tags=['qux'], remove_tags=['foo', 'buz'])
+        for p in packages:
+            assert sorted(c.packages.get(p.id).tags) == ['bar', 'qux']
+
+        with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
+            c.packages.bulk_edit(Package(tags=['foo']), ids=ids, add_tags=['bar'])
+
     def test_bulk_delete(self, c):
         p = Package(
             name='My package',

@@ -456,6 +456,24 @@ class TestDevices:
         for d in devices:
             assert c.devices.get(d.id).mgmt_url == new
 
+    def test_bulk_edit_tags(self, c):
+        devices = []
+        for ii in range(1, 4):
+            d = c.devices.create(Device(name='My device {}'.format(ii), tags=['foo']))
+            devices.append(d)
+        ids = [d.id for d in devices]
+
+        c.devices.bulk_edit(ids=ids, add_tags=['bar', 'buz'])
+        for d in devices:
+            assert sorted(c.devices.get(d.id).tags) == ['bar', 'buz', 'foo']
+
+        c.devices.bulk_edit(ids=ids, add_tags=['qux'], remove_tags=['foo', 'buz'])
+        for d in devices:
+            assert sorted(c.devices.get(d.id).tags) == ['bar', 'qux']
+
+        with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
+            c.devices.bulk_edit(Device(tags=['foo']), ids=ids, add_tags=['bar'])
+
     def test_bulk_delete(self, c):
         d = Device(
             name='My device',

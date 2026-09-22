@@ -538,6 +538,24 @@ buddy::start_proc my_start_proc
         r = c.results.get(20220821222306)
         assert r.starred is True
 
+    def test_bulk_edit_tags(self, c):
+        import_all_from_file(c, 'tests/testdata/example.gz')
+
+        results = [c.results.get(20220821222306)]
+        ids = [r.id for r in results]
+        c.results.bulk_edit(Result(tags=['foo']), ids=ids)
+
+        c.results.bulk_edit(ids=ids, add_tags=['bar', 'buz'])
+        for r in results:
+            assert sorted(c.results.get(r.id).tags) == ['bar', 'buz', 'foo']
+
+        c.results.bulk_edit(ids=ids, add_tags=['qux'], remove_tags=['foo', 'buz'])
+        for r in results:
+            assert sorted(c.results.get(r.id).tags) == ['bar', 'qux']
+
+        with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
+            c.results.bulk_edit(Result(tags=['foo']), ids=ids, add_tags=['bar'])
+
     def test_bulk_delete(self, c):
         import_all_from_file(c, 'tests/testdata/example.gz')
 
