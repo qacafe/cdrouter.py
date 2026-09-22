@@ -553,6 +553,10 @@ buddy::start_proc my_start_proc
         for r in results:
             assert sorted(c.results.get(r.id).tags) == ['bar', 'qux']
 
+        c.results.bulk_edit(ids=ids, add_tags=['qux', 'bar', 'bar'])
+        for r in results:
+            assert c.results.get(r.id).tags == ['bar', 'qux']
+
         with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
             c.results.bulk_edit(Result(tags=['foo']), ids=ids, add_tags=['bar'])
 

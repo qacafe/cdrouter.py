@@ -493,6 +493,10 @@ class TestConfigs:
         for cfg in configs:
             assert sorted(c.configs.get(cfg.id).tags) == ['bar', 'qux']
 
+        c.configs.bulk_edit(ids=ids, add_tags=['qux', 'bar', 'bar'])
+        for cfg in configs:
+            assert c.configs.get(cfg.id).tags == ['bar', 'qux']
+
         with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
             c.configs.bulk_edit(Config(tags=['foo']), ids=ids, add_tags=['bar'])
 
