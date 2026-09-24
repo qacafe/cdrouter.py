@@ -475,6 +475,11 @@ class TestDevices:
         for d in devices:
             assert c.devices.get(d.id).tags == ['bar', 'qux']
 
+        # remove takes precedence over add
+        c.devices.bulk_edit(ids=ids, add_tags=['zap', 'qux'], remove_tags=['zap', 'qux'])
+        for d in devices:
+            assert c.devices.get(d.id).tags == ['bar']
+
         with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
             c.devices.bulk_edit(Device(tags=['foo']), ids=ids, add_tags=['bar'])
 

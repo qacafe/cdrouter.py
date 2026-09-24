@@ -452,6 +452,11 @@ class TestPackages:
         for p in packages:
             assert c.packages.get(p.id).tags == ['bar', 'qux']
 
+        # remove takes precedence over add
+        c.packages.bulk_edit(ids=ids, add_tags=['zap', 'qux'], remove_tags=['zap', 'qux'])
+        for p in packages:
+            assert c.packages.get(p.id).tags == ['bar']
+
         with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
             c.packages.bulk_edit(Package(tags=['foo']), ids=ids, add_tags=['bar'])
 

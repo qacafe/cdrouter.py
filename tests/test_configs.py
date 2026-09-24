@@ -497,6 +497,11 @@ class TestConfigs:
         for cfg in configs:
             assert c.configs.get(cfg.id).tags == ['bar', 'qux']
 
+        # remove takes precedence over add
+        c.configs.bulk_edit(ids=ids, add_tags=['zap', 'qux'], remove_tags=['zap', 'qux'])
+        for cfg in configs:
+            assert c.configs.get(cfg.id).tags == ['bar']
+
         with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
             c.configs.bulk_edit(Config(tags=['foo']), ids=ids, add_tags=['bar'])
 
