@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2024 by QA Cafe.
+# Copyright (c) 2017-2026 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -73,6 +73,10 @@ class Line(object):
     :param alert_sid: (optional) Log alert SID as int (if alert log).
     :param alert_rev: (optional) Log alert revision as int (if alert log).
 
+    :param fold: (optional) Fold ID as int, shared by every line of a folded message (if folded message).
+    :param fold_header: (optional) `True` if line is the summary line of a folded message.
+    :param fold_summary: (optional) Fold summary as string (if fold header).
+
     :param summary: (optional) :class:`testresults.Summary <testresults.Summary>` object (if section log)
     """
     def __init__(self, **kwargs):
@@ -109,6 +113,10 @@ class Line(object):
         self.alert_sid = kwargs.get('alert_sid', None)
         self.alert_rev = kwargs.get('alert_rev', None)
 
+        self.fold = kwargs.get('fold', None)
+        self.fold_header = kwargs.get('fold_header', None)
+        self.fold_summary = kwargs.get('fold_summary', None)
+
         self.summary = kwargs.get('summary', None)
 
 class LineSchema(Schema):
@@ -144,6 +152,11 @@ class LineSchema(Schema):
     alert_severity_display = fields.Str(load_default=None)
     alert_sid = fields.Int(as_string=True, load_default=None)
     alert_rev = fields.Int(as_string=True, load_default=None)
+
+    # unlike the fields above, the API sends fold as a bare JSON number
+    fold = fields.Int(load_default=None)
+    fold_header = fields.Bool(load_default=None)
+    fold_summary = fields.Str(load_default=None)
 
     summary = fields.Nested(SummarySchema, unknown=EXCLUDE)
 

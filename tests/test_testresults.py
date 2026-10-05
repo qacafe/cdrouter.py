@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022-2023 by QA Cafe.
+# Copyright (c) 2022-2026 by QA Cafe.
 # All Rights Reserved.
 #
 
@@ -256,3 +256,79 @@ class TestTestResults:
 
         with pytest.raises(CDRouterError):
             c.tests.get_test_metric_csv(r.id, 2, 'invalid')
+
+
+    def test_list_log_folds(self, c):
+        import_all_from_file(c, 'tests/testdata/example7.gz')
+
+        # a USP over MQTT result; every protocol message in it is folded
+        log = c.tests.list_log(20261005085740, 43)
+
+        headers = [l for l in log.lines if l.fold_header]
+        assert len(headers) == 16
+
+        for l in headers:
+            assert l.prefix == 'FOLD'
+            # the id is the header's line number, not a per-request counter,
+            # so it is stable however the log was paged in
+            assert l.fold == l.line
+            # a bare JSON number, unlike packet and the alert_* ints
+            assert isinstance(l.fold, int)
+            assert l.fold_summary != ''
+
+        # the summary is carried through untouched
+        by_line = {l.line: l for l in log.lines}
+        assert by_line[26].fold_summary == 'Outgoing USP ADD on Device.LocalAgent.Subscription.'
+
+        # body lines share the header's id and carry neither header field
+        for line in range(27, 89):
+            assert by_line[line].fold == 26
+            assert by_line[line].fold_header is None
+            assert by_line[line].fold_summary is None
+
+        # all three are omitted for a line outside any fold, which the schema
+        # loads as None rather than 0, False or ''
+        assert by_line[1].fold is None
+        assert by_line[1].fold_header is None
+        assert by_line[1].fold_summary is None
+
+    def test_list_log_folds_cwmp(self, c):
+        import_all_from_file(c, 'tests/testdata/example7.gz')
+
+        # the same contract over TR-069, whose folded bodies are SOAP
+        log = c.tests.list_log(20260923012933, 3)
+
+        headers = [l for l in log.lines if l.fold_header]
+        assert len(headers) == 52
+
+        for l in headers:
+            assert l.prefix == 'FOLD'
+            assert l.fold == l.line
+            assert l.fold_summary != ''
+
+        by_line = {l.line: l for l in log.lines}
+        assert by_line[738].fold_summary == 'Outgoing TR-069 AddObject on Device.NAT.PortMapping.'
+
+        # a body ends at the next prefixed line, which here is an ordinary log
+        # line well before the next folded message
+        for line in range(739, 759):
+            assert by_line[line].fold == 738
+        assert by_line[759].fold is None
+        assert by_line[764].fold == 764
+        assert by_line[764].fold_header is True
+
+    def test_list_log_fold_filter(self, c):
+        import_all_from_file(c, 'tests/testdata/example7.gz')
+
+        log = c.tests.list_log(20261005085740, 43, filter=[field('fold_header').eq(True)])
+        assert log.total == 16
+        assert len(log.lines) == 16
+
+        for l in log.lines:
+            assert l.fold_header is True
+            assert l.fold == l.line
+
+        log = c.tests.list_log(20261005085740, 43,
+                               filter=[field('fold_summary').match('SET_RESP')])
+        assert log.total == 1
+        assert log.lines[0].line == 294
