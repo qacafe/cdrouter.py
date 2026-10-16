@@ -377,13 +377,18 @@ class CDRouter(object):
                          json={resource: [{'id': str(x)} for x in ids]})
         return self.decode(schema, resp, many=True)
 
-    def bulk_edit(self, base, resource, fields, ids=None, filter=None, type=None, all=False, testvars=None): # pylint: disable=redefined-builtin,redefined-outer-name
-        json = {'fields': fields}
-        if ids is not None or testvars is not None:
-            if ids is not None:
-                json[resource] = [{'id': str(x)} for x in ids]
-            if testvars is not None:
-                json['testvars'] = testvars
+    def bulk_edit(self, base, resource, fields=None, ids=None, filter=None, type=None, all=False, testvars=None, add_tags=None, remove_tags=None): # pylint: disable=redefined-builtin,redefined-outer-name
+        json = {}
+        if fields is not None:
+            json['fields'] = fields
+        if ids is not None:
+            json[resource] = [{'id': str(x)} for x in ids]
+        if testvars is not None:
+            json['testvars'] = testvars
+        if add_tags is not None:
+            json['add'] = {'tags': add_tags}
+        if remove_tags is not None:
+            json['remove'] = {'tags': remove_tags}
 
         return self.post(base, params={'bulk': 'edit', 'filter': filter, 'type': type, 'all': all}, json=json)
 

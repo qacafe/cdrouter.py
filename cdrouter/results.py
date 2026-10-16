@@ -828,18 +828,22 @@ class ResultsService(object):
         """
         return self.service.bulk_export(self.base, ids, params={'exclude_captures': exclude_captures})
 
-    def bulk_edit(self, _fields, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
+    def bulk_edit(self, _fields=None, ids=None, filter=None, type=None, all=False, add_tags=None, remove_tags=None): # pylint: disable=redefined-builtin
         """Bulk edit a set of results.
 
-        :param _fields: :class:`results.Result <results.Result>` object
+        :param _fields: (optional) :class:`results.Result <results.Result>` object
         :param ids: (optional) Int list of result IDs.
         :param filter: (optional) String list of filters.
         :param type: (optional) `union` or `inter` as string.
         :param all: (optional) Apply to all if bool `True`.
+        :param add_tags: (optional) String list of tags to add to each result.
+        :param remove_tags: (optional) String list of tags to remove from each result.
         """
         schema = ResultSchema(exclude=('id', 'created', 'updated', 'result', 'active', 'status', 'loops', 'tests', 'passed', 'fail', 'duration', 'size_on_disk', 'result_dir', 'agent_name', 'package_name', 'config_name', 'package_id', 'config_id', 'pause_message', 'build_info', 'options', 'features', 'interfaces'))
-        _fields = self.service.encode(schema, _fields, skip_none=True)
-        return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, type=type, all=all)
+        if _fields is not None:
+            _fields = self.service.encode(schema, _fields, skip_none=True)
+        return self.service.bulk_edit(self.base, self.RESOURCE, _fields, ids=ids, filter=filter, type=type, all=all,
+                                      add_tags=add_tags, remove_tags=remove_tags)
 
     def bulk_delete(self, ids=None, filter=None, type=None, all=False): # pylint: disable=redefined-builtin
         """Bulk delete a set of results.

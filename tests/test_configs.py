@@ -478,6 +478,33 @@ class TestConfigs:
             cfg = c.configs.get(ii)
             assert 'SECTION' in cfg.contents
 
+    def test_bulk_edit_tags(self, c):
+        configs = []
+        for ii in range(1, 4):
+            cfg = c.configs.create(Config(name='My config {}'.format(ii), contents='testvar lanIp 1.1.1.1', tags=['foo']))
+            configs.append(cfg)
+        ids = [cfg.id for cfg in configs]
+
+        c.configs.bulk_edit(ids=ids, add_tags=['bar', 'buz'])
+        for cfg in configs:
+            assert sorted(c.configs.get(cfg.id).tags) == ['bar', 'buz', 'foo']
+
+        c.configs.bulk_edit(ids=ids, add_tags=['qux'], remove_tags=['foo', 'buz'])
+        for cfg in configs:
+            assert sorted(c.configs.get(cfg.id).tags) == ['bar', 'qux']
+
+        c.configs.bulk_edit(ids=ids, add_tags=['qux', 'bar', 'bar'])
+        for cfg in configs:
+            assert c.configs.get(cfg.id).tags == ['bar', 'qux']
+
+        # remove takes precedence over add
+        c.configs.bulk_edit(ids=ids, add_tags=['zap', 'qux'], remove_tags=['zap', 'qux'])
+        for cfg in configs:
+            assert c.configs.get(cfg.id).tags == ['bar']
+
+        with pytest.raises(CDRouterError, match='cannot combine fields.tags with add or remove'):
+            c.configs.bulk_edit(Config(tags=['foo']), ids=ids, add_tags=['bar'])
+
     def test_bulk_delete(self, c):
         cfg = Config(
             name='My config',
