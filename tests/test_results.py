@@ -155,7 +155,9 @@ proc my_start_proc {} {
         Event_wait_seconds 999
         start_cdrouter_testsuite
 }
-buddy::start_proc my_start_proc
+buddy::start_proc my_start_proc "Delayed start" {
+    Wait 999 sec and then do Start
+}
 '''
         c.configs.edit(cfg)
 
@@ -180,7 +182,9 @@ proc my_start_proc {} {
         Event_wait_seconds 999
         start_cdrouter_testsuite
 }
-buddy::start_proc my_start_proc
+buddy::start_proc my_start_proc "Delayed start" {
+    Wait 999 sec and then do Start
+}
 '''
         c.configs.edit(cfg)
 
@@ -205,7 +209,9 @@ proc my_start_proc {} {
         Event_wait_seconds 999
         start_cdrouter_testsuite
 }
-buddy::start_proc my_start_proc
+buddy::start_proc my_start_proc "Delayed start" {
+    Wait 999 sec and then do Start
+}
 '''
         c.configs.edit(cfg)
 
@@ -230,7 +236,9 @@ proc my_start_proc {} {
         Event_wait_seconds 999
         start_cdrouter_testsuite
 }
-buddy::start_proc my_start_proc
+buddy::start_proc my_start_proc "Delayed start" {
+    Wait 999 sec and then do Start
+}
 '''
         c.configs.edit(cfg)
 
@@ -255,7 +263,9 @@ proc my_start_proc {} {
         Event_wait_seconds 999
         start_cdrouter_testsuite
 }
-buddy::start_proc my_start_proc
+buddy::start_proc my_start_proc "Delayed start" {
+    Wait 999 sec and then do Start
+}
 '''
         c.configs.edit(cfg)
 
@@ -280,7 +290,9 @@ proc my_start_proc {} {
         Event_wait_seconds 999
         start_cdrouter_testsuite
 }
-buddy::start_proc my_start_proc
+buddy::start_proc my_start_proc "Delayed start" {
+    Wait 999 sec and then do Start
+}
 '''
         c.configs.edit(cfg)
 
@@ -305,7 +317,9 @@ proc my_start_proc {} {
         Event_wait_seconds 999
         start_cdrouter_testsuite
 }
-buddy::start_proc my_start_proc
+buddy::start_proc my_start_proc "Delayed start" {
+    Wait 999 sec and then do Start
+}
 '''
         c.configs.edit(cfg)
 
