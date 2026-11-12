@@ -298,7 +298,7 @@ class CDRouter(object):
         return self._req(path, method='DELETE', params=params)
 
     # cdrouter-specific request methods
-    def list(self, base, filter=None, type=None, sort=None, limit=None, page=None, format=None, detailed=None): # pylint: disable=redefined-builtin
+    def list(self, base, filter=None, type=None, sort=None, limit=None, page=None, format=None, detailed=None, search=None): # pylint: disable=redefined-builtin
         if sort is not None:
             if not isinstance(sort, list):
                 sort = [sort]
@@ -306,7 +306,7 @@ class CDRouter(object):
         if detailed is not None:
             detailed = bool(detailed)
         return self.get(base, params={'filter': filter, 'type': type, 'sort': sort, 'limit': limit,
-                                      'page': page, 'format': format, 'detailed': detailed})
+                                      'page': page, 'format': format, 'detailed': detailed, 'search': search})
 
     def iter_list(self, list_fn, *args, **kwargs):
         while True:

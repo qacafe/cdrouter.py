@@ -501,19 +501,20 @@ class TestsuitesService(object):
         resp = self.service.get(self.base+'modules/'+name+'/')
         return self.service.decode(schema, resp)
 
-    def list_tests(self, filter=None, type=None, sort=None, detailed=None): # pylint: disable=redefined-builtin
+    def list_tests(self, filter=None, type=None, sort=None, detailed=None, search=None): # pylint: disable=redefined-builtin
         """Get a list of tests.
 
         :param filter: (optional) Filters to apply as a string list.
         :param type: (optional) `union` or `inter` as string.
         :param sort: (optional) Sort fields to apply as string list.
         :param detailed: (optional) Return all fields if Bool `True`.
+        :param search: (optional) Only list tests matching every word of this string, as whole words in the test or its module's name, synopsis or description.
         :return: :class:`testsuites.Test <testsuites.Test>` list
         """
         schema = TestSchema(exclude=('skip_name', 'skip_reason'))
         if not detailed:
             schema = TestSchema(exclude=('description', 'labels', 'testvars', 'skip_name', 'skip_reason'))
-        resp = self.service.list(self.base+'tests/', filter, type, sort, detailed=detailed)
+        resp = self.service.list(self.base+'tests/', filter, type, sort, detailed=detailed, search=search)
         return self.service.decode(schema, resp, many=True)
 
     def get_test(self, name):
