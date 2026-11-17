@@ -114,6 +114,19 @@ class TestTestsuites:
         names2.reverse()
         assert names == names2
 
+    def test_list_tests_search(self, c):
+        names = [x.name for x in c.testsuites.list_tests(search='arp lan')]
+        assert 'cdrouter_basic_1' in names
+        assert len(names) < len(c.testsuites.list_tests())
+
+        # words are matched whole, in any order
+        assert [x.name for x in c.testsuites.list_tests(search='lan arp')] == names
+        assert c.testsuites.list_tests(search='asdfasdfasdfaasflkjhasdflkjasdflk') == []
+
+        # combines with other parameters
+        filtered = c.testsuites.list_tests(search='arp lan', filter='name=cdrouter_basic_1')
+        assert [x.name for x in filtered] == ['cdrouter_basic_1']
+
     def test_get_test(self, c):
         test = c.testsuites.get_test('cdrouter_basic_1')
         assert test.id > 0
